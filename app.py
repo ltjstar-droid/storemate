@@ -117,12 +117,12 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [글자 묻힘 방지 모바일 완벽 고정 CSS 인테리어]
+# 🎨 [모바일 입력창 검정색 묻힘 방지 완벽 고정 CSS]
 # ==========================================
 st.markdown("""
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <style>
-    /* 기본 글자색 및 폰트 강제 고정 (모바일 다크모드 글자 증발 방지) */
+    /* 기본 전역 스타일 및 다크모드 반전 방지 */
     html, body, [class*="css"], .stMarkdown, .stText, p, span, label, input, button, a {
         font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
         letter-spacing: -0.02em;
@@ -130,36 +130,42 @@ st.markdown("""
     }
     .stApp { background-color: #F8FAFC !important; }
     
-    /* 입력창(텍스트박스) 글자색 및 배경 확실하게 고정 */
-    input, textarea, select {
+    /* 🚨 로그인창 및 모든 입력창(텍스트박스, 드롭다운) 배경을 무조건 흰색, 글자를 검정색으로 강제 고정 */
+    input, textarea, select, div[data-baseweb="select"] > div {
         color: #0F172A !important;
         background-color: #FFFFFF !important;
+        border-color: #CBD5E1 !important;
+    }
+    
+    /* 포커스 되었을 때 테두리 색상 */
+    input:focus, textarea:focus {
+        border-color: #2563EB !important;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
     }
 
     .hero-container {
         background: linear-gradient(135deg, #0A0F1D 0%, #1E293B 50%, #0F172A 100%);
-        padding: 24px 20px;
-        border-radius: 20px;
+        padding: 20px 16px;
+        border-radius: 16px;
         color: #FFFFFF !important;
-        margin-bottom: 20px;
-        box-shadow: 0 15px 20px -5px rgba(15, 23, 42, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 16px;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
     }
     .hero-container * { color: #FFFFFF !important; }
-    .hero-title { font-size: 1.6rem; font-weight: 800; margin: 0 0 6px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-    .hero-badge { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #FFFFFF !important; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 30px; }
-    .hero-sub { font-size: 0.95rem; color: #94A3B8 !important; margin: 0; font-weight: 400; line-height: 1.4; }
+    .hero-title { font-size: 1.4rem; font-weight: 800; margin: 0 0 4px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .hero-badge { background: #2563EB; color: #FFFFFF !important; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .hero-sub { font-size: 0.88rem; color: #94A3B8 !important; margin: 0; font-weight: 400; line-height: 1.4; }
 
     .guide-box {
         background: #EFF6FF !important;
         border: 1px solid #BFDBFE;
-        border-left: 5px solid #2563EB;
-        padding: 14px 16px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        font-size: 0.98rem;
+        border-left: 4px solid #2563EB;
+        padding: 12px 14px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        font-size: 0.92rem;
         color: #1E40AF !important;
-        line-height: 1.5;
+        line-height: 1.4;
         font-weight: 500;
     }
     .guide-box * { color: #1E40AF !important; }
@@ -167,10 +173,10 @@ st.markdown("""
     .pro-lock-box {
         background: #FFF5F5 !important;
         border: 1px solid #FED7D7;
-        border-left: 5px solid #E53E3E;
-        padding: 20px;
-        border-radius: 14px;
-        margin-bottom: 20px;
+        border-left: 4px solid #E53E3E;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
         color: #9B2C2C !important;
     }
     .pro-lock-box * { color: #9B2C2C !important; }
@@ -178,45 +184,45 @@ st.markdown("""
     .azit-card {
         background: #FFFFFF !important;
         border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 18px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
     .azit-card * { color: #0F172A !important; }
 
-    /* 탭 메뉴 가독성 최적화 */
+    /* 탭 메뉴 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 4px;
         background-color: #E2E8F0 !important;
-        padding: 8px;
-        border-radius: 12px;
+        padding: 6px;
+        border-radius: 10px;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 40px;
-        border-radius: 8px;
-        font-size: 0.85rem !important;
+        height: 38px;
+        border-radius: 6px;
+        font-size: 0.8rem !important;
         font-weight: 700 !important;
         color: #475569 !important;
         background-color: transparent !important;
         border: none !important;
-        padding: 0 10px;
+        padding: 0 8px;
         flex-grow: 1;
     }
     .stTabs [aria-selected="true"] {
         background-color: #FFFFFF !important;
         color: #0F172A !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
     }
 
-    /* 버튼 스타일 */
+    /* 일반 버튼 */
     .stButton>button {
-        height: 3.2rem !important;
-        font-size: 1.05rem !important;
+        height: 3rem !important;
+        font-size: 1rem !important;
         font-weight: 700 !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
         color: #FFFFFF !important;
         border: none !important;
@@ -253,13 +259,13 @@ if "logged_in_user" not in st.session_state:
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""
-    <div style="max-width: 440px; margin: 40px auto; background: #FFFFFF; padding: 28px; border-radius: 20px; box-shadow: 0 15px 25px rgba(0,0,0,0.06); text-align: center;">
-        <h2 style="color: #0F172A; font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">🏬 매장비서 AI</h2>
-        <p style="color: #64748B; font-size: 0.92rem; margin-bottom: 16px;">용인친구들 공식 상생아지트 솔루션</p>
+    <div style="max-width: 420px; margin: 30px auto; background: #FFFFFF; padding: 24px; border-radius: 18px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center;">
+        <h2 style="color: #0F172A; font-size: 1.5rem; font-weight: 800; margin-bottom: 4px;">🏬 매장비서 AI</h2>
+        <p style="color: #64748B; font-size: 0.88rem; margin-bottom: 14px;">용인친구들 공식 상생아지트 솔루션</p>
     </div>
     """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([0.05, 0.9, 0.05])
+    col1, col2, col3 = st.columns([0.02, 0.96, 0.02])
     with col2:
         auth_tab1, auth_tab2 = st.tabs(["🔑 로그인", "✍️ 회원가입"])
         
@@ -357,7 +363,7 @@ with st.sidebar:
             status_lbl = "👑 PRO" if u_is_pro else "⭐ 무료"
             
             st.markdown(f"""
-            <div style="background:#F1F5F9; border-radius:10px; padding:8px; margin-bottom:6px; font-size:0.85rem; color:#0F172A;">
+            <div style="background:#F1F5F9; border-radius:8px; padding:6px; margin-bottom:4px; font-size:0.8rem; color:#0F172A;">
                 <b>{ustore}</b> ({status_lbl})<br>
                 아이디: <code>{uid}</code>
             </div>
@@ -401,14 +407,14 @@ with st.sidebar:
 
 st.markdown(f"""
 <div class="hero-container">
-    <div class="hero-title">🏬 매장비서 AI <span class="hero-badge">{'👑 PRO 유료 버전' if is_pro_user else '⭐ 무료 버전'}</span></div>
-    <div class="hero-sub">용인친구들 소상공인을 위한 프리미엄 가요 런처, 상생아지트 지도, 공구 관리 솔루션</div>
+    <div class="hero-title">🏬 매장비서 AI <span class="hero-badge">{'👑 PRO' if is_pro_user else '⭐ 무료'}</span></div>
+    <div class="hero-sub">용인친구들 소상공인을 위한 프리미엄 솔루션</div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:0.92rem; color:#0F172A;">
-    📍 <b>{store_name}</b> &nbsp;|&nbsp; <b>{'👑 PRO 회원' if is_pro_user else ('⏳ 승인 대기중' if pro_status == '대기중' else '⭐ 무료 체험')}</b>
+<div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.88rem; color:#0F172A;">
+    📍 <b>{store_name}</b> &nbsp;|&nbsp; <b>{'👑 PRO 회원' if is_pro_user else ('⏳ 대기중' if pro_status == '대기중' else '⭐ 무료 체험')}</b>
 </div>
 """, unsafe_allow_html=True)
 
@@ -439,17 +445,17 @@ def generate_safe_content(prompt):
             return None
 
 tab_titles = [
-    "🎧 가요 검색",
-    "🤝 상생아지트",
-    "🛒 로컬 공구",
-    "📍 [PRO] 네이버블로그",
-    "🥕 [PRO] 당근소식",
-    "📸 [PRO] 인스타피드",
-    "💬 [PRO] 단골문자",
-    "💰 알바급여",
-    "📑 지원금서류",
-    "🏛️ 절세비서",
-    "🌙 장사마감"
+    "🎧 가요",
+    "🤝 아지트",
+    "🛒 공구",
+    "📍 블로그",
+    "🥕 당근",
+    "📸 인스타",
+    "💬 문자",
+    "💰 급여",
+    "📑 서류",
+    "🏛️ 절세",
+    "🌙 마감"
 ]
 tabs = st.tabs(tab_titles)
 
@@ -505,7 +511,7 @@ with tabs[0]:
 
     with col_m2:
         st.markdown("<br>", unsafe_allow_html=True)
-        st.link_button("🔎 유튜브에서 검색하여 고르기", youtube_search_url, use_container_width=True)
+        st.link_button("🔎 유튜브에서 검색하기", youtube_search_url, use_container_width=True)
 
 # ==========================================
 # 1. 🤝 [무료] 상생아지트 & 네이버 지도
@@ -528,7 +534,7 @@ with tabs[1]:
         <p>📍 {my_saved_addr}</p>
         <p>🎁 <b>용친 회원 혜택:</b> {my_perk}</p>
         <a href="{naver_map_address_only_url}" target="_blank">
-            <button style="width:100%; height:42px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+            <button style="width:100%; height:40px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                 🟢 네이버 지도로 주소 찾기
             </button>
         </a>
@@ -571,8 +577,8 @@ with tabs[2]:
             st.markdown(f"""
             <div class="azit-card">
                 <span style="background:#EF4444; color:#fff; font-size:0.7rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday_txt}</span>
-                <h4 style="margin:8px 0; color:#0F172A; font-size:1.1rem;">{deal['title']}</h4>
-                <p style="color:#2563EB; font-weight:700; font-size:0.95rem; margin-bottom:6px;">{deal['price']}</p>
+                <h4 style="margin:8px 0; color:#0F172A; font-size:1.05rem;">{deal['title']}</h4>
+                <p style="color:#2563EB; font-weight:700; font-size:0.92rem; margin-bottom:6px;">{deal['price']}</p>
                 <p style="font-size:0.85rem; color:#475569;">👥 신청: <b>{total_people}명</b> 참여 / 누적 <b>{total_qty}개</b></p>
             </div>
             """, unsafe_allow_html=True)
@@ -636,13 +642,13 @@ with tabs[2]:
                 st.warning("상품명과 가격을 입력해 주세요.")
 
 # ==========================================
-# 3. 📍 [👑 PRO] 네이버 플레이스 & 블로그
+# 3. 📍 [👑 PRO] 네이버 블로그
 # ==========================================
 with tabs[3]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-box">
-            <h3>🔒 [PRO 전용 기능] 네이버 플레이스 & 블로그 원고</h3>
+            <h3>🔒 [PRO 전용] 네이버 플레이스 & 블로그 원고</h3>
             <p>사이드바에서 PRO 승인을 요청해 주세요.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -658,13 +664,13 @@ with tabs[3]:
                     st.code(out, language="markdown")
 
 # ==========================================
-# 4. 🥕 [👑 PRO] 당근 & 동네 소식
+# 4. 🥕 [👑 PRO] 당근 소식
 # ==========================================
 with tabs[4]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-box">
-            <h3>🔒 [PRO 전용 기능] 당근마켓 및 동네 소식 글쓰기</h3>
+            <h3>🔒 [PRO 전용] 당근마켓 동네 소식 글쓰기</h3>
             <p>PRO 회원만 이용 가능합니다.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -679,13 +685,13 @@ with tabs[4]:
                     st.code(out, language="markdown")
 
 # ==========================================
-# 5. 📸 [👑 PRO] 인스타그램 피드
+# 5. 📸 [👑 PRO] 인스타 피드
 # ==========================================
 with tabs[5]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-box">
-            <h3>🔒 [PRO 전용 기능] 인스타그램 감성 피드</h3>
+            <h3>🔒 [PRO 전용] 인스타그램 감성 피드</h3>
             <p>PRO 회원만 이용 가능합니다.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -700,13 +706,13 @@ with tabs[5]:
                     st.code(out, language="markdown")
 
 # ==========================================
-# 6. 💬 [👑 PRO] 단골 문자 & 카톡
+# 6. 💬 [👑 PRO] 단골 문자
 # ==========================================
 with tabs[6]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-box">
-            <h3>🔒 [PRO 전용 기능] 단골 고객 문자 & 카톡 비서</h3>
+            <h3>🔒 [PRO 전용] 단골 고객 문자 & 카톡 비서</h3>
             <p>PRO 회원만 이용 가능합니다.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -740,7 +746,7 @@ with tabs[7]:
         st.success(f"세전: {int(total):,}원 | 공제: {int(deduct):,}원 | 💳 실수령액: {int(net):,}원")
 
 # ==========================================
-# 8. 📑 [무료] 지원금 서류 1분 발급기
+# 8. 📑 [무료] 지원금 서류
 # ==========================================
 with tabs[8]:
     st.markdown("### 📑 지원금 필수 서류 발급처 안내")
@@ -755,7 +761,7 @@ with tabs[8]:
     st.info(f"🌐 발급처: **{site}**\n\n📌 방법: {step}")
 
 # ==========================================
-# 9. 🏛️ 지원금 & 절세 비서
+# 9. 🏛️ 절세 비서
 # ==========================================
 with tabs[9]:
     st.markdown("### 🏛️ 국비 지원금 & 절세 가이드")
@@ -771,7 +777,7 @@ with tabs[9]:
             st.markdown(out)
 
 # ==========================================
-# 10. 🌙 오늘 장사 마감 & 처방
+# 10. 🌙 장사 마감
 # ==========================================
 with tabs[10]:
     st.markdown("### 🌙 장사 마감 리포트 & 내일 처방")

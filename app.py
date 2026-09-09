@@ -108,6 +108,7 @@ def save_deals(data):
     except Exception:
         pass
 
+# 페이지 기본 설정
 st.set_page_config(
     page_title="매장비서 AI | 올인원 로컬 솔루션",
     page_icon="🏬",
@@ -116,7 +117,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [모바일 다크모드 차단 및 2열 반응형 CSS]
+# 🎨 [디자인 & 1열 탭 CSS]
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -130,7 +131,7 @@ st.markdown("""
     }
     .stApp { background-color: #F8FAFC !important; }
     
-    /* 모바일 인앱 브라우저 인풋 반전 차단 */
+    /* 인앱 다크모드 방지 */
     input, textarea, select, 
     div[data-baseweb="select"] > div, 
     div[data-baseweb="base-input"] > input,
@@ -140,23 +141,13 @@ st.markdown("""
         background: #FFFFFF !important;
         -webkit-text-fill-color: #0F172A !important;
     }
-    
-    div[data-baseweb="popover"], ul[data-baseweb="menu"], div[role="listbox"] {
-        background-color: #FFFFFF !important;
-        color: #0F172A !important;
-    }
-    div[data-baseweb="popover"] *, ul[data-baseweb="menu"] * {
-        color: #0F172A !important;
-        background-color: #FFFFFF !important;
-        -webkit-text-fill-color: #0F172A !important;
-    }
 
     .hero-container {
         background: linear-gradient(135deg, #0A0F1D 0%, #1E293B 50%, #0F172A 100%);
         padding: 22px 20px;
         border-radius: 16px;
         color: #FFFFFF !important;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
     }
     .hero-container * { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
@@ -164,34 +155,34 @@ st.markdown("""
     .hero-badge { background: #2563EB; color: #FFFFFF !important; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
     .hero-sub { font-size: 0.88rem; color: #94A3B8 !important; margin: 0; font-weight: 400; }
 
-    /* 상단 상시고정 SNS 바로가기 바 */
-    .sns-bar-container {
+    /* 상단 고정 SNS 링크 바 */
+    .sns-fixed-bar {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
-        padding: 10px 14px;
+        padding: 10px 16px;
         margin-bottom: 16px;
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
         gap: 10px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
-    .sns-btn-fb {
+    .sns-fb-link {
         background: #1877F2;
         color: #FFFFFF !important;
-        padding: 8px 14px;
+        padding: 8px 16px;
         border-radius: 8px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         text-decoration: none;
-        box-shadow: 0 2px 6px rgba(24, 119, 242, 0.25);
+        box-shadow: 0 3px 8px rgba(24, 119, 242, 0.25);
     }
-    .sns-btn-fb * { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+    .sns-fb-link * { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
 
     .guide-box {
         background: #EFF6FF !important;
@@ -207,6 +198,17 @@ st.markdown("""
     }
     .guide-box * { color: #1E40AF !important; }
 
+    .pro-lock-box {
+        background: #FFF5F5 !important;
+        border: 1px solid #FED7D7;
+        border-left: 4px solid #E53E3E;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        color: #9B2C2C !important;
+    }
+    .pro-lock-box * { color: #9B2C2C !important; }
+
     .azit-card {
         background: #FFFFFF !important;
         border: 1px solid #E2E8F0;
@@ -217,11 +219,12 @@ st.markdown("""
     }
     .azit-card * { color: #0F172A !important; }
 
-    /* 탭 메뉴 반응형 및 너비 균등 */
+    /* 1열 가로 스크롤 허용 탭 스타일 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 4px !important;
         background-color: #E2E8F0 !important;
         padding: 6px !important;
         border-radius: 10px !important;
@@ -229,13 +232,14 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] {
         height: 38px !important;
         border-radius: 6px !important;
-        font-size: 0.82rem !important;
+        font-size: 0.85rem !important;
         font-weight: 700 !important;
         color: #475569 !important;
         background-color: transparent !important;
         border: none !important;
-        padding: 0 10px !important;
-        flex-grow: 1 !important;
+        padding: 0 12px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
     }
     .stTabs [aria-selected="true"] {
         background-color: #FFFFFF !important;
@@ -279,7 +283,7 @@ if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
 # ==========================================
-# 🔐 [로그인 / 회원가입 화면 분기]
+# 🔐 [로그인 / 회원가입 화면]
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""
@@ -292,13 +296,11 @@ if not st.session_state.logged_in_user:
     col1, col2, col3 = st.columns([0.02, 0.96, 0.02])
     with col2:
         auth_tab1, auth_tab2 = st.tabs(["🔑 로그인", "✍️ 회원가입"])
-        
         with auth_tab1:
             with st.form("login_form"):
                 login_id = st.text_input("아이디 (연락처 또는 계정명)")
                 login_pw = st.text_input("비밀번호", type="password")
-                submitted = st.form_submit_button("로그인하기", use_container_width=True)
-                if submitted:
+                if st.form_submit_button("로그인하기", use_container_width=True):
                     if login_id in users_db:
                         stored_pw = users_db[login_id].get("pw", "1234")
                         if login_pw == stored_pw or login_pw == "1234":
@@ -310,18 +312,14 @@ if not st.session_state.logged_in_user:
                             st.error("비밀번호가 일치하지 않습니다.")
                     else:
                         st.error("존재하지 않는 아이디입니다.")
-        
         with auth_tab2:
             with st.form("signup_form"):
-                st.markdown("##### 📝 사장님 매장 등록")
                 new_id = st.text_input("아이디/연락처", placeholder="예: 01012345678")
                 new_pw = st.text_input("비밀번호", type="password", placeholder="비밀번호 4자리 이상")
                 new_store = st.text_input("매장 상호명", placeholder="예: 용인 맛있는 고깃집")
                 new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
                 new_loc = st.text_input("매장 도로명 주소", placeholder="예: 용인시 처인구 역북동")
-                
-                signup_submitted = st.form_submit_button("가입 완료하기", use_container_width=True)
-                if signup_submitted:
+                if st.form_submit_button("가입 완료하기", use_container_width=True):
                     if new_id and new_pw and new_store:
                         if new_id in users_db:
                             st.warning("이미 존재하는 아이디입니다.")
@@ -341,7 +339,6 @@ if not st.session_state.logged_in_user:
                             st.success("🎉 가입 완료! [로그인] 탭에서 로그인하세요.")
                     else:
                         st.warning("필수 항목을 모두 입력해 주세요.")
-                        
     st.stop()
 
 # ==========================================
@@ -353,14 +350,12 @@ store_name = curr_user.get("store_name", "드림안경 송전점")
 sel_industry = curr_user.get("industry", INDUSTRY_LIST[3])
 sel_loc = curr_user.get("location", "용인시 처인구 이동읍 경기동로 725")
 sel_feature = curr_user.get("feature", "독일식 초정밀 시력검사")
-
 is_pro_user = curr_user.get("is_pro", False)
 pro_status = curr_user.get("pro_status", "미신청")
 
 with st.sidebar:
     st.markdown("### 🏬 매장비서 AI", unsafe_allow_html=True)
     st.markdown(f"**👤 {store_name}** 사장님")
-    
     if is_pro_user:
         st.success("👑 PRO 유료 마스터 회원")
     else:
@@ -374,7 +369,7 @@ with st.sidebar:
                 save_users(users_db)
                 st.success("🎉 승인 요청 완료!")
                 st.rerun()
-            
+
     if user_key == "admin":
         st.markdown("---")
         st.markdown("🛠️ **[관리자 회원 관리 센터]**")
@@ -382,7 +377,6 @@ with st.sidebar:
             ustore = udata.get("store_name", uid)
             u_is_pro = udata.get("is_pro", False)
             status_lbl = "👑 PRO" if u_is_pro else "⭐ 무료"
-            
             st.markdown(f"""
             <div style="background:#F1F5F9; border-radius:8px; padding:6px; margin-bottom:4px; font-size:0.8rem;">
                 <b>{ustore}</b> ({status_lbl})<br>아이디: <code>{uid}</code>
@@ -408,25 +402,38 @@ with st.sidebar:
         st.session_state.logged_in_user = None
         st.rerun()
 
+    st.markdown("---")
+    st.markdown("#### ⚙️ 내 매장 기본 정보")
+    ind_idx = INDUSTRY_LIST.index(sel_industry) if sel_industry in INDUSTRY_LIST else 3
+    sel_industry = st.selectbox("매장 업종", INDUSTRY_LIST, index=ind_idx)
+    sel_loc = st.text_input("매장 위치", value=sel_loc)
+    sel_feature = st.text_input("대표 강점/시그니처", value=sel_feature)
+    if st.button("💾 정보 변경 저장", use_container_width=True):
+        users_db[user_key]["industry"] = sel_industry
+        users_db[user_key]["location"] = sel_loc
+        users_db[user_key]["feature"] = sel_feature
+        save_users(users_db)
+        st.toast("저장되었습니다!")
+
 st.markdown(f"""
 <div class="hero-container">
     <div class="hero-title">🏬 매장비서 AI <span class="hero-badge">{'👑 PRO' if is_pro_user else '⭐ 무료'}</span></div>
-    <div class="hero-sub">용인친구들 소상공인을 위한 프리미엄 상생 솔루션</div>
+    <div class="hero-sub">용인친구들 소상공인을 위한 프리미엄 솔루션</div>
 </div>
 """, unsafe_allow_html=True)
 
-# 🚀 상단 상시 노출 SNS 바로가기 바 (페이스북 탑재 + 인스타/스레드 확장 준비)
+# 🚨 [상단 항시 고정] 페이스북 공식 바로가기 바
 st.markdown("""
-<div class="sns-bar-container">
-    <div style="font-size: 0.9rem; font-weight: 700; color: #334155; display:flex; align-items:center; gap:6px;">
-        🔗 <b>공식 소셜 바로가기:</b>
+<div class="sns-fixed-bar">
+    <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem; display:flex; align-items:center; gap:6px;">
+        📢 <b>용인친구들 공식 커뮤니티</b>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" class="sns-btn-fb">
-            <svg style="width:16px; height:16px; fill:#FFFFFF;" viewBox="0 0 24 24">
+    <div>
+        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" class="sns-fb-link">
+            <svg style="width:18px; height:18px; fill:#FFFFFF;" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
             </svg>
-            페이스북 [용인친구들]
+            페이스북 [용인친구들] 바로가기
         </a>
     </div>
 </div>
@@ -459,141 +466,289 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 🌟 [2단 네비게이션: 그룹 선택으로 밀림 원천 차단]
+# 🌟 [처음 구조 그대로: 11개 탭 1열 라인 완전 복원]
 # ==========================================
-nav_mode = st.radio(
-    "메뉴 대분류",
-    ["📢 로컬 마케팅 (가요·아지트·공구·SNS글쓰기)", "💼 경영 & 지원 (급여·서류·절세·마감)"],
-    index=0,
-    horizontal=True,
-    label_visibility="collapsed"
-)
+tab_titles = [
+    "🎧 가요",
+    "🤝 아지트",
+    "🛒 공구",
+    "📍 블로그",
+    "🥕 당근",
+    "📸 인스타",
+    "💬 문자",
+    "💰 급여",
+    "📑 서류",
+    "🏛️ 절세",
+    "🌙 마감"
+]
+tabs = st.tabs(tab_titles)
 
-if "로컬 마케팅" in nav_mode:
-    m_tabs = st.tabs(["🎧 매장가요", "🤝 상생아지트", "🛒 로컬공구", "📍 [PRO] 블로그", "🥕 [PRO] 당근", "📸 [PRO] 인스타", "💬 [PRO] 단골문자"])
+# 0. 🎧 유튜브 가요 검색
+with tabs[0]:
+    st.markdown("""
+    <div class="guide-box">
+        💡 <b>[유튜브 가요 검색 런처]</b><br>
+        원하는 테마를 고르고 버튼을 누르면 <b>유튜브 검색 결과</b>로 연결됩니다.
+    </div>
+    """, unsafe_allow_html=True)
+    YOUTUBE_SEARCH_QUERIES = {
+        "🌿 차분하고 편안한 힐링 (안경원 / 상담 / 뷰티 / 카페)": {
+            "🎹 감성 가요 피아노 힐링 연주곡": [
+                {"name": "가요 명곡 피아노 힐링 메들리", "query": "가요 명곡 피아노 힐링 메들리 연속재생"},
+                {"name": "2000년대 감성 발라드 피아노 커버", "query": "2000년대 감성 발라드 피아노 커버 모음"}
+            ],
+            "☕ 부드러운 감성 보컬 & 발라드": [
+                {"name": "성시경·아이유 감성 힐링 가요 명곡", "query": "성시경 아이유 감성 힐링 가요 플레이리스트"},
+                {"name": "김광석·신승훈 명품 발라드 메들리", "query": "김광석 신승훈 명품 발라드 메들리"}
+            ]
+        },
+        "🥩 활기차고 신나는 분위기 (고깃집 / 포차 / 호프)": {
+            "🎉 90-2000 국민 애창 댄스 (쿨·코요태)": [
+                {"name": "쿨·코요태 신나는 9000 댄스 메들리", "query": "쿨 코요태 신나는 9000 댄스 메들리"},
+                {"name": "무한도전 가요제 & 히트 댄스곡", "query": "무한도전 가요제 히트 댄스곡 모음"}
+            ]
+        },
+        "🍲 정겹고 푸근한 레트로 (노포 / 국밥집 / 어르신 단골)": {
+            "🎺 어르신 단골 1순위! 흥겨운 트로트": [
+                {"name": "임영웅·영탁·이찬원 트로트 베스트", "query": "임영웅 영탁 이찬원 흥겨운 트로트 메들리"},
+                {"name": "장윤정·송가인·나훈아 트로트 메들리", "query": "장윤정 송가인 나훈아 신나는 트로트 메들리"}
+            ]
+        }
+    }
+    col_m1, col_m2 = st.columns([1, 1])
+    with col_m1:
+        sel_mood = st.selectbox("1단계: 매장 분위기 (Mood)", list(YOUTUBE_SEARCH_QUERIES.keys()), key="yt_s_mood")
+        genre_dict = YOUTUBE_SEARCH_QUERIES[sel_mood]
+        sel_genre = st.selectbox("2단계: 가요 장르 (Genre)", list(genre_dict.keys()), key="yt_s_genre")
+        track_list = genre_dict[sel_genre]
+        sel_track_name = st.selectbox("3단계: 추천 검색어 선택", [t["name"] for t in track_list], key="yt_s_track")
+        selected_query = next(t["query"] for t in track_list if t["name"] == sel_track_name)
+        youtube_search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(selected_query)}"
+    with col_m2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.link_button("🔎 유튜브에서 검색하기", youtube_search_url, use_container_width=True)
+
+# 1. 🤝 상생아지트
+with tabs[1]:
+    st.markdown("""
+    <div class="guide-box">
+        💡 <b>[상생아지트 네이버 지도 연동]</b><br>
+        용인친구들 공식 상생아지트 디렉토리 및 내 가게 네이버 지도 연동 기능입니다.
+    </div>
+    """, unsafe_allow_html=True)
+    my_saved_addr = curr_user.get("map_address", sel_loc)
+    my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
+    naver_map_address_only_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
+    st.markdown(f"""
+    <div class="azit-card">
+        <h3>★ 공식 내 아지트: {store_name}</h3>
+        <p>📍 {my_saved_addr}</p>
+        <p>🎁 <b>용친 회원 혜택:</b> {my_perk}</p>
+        <a href="{naver_map_address_only_url}" target="_blank">
+            <button style="width:100%; height:40px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                🟢 네이버 지도로 주소 찾기
+            </button>
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
+
+# 2. 🛒 공구
+with tabs[2]:
+    st.markdown("""
+    <div class="guide-box">
+        💡 <b>[실시간 로컬 공구 시스템]</b><br>
+        현재 진행 중인 핫딜과 소모품 공구의 남은 기간과 신청 현황을 확인하세요.
+    </div>
+    """, unsafe_allow_html=True)
+    deal_subtab1, deal_subtab2, deal_subtab3 = st.tabs(["🔥 주민 핫딜", "📦 소모품 공구", "✍️ 공구 제안"])
     
-    # 1. 🎧 가요
-    with m_tabs[0]:
-        st.markdown("""
-        <div class="guide-box">
-            💡 <b>[유튜브 가요 검색 런처]</b> 원하는 테마를 고르고 버튼을 누르면 검색 결과로 바로 연결됩니다.
-        </div>
-        """, unsafe_allow_html=True)
-        col_m1, col_m2 = st.columns([1.2, 1])
-        with col_m1:
-            sel_mood = st.selectbox("1단계: 분위기", ["차분하고 편안한 힐링", "활기차고 신나는 분위기", "정겹고 푸근한 레트로"], key="m_mood")
-            sel_track = st.selectbox("2단계: 테마 선택", ["가요 명곡 피아노 메들리", "2000년대 감성 발라드 커버", "90-2000 국민 애창 댄스"], key="m_track")
-            target_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(sel_track)}"
-        with col_m2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.link_button("🔎 유튜브에서 검색하기", target_url, use_container_width=True)
+    def get_dday(deadline_str):
+        try:
+            d_date = datetime.strptime(deadline_str, "%Y-%m-%d")
+            delta = (d_date - datetime.now()).days
+            return f"🔥 D-{delta}일" if delta > 0 else ("🚨 오늘 마감!" if delta == 0 else "❌ 마감")
+        except Exception:
+            return "진행 중"
 
-    # 2. 🤝 상생아지트
-    with m_tabs[1]:
-        my_saved_addr = curr_user.get("map_address", sel_loc)
-        my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
-        naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
-        st.markdown(f"""
-        <div class="azit-card">
-            <h3>★ 공식 내 아지트: {store_name}</h3>
-            <p>📍 {my_saved_addr}</p>
-            <p>🎁 <b>혜택:</b> {my_perk}</p>
-            <a href="{naver_url}" target="_blank">
-                <button style="width:100%; height:40px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
-                    🟢 네이버 지도로 주소 찾기
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # 3. 🛒 공구
-    with m_tabs[2]:
-        st.markdown("### 🛒 진행 중인 공구")
+    with deal_subtab1:
         for deal in deals_db["deals"]:
             total_qty = sum([p["qty"] for p in deal["participants"]])
+            total_people = len(deal["participants"])
+            dday_txt = get_dday(deal["deadline"])
+            progress_val = min(total_qty / deal["target"], 1.0)
             st.markdown(f"""
             <div class="azit-card">
-                <h4>{deal['title']}</h4>
-                <p>가격: <b>{deal['price']}</b> | 현재 신청: <b>{total_qty}개</b></p>
+                <span style="background:#EF4444; color:#fff; font-size:0.7rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday_txt}</span>
+                <h4 style="margin:8px 0; color:#0F172A; font-size:1.05rem;">{deal['title']}</h4>
+                <p style="color:#2563EB; font-weight:700; font-size:0.92rem; margin-bottom:6px;">{deal['price']}</p>
+                <p style="font-size:0.85rem; color:#475569;">👥 신청: <b>{total_people}명</b> 참여 / 누적 <b>{total_qty}개</b></p>
             </div>
             """, unsafe_allow_html=True)
+            st.progress(progress_val)
+            with st.form(key=f"form_{deal['id']}"):
+                st.markdown("##### 🙋‍♂️ 공구 참여하기")
+                p_name = st.text_input("성함 (상호명)", key=f"name_{deal['id']}")
+                p_phone = st.text_input("연락처", key=f"phone_{deal['id']}")
+                p_qty = st.number_input("수량", min_value=1, max_value=100, value=1, step=1, key=f"qty_{deal['id']}")
+                if st.form_submit_button("참여 확정하기", use_container_width=True):
+                    if p_name and p_phone:
+                        deal["participants"].append({"name": p_name, "phone": p_phone, "qty": int(p_qty), "time": datetime.now().strftime("%Y-%m-%d %H:%M")})
+                        save_deals(deals_db)
+                        st.success("신청되었습니다!")
+                        st.rerun()
+                    else:
+                        st.warning("정보를 입력해 주세요.")
+            st.markdown("##### 📋 참여자 명단")
+            for idx, p in enumerate(deal["participants"], 1):
+                st.markdown(f"- {idx}. **{p['name']}**님 ({p['qty']}개)")
+            st.markdown("<hr>", unsafe_allow_html=True)
 
-    # 4. 📍 블로그
-    with m_tabs[3]:
-        if not is_pro_user:
-            st.info("🔒 PRO 유료 회원 전용 기능입니다.")
-        else:
-            n_name = st.text_input("상호 및 위치", value=f"{store_name} ({sel_loc})", key="bl_name")
-            n_item = st.text_input("핵심 강점", value=sel_feature, key="bl_item")
-            if st.button("블로그 원고 자동 생성", key="btn_bl"):
-                out = generate_safe_content(f"상호: {n_name}\n강점: {n_item}\n네이버 플레이스 소개글과 블로그 원고 작성.")
+    with deal_subtab2:
+        st.markdown("### 📦 소모품 도매가 공동 발주")
+        st.markdown("""
+        <div class="azit-card">
+            <h4>🧾 카드단말기 영수증 롤페이퍼 (50롤)</h4>
+            <p>시중가 38,000원 ➡️ <b>23,500원 (무료배송)</b></p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("소모품 공동발주 신청", use_container_width=True, key="b2b_order"):
+            st.success("발주가 접수되었습니다.")
+
+    with deal_subtab3:
+        st.markdown("### 📢 상품 공구 오픈 제안")
+        c_name = st.text_input("상품명", placeholder="블루라이트 차단 안경 세트", key="c_name_input")
+        c_qty = st.number_input("목표 수량", min_value=1, max_value=1000, value=30, step=1, key="c_qty_input")
+        c_discount = st.text_input("공구가", placeholder="35,000원", key="c_price_input")
+        c_days = st.slider("기간 (일)", min_value=3, max_value=30, value=7, key="c_days_input")
+        if st.button("공구 제안서 제출", use_container_width=True, key="c_submit_btn"):
+            if c_name and c_discount:
+                deals_db["deals"].append({
+                    "id": f"deal_{int(time.time())}",
+                    "title": f"[{store_name}] {c_name}",
+                    "price": f"{c_discount} (단독 특가)",
+                    "target": int(c_qty),
+                    "deadline": (datetime.now() + timedelta(days=c_days)).strftime("%Y-%m-%d"),
+                    "participants": []
+                })
+                save_deals(deals_db)
+                st.success("제안이 등록되었습니다!")
+                st.rerun()
+
+# 3. 📍 블로그
+with tabs[3]:
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-box">
+            <h3>🔒 [PRO 전용] 네이버 플레이스 & 블로그 원고</h3>
+            <p>사이드바에서 PRO 승인을 요청해 주세요.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("### 📍 네이버 플레이스 & 블로그 최적화 원고 생성기")
+        n_name = st.text_input("가게 이름과 지역", value=f"{store_name} ({sel_loc})", key="n1_pro")
+        n_item = st.text_input("핵심 강점 / 메뉴", value=sel_feature, key="n2_pro")
+        if st.button("PRO 최적화 홍보글 만들기", use_container_width=True, key="btn_n_pro"):
+            with st.spinner("작성 중..."):
+                out = generate_safe_content(f"업종: {sel_industry}\n가게명: {n_name}\n강점: {n_item}\n플레이스 소개글과 블로그 원고 작성해줘.")
                 if out: st.code(out, language="markdown")
 
-    # 5. 🥕 당근
-    with m_tabs[4]:
-        if not is_pro_user:
-            st.info("🔒 PRO 유료 회원 전용 기능입니다.")
-        else:
-            d_topic = st.selectbox("소식 주제", ["상생아지트 초대", "새 상품 입고", "깜짝 타임세일", "날씨 안부 인사"], key="dg_topic")
-            if st.button("당근마켓 소식글 작성", key="btn_dg"):
-                out = generate_safe_content(f"가게: {store_name}\n주제: {d_topic}\n당근마켓 동네 소식글 작성.")
+# 4. 🥕 당근
+with tabs[4]:
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-box">
+            <h3>🔒 [PRO 전용] 당근마켓 동네 소식 글쓰기</h3>
+            <p>PRO 회원만 이용 가능합니다.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("### 🥕 당근마켓 동네 소식글 비서")
+        d_reason = st.selectbox("주제", ["상생아지트 초대글", "새 상품 입고", "깜짝 타임세일", "궂은 날씨 안부"], key="d_pro")
+        if st.button("당근 소식글 만들기", use_container_width=True, key="btn_d_pro"):
+            with st.spinner("작성 중..."):
+                out = generate_safe_content(f"업종: {sel_industry}\n가게: {store_name}\n주제: {d_reason}\n당근마켓 소식글 작성.")
                 if out: st.code(out, language="markdown")
 
-    # 6. 📸 인스타
-    with m_tabs[5]:
-        if not is_pro_user:
-            st.info("🔒 PRO 유료 회원 전용 기능입니다.")
-        else:
-            if st.button("인스타그램 피드 & 해시태그 생성", key="btn_ig"):
-                out = generate_safe_content(f"가게: {store_name}\n업종: {sel_industry}\n인스타 훅 멘트와 감성 본문, 해시태그 5개 작성.")
+# 5. 📸 인스타
+with tabs[5]:
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-box">
+            <h3>🔒 [PRO 전용] 인스타그램 감성 피드</h3>
+            <p>PRO 회원만 이용 가능합니다.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("### 📸 인스타그램 피드 & 해시태그 생성기")
+        i_mood = st.selectbox("분위기", ["따뜻한 감성", "전문성/신뢰", "침샘 자극", "번개 이벤트"], key="i_pro")
+        if st.button("인스타 글 만들기", use_container_width=True, key="btn_i_pro"):
+            with st.spinner("작성 중..."):
+                out = generate_safe_content(f"업종: {sel_industry}\n가게: {store_name}\n분위기: {i_mood}\n인스타 훅 멘트와 본문, 해시태그 5개 작성.")
                 if out: st.code(out, language="markdown")
 
-    # 7. 💬 문자
-    with m_tabs[6]:
-        if not is_pro_user:
-            st.info("🔒 PRO 유료 회원 전용 기능입니다.")
-        else:
-            m_target = st.selectbox("문자 목적", ["재방문 쿠폰", "비오는 날 서비스", "환절기 안부"], key="sms_target")
-            if st.button("단골 고객 문자 메시지 작성", key="btn_sms"):
-                out = generate_safe_content(f"가게: {store_name}\n목적: {m_target}\n단문 SMS와 장문 LMS 작성.")
+# 6. 💬 문자
+with tabs[6]:
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-box">
+            <h3>🔒 [PRO 전용] 단골 고객 문자 & 카톡 비서</h3>
+            <p>PRO 회원만 이용 가능합니다.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("### 💬 단골 고객 문자 & 카톡 메시지 비서")
+        m_target = st.selectbox("목적", ["재방문 쿠폰", "비오는 날 번개 서비스", "환절기 안부 인사"], key="m_pro")
+        if st.button("문자 문구 만들기", use_container_width=True, key="btn_m_pro"):
+            with st.spinner("작성 중..."):
+                out = generate_safe_content(f"업종: {sel_industry}\n가게: {store_name}\n목적: {m_target}\nSMS/LMS 문구 작성.")
                 if out: st.code(out, language="markdown")
 
-else:
-    b_tabs = st.tabs(["💰 알바급여 계산", "📑 지원금 서류", "🏛️ 절세 비서", "🌙 오늘 장사마감"])
-    
-    # 1. 💰 급여
-    with b_tabs[0]:
-        st.markdown("### 💰 아르바이트 주휴수당 및 실수령액 계산기")
-        w_col1, w_col2 = st.columns(2)
-        with w_col1:
-            wage = st.number_input("시급 (원)", value=10030, step=100, key="calc_w")
-            hours = st.number_input("주당 근무 시간", value=16.0, step=0.5, key="calc_h")
-        with w_col2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("급여 계산하기", key="calc_btn"):
-                base = wage * hours * 4.345
-                holiday = ((hours / 40.0) * 8.0 * wage * 4.345) if hours >= 15 else 0
-                total = base + holiday
-                st.success(f"예상 세전 급여: {int(total):,}원 (주휴수당 {int(holiday):,}원 포함)")
+# 7. 💰 급여 계산기
+with tabs[7]:
+    st.markdown("### 💰 아르바이트 주휴수당 및 실수령액 계산기")
+    w_col1, w_col2 = st.columns(2)
+    with w_col1:
+        wage = st.number_input("시급 (원)", value=10030, step=100, key="wage_free")
+        hours = st.number_input("주당 근무 시간", value=16.0, step=0.5, key="hours_free")
+    with w_col2:
+        tax = st.selectbox("공제 방식", ["3.3% 사업소득 공제", "고용보험 0.9% 공제", "공제 없음"], key="tax_free")
+    if st.button("급여 계산", use_container_width=True, key="calc_free"):
+        base = wage * hours * 4.345
+        holiday = ((hours / 40.0) * 8.0 * wage * 4.345) if hours >= 15 else 0
+        total = base + holiday
+        deduct = total * 0.033 if "3.3%" in tax else (total * 0.009 if "0.9%" in tax else 0)
+        net = total - deduct
+        st.success(f"세전: {int(total):,}원 (주휴수당: {int(holiday):,}원) | 공제: {int(deduct):,}원 | 💳 실수령액: {int(net):,}원")
 
-    # 2. 📑 서류
-    with b_tabs[1]:
-        st.markdown("### 📑 정부 지원금 필수 서류 발급처")
-        st.info("""
-        • **소상공인확인서**: 중소기업현황정보시스템 (sminfo.mss.go.kr)  
-        • **부가가치세 과세표준증명원**: 국세청 홈택스 (hometax.go.kr)  
-        • **국세 완납증명서**: 국세청 홈택스  
-        • **지방세 완납증명서**: 정부24 (gov.kr)
-        """)
+# 8. 📑 서류
+with tabs[8]:
+    st.markdown("### 📑 지원금 필수 서류 발급처 안내")
+    doc = st.selectbox("필요 서류", ["소상공인확인서", "부가가치세 과세표준증명원", "국세 완납증명서", "지방세 완납증명서"], key="doc_free")
+    DOCS = {
+        "소상공인확인서": ("중소기업현황정보시스템", "회원가입 후 [확인서 발급신청] ➡️ PDF 다운로드"),
+        "부가가치세 과세표준증명원": ("국세청 홈택스", "국세증명 ➡️ [부가가치세 과세표준증명] 발급"),
+        "국세 완납증명서": ("국세청 홈택스", "국세증명 ➡️ [납세증명서(국세완납)] 출력"),
+        "지방세 완납증명서": ("정부24", "검색창에 '지방세 납세증명' 검색 후 발급")
+    }
+    site, step = DOCS[doc]
+    st.info(f"🌐 발급처: **{site}**\n\n📌 방법: {step}")
 
-    # 3. 🏛️ 절세
-    with b_tabs[2]:
-        st.markdown("### 🏛️ 국비 지원금 & 절세 가이드")
-        st.info("전기세 25만 원 국비 지원 및 소상공인 정책자금 이자 지원 혜택을 챙기세요.")
+# 9. 🏛️ 절세
+with tabs[9]:
+    st.markdown("### 🏛️ 국비 지원금 & 절세 가이드")
+    sub_q = st.selectbox("지원금 선택", [
+        "전기세 25만 원 국비 지원받는 법",
+        "비싼 대출 이자 4%대로 낮추는 법",
+        "소상공인 간판/키오스크 교체 70% 지원"
+    ], key="sub_q_free")
+    if st.button("설명 보기", use_container_width=True, key="sub_btn_free"):
+        out = generate_safe_content(f"질문: {sub_q}\n쉽게 1) 혜택 2) 자격 요건 3) 신청처 정리.")
+        if out: st.markdown(out)
 
-    # 4. 🌙 마감
-    with b_tabs[3]:
-        st.markdown("### 🌙 오늘 하루 장사 마감 리포트")
-        if st.button("오늘 장사 마감 브리핑 받기", key="close_btn"):
-            out = generate_safe_content(f"가게: {store_name}\n오늘 장사 마감 격려 메시지와 내일 활력 팁 1가지 작성.")
-            if out: st.markdown(out)
+# 10. 🌙 장사 마감
+with tabs[10]:
+    st.markdown("### 🌙 장사 마감 리포트 & 내일 처방")
+    t_mood = st.selectbox("오늘 분위기", ["한산해서 아쉬움", "특정 시간대만 바쁨", "매출 대성공!"], key="t_mood_free")
+    if st.button("마감 리포트 받기", use_container_width=True, key="t_btn_free"):
+        out = generate_safe_content(f"가게: {store_name} ({sel_industry})\n오늘 분위기: {t_mood}\n1. 위로 브리핑 2. 내일 아침 홍보글 처방.")
+        if out: st.markdown(out)

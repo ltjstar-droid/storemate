@@ -117,66 +117,80 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [모바일 & PC 완벽 반응형 인테리어 CSS]
+# 🎨 [글자 묻힘 방지 모바일 완벽 고정 CSS 인테리어]
 # ==========================================
 st.markdown("""
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <style>
+    /* 기본 글자색 및 폰트 강제 고정 (모바일 다크모드 글자 증발 방지) */
     html, body, [class*="css"], .stMarkdown, .stText, p, span, label, input, button, a {
         font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
         letter-spacing: -0.02em;
+        color: #0F172A !important;
     }
-    .stApp { background-color: #F4F6F9; }
+    .stApp { background-color: #F8FAFC !important; }
     
+    /* 입력창(텍스트박스) 글자색 및 배경 확실하게 고정 */
+    input, textarea, select {
+        color: #0F172A !important;
+        background-color: #FFFFFF !important;
+    }
+
     .hero-container {
         background: linear-gradient(135deg, #0A0F1D 0%, #1E293B 50%, #0F172A 100%);
         padding: 24px 20px;
         border-radius: 20px;
-        color: #FFFFFF;
+        color: #FFFFFF !important;
         margin-bottom: 20px;
         box-shadow: 0 15px 20px -5px rgba(15, 23, 42, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .hero-title { font-size: 1.6rem; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-    .hero-badge { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #FFFFFF; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 30px; }
-    .hero-sub { font-size: 0.95rem; color: #94A3B8; margin: 0; font-weight: 400; line-height: 1.4; }
+    .hero-container * { color: #FFFFFF !important; }
+    .hero-title { font-size: 1.6rem; font-weight: 800; margin: 0 0 6px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .hero-badge { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #FFFFFF !important; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 30px; }
+    .hero-sub { font-size: 0.95rem; color: #94A3B8 !important; margin: 0; font-weight: 400; line-height: 1.4; }
 
     .guide-box {
-        background: #EFF6FF;
+        background: #EFF6FF !important;
         border: 1px solid #BFDBFE;
         border-left: 5px solid #2563EB;
         padding: 14px 16px;
         border-radius: 12px;
         margin-bottom: 20px;
         font-size: 0.98rem;
-        color: #1E40AF;
+        color: #1E40AF !important;
         line-height: 1.5;
         font-weight: 500;
     }
+    .guide-box * { color: #1E40AF !important; }
+
     .pro-lock-box {
-        background: #FFF5F5;
+        background: #FFF5F5 !important;
         border: 1px solid #FED7D7;
         border-left: 5px solid #E53E3E;
         padding: 20px;
         border-radius: 14px;
         margin-bottom: 20px;
-        color: #9B2C2C;
+        color: #9B2C2C !important;
     }
+    .pro-lock-box * { color: #9B2C2C !important; }
+
     .azit-card {
-        background: #FFFFFF;
+        background: #FFFFFF !important;
         border: 1px solid #E2E8F0;
         border-radius: 16px;
         padding: 18px;
         margin-bottom: 14px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     }
+    .azit-card * { color: #0F172A !important; }
 
-    /* 모바일에서 탭 메뉴 가독성 및 정렬 최적화 */
+    /* 탭 메뉴 가독성 최적화 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        background-color: #E2E8F0;
+        background-color: #E2E8F0 !important;
         padding: 8px;
         border-radius: 12px;
     }
@@ -196,6 +210,8 @@ st.markdown("""
         color: #0F172A !important;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
     }
+
+    /* 버튼 스타일 */
     .stButton>button {
         height: 3.2rem !important;
         font-size: 1.05rem !important;
@@ -206,6 +222,7 @@ st.markdown("""
         border: none !important;
         width: 100% !important;
     }
+    .stButton>button * { color: #FFFFFF !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -340,7 +357,7 @@ with st.sidebar:
             status_lbl = "👑 PRO" if u_is_pro else "⭐ 무료"
             
             st.markdown(f"""
-            <div style="background:#F1F5F9; border-radius:10px; padding:8px; margin-bottom:6px; font-size:0.85rem;">
+            <div style="background:#F1F5F9; border-radius:10px; padding:8px; margin-bottom:6px; font-size:0.85rem; color:#0F172A;">
                 <b>{ustore}</b> ({status_lbl})<br>
                 아이디: <code>{uid}</code>
             </div>
@@ -390,7 +407,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:0.92rem;">
+<div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:0.92rem; color:#0F172A;">
     📍 <b>{store_name}</b> &nbsp;|&nbsp; <b>{'👑 PRO 회원' if is_pro_user else ('⏳ 승인 대기중' if pro_status == '대기중' else '⭐ 무료 체험')}</b>
 </div>
 """, unsafe_allow_html=True)

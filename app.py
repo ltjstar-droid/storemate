@@ -49,7 +49,7 @@ def load_users():
             "location": "용인시 처인구 이동읍 경기동로 725",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
-            "map_perk": "용친 회원 안경렌즈 10% 추가 할인 및 클리너 증정",
+            "map_perk": "용친 회원 안경렌즈 추가 10% DC & 고급 안경 클리너 증정",
             "today_deal": "누진다초점 렌즈 50% 할인",
             "today_updated": datetime.now().strftime("%Y-%m-%d"),
             "pw": "1234",
@@ -180,7 +180,7 @@ st.markdown("""
 
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
-        gap: 20px !important;
+        gap: 18px !important;
         background: transparent !important;
         padding: 0 0 8px 0 !important;
         margin-bottom: 20px !important;
@@ -310,9 +310,6 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
-if "show_deal_edit" not in st.session_state:
-    st.session_state.show_deal_edit = False
-
 if "active_join_deal_id" not in st.session_state:
     st.session_state.active_join_deal_id = None
 
@@ -327,12 +324,10 @@ if "current_region_name" not in st.session_state:
 # 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
-    st.markdown("""
-    <div style="max-width: 400px; margin: 60px auto 20px auto; text-align: center;">
-        <h2 style="font-size: 1.7rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">STORE MATE</h2>
-        <p style="font-size: 0.92rem; color: #64748B;">소상공인 통합 관리 플랫폼</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div style="max-width: 400px; margin: 60px auto 20px auto; text-align: center;">
+<h2 style="font-size: 1.7rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">STORE MATE</h2>
+<p style="font-size: 0.92rem; color: #64748B;">소상공인 통합 관리 플랫폼</p>
+</div>""", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([0.02, 0.96, 0.02])
     with col2:
@@ -367,7 +362,7 @@ if not st.session_state.logged_in_user:
                             "feature": "전문 고객 맞춤 케어",
                             "map_address": new_loc,
                             "map_perk": "용친 회원 방문 시 특별 혜택 제공",
-                            "today_deal": "오늘의 특가 준비 중",
+                            "today_deal": "",
                             "today_updated": datetime.now().strftime("%Y-%m-%d"),
                             "pw": new_pw,
                             "is_pro": False,
@@ -455,35 +450,31 @@ with col_h1:
     st.markdown(f"### {store_name} &nbsp;<span style='font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:3px 8px; border-radius:4px;'>{'PRO 파트너' if is_pro_user else '스탠다드'}</span>", unsafe_allow_html=True)
     st.caption(f"등록 매장지: {sel_loc} · {sel_industry}")
 with col_h2:
-    st.markdown("""
-    <div style="display:flex; justify-content:flex-end; gap:8px; padding-top:6px; flex-wrap:wrap;">
-        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 페이스북</a>
-        <a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 인스타그램</a>
-        <a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 스레드</a>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div style="display:flex; justify-content:flex-end; gap:8px; padding-top:6px; flex-wrap:wrap;">
+<a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 페이스북</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 인스타그램</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 스레드</a>
+</div>""", unsafe_allow_html=True)
 
 st.markdown("<hr style='margin:12px 0 16px 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
 # ==========================================
-# 메인 6대 탭
+# 메인 7대 탭 (특가 입력 탭 독립 분리!)
 # ==========================================
-main_tabs = ["홈 대시보드", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감 리포트", "경영 & 행정지원"]
-tab_home, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감 리포트", "경영 & 행정지원"]
+tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드
+# TAB 1. 🏠 홈 대시보드 (공유창 전면 배치 & 준비중 자동 숨김)
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
     my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
-    my_today_deal = curr_user.get("today_deal", "오늘의 특가 품목 등록 대기 중")
+    my_today_deal = curr_user.get("today_deal", "").strip()
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
-    naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
     # 1. ☀️ 실시간 날씨 카드
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
-    
     col_w1, col_w2 = st.columns([3.4, 1])
     with col_w1:
         weather_html = f"""<div class="weather-box">
@@ -515,89 +506,67 @@ with tab_home:
             except Exception:
                 st.warning("위치를 가져오지 못해 기본 주소를 유지합니다.")
 
-    # 2. 내 매장의 상생 특가 카드 (들여쓰기 오류 완전 해결)
-    my_store_card_html = f"""<div class="simple-card">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-<span style="font-size:1.2rem; font-weight:900; color:#0F172A;">{store_name} 오늘의 특가 & 혜택</span>
-<span style="font-size:0.8rem; color:#64748B;">최근 변경: {my_deal_updated}</span>
+    # 2. 내 매장 특가 상태 안내 (특가가 있을 때만 강조 표시)
+    if my_today_deal and my_today_deal != "오늘의 특가 준비 중":
+        my_deal_html = f"""<div class="simple-card" style="border-left: 4px solid #2563EB;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+<span style="font-size:1.15rem; font-weight:900; color:#0F172A;">내 매장 ({store_name}) 오늘 진행 중인 특가</span>
+<span style="font-size:0.8rem; color:#64748B;">갱신: {my_deal_updated}</span>
 </div>
-<div style="font-size:0.92rem; color:#475569; margin-bottom:14px;">{my_saved_addr}</div>
-<div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:14px 18px; margin-bottom:14px;">
-<div style="font-size:0.8rem; font-weight:700; color:#2563EB;">오늘의 할인 품목</div>
-<div style="font-size:1.15rem; font-weight:900; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
-</div>
-<div style="font-size:0.95rem; color:#334155; margin-bottom:16px;">
-<b>상시 혜택:</b> {my_perk}
-</div>
+<div style="font-size:1.15rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
+<div style="font-size:0.88rem; color:#475569;">상시 혜택: {my_perk}</div>
 </div>"""
-    st.markdown(my_store_card_html, unsafe_allow_html=True)
-
-    col_h_b1, col_h_b2 = st.columns(2)
-    with col_h_b1:
-        if st.button("내 매장 특가 / 혜택 문구 수정하기", key="btn_h_edit_deal", use_container_width=True):
-            st.session_state.show_deal_edit = not st.session_state.show_deal_edit
-    with col_h_b2:
-        st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
-
-    if st.session_state.show_deal_edit:
-        st.markdown("""<div class="simple-card" style="margin-top:14px; border:2px solid #2563EB;">
-<div style="font-weight:800; font-size:1rem; color:#0F172A; margin-bottom:12px;">오늘의 특가 품목 및 상시 혜택 변경</div>""", unsafe_allow_html=True)
-        col_ed1, col_ed2 = st.columns(2)
-        with col_ed1:
-            new_today_deal = st.text_input("오늘의 특가 품목", value=my_today_deal, key="h_edit_deal")
-        with col_ed2:
-            new_perk = st.text_input("기본 상시 혜택", value=my_perk, key="h_edit_perk")
-        if st.button("저장하고 바로 반영하기", key="h_save_deal_btn", use_container_width=True):
-            users_db[user_key]["today_deal"] = new_today_deal
-            users_db[user_key]["map_perk"] = new_perk
-            users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-            save_users(users_db)
-            st.session_state.show_deal_edit = False
-            st.success("수정되었습니다.")
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # 3. 용인친구들 이웃 제휴 매장 실시간 특가 피드 (마스터 관리자 계정 중복 노출 제거!)
-    st.markdown("""<div style="margin:24px 0 12px 0;">
-<span style="font-size:1.15rem; font-weight:900; color:#0F172A;">용인친구들 이웃 매장 상생 특가 피드</span>
-<div style="font-size:0.86rem; color:#64748B; margin-top:2px;">지역 제휴 매장들이 실시간으로 제안하는 당일 번개 특가와 단골 혜택입니다.</div>
+        st.markdown(my_deal_html, unsafe_allow_html=True)
+    else:
+        st.markdown("""<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:12px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:0.9rem; color:#64748B;">현재 내 매장의 당일 특가가 비어 있습니다. 상단 <b>[내 특가 관리]</b> 탭에서 등록하시면 공유창에 바로 노출됩니다.</span>
 </div>""", unsafe_allow_html=True)
 
-    other_stores = False
+    # 3. 📢 용인친구들 이웃 매장 실시간 상생 특가 공유창 (특가 준비중인 곳은 완전히 자동 숨김!)
+    st.markdown("""<div style="margin:20px 0 10px 0;">
+<span style="font-size:1.2rem; font-weight:900; color:#0F172A;">용인친구들 실시간 상생 특가 피드</span>
+<div style="font-size:0.86rem; color:#64748B; margin-top:2px;">실제로 오늘 특가 할인을 진행 중인 이웃 제휴 매장들의 알짜 혜택입니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    active_deals_count = 0
     for u_id, u_info in users_db.items():
-        # 마스터 관리자(admin) 및 현재 본인 매장은 피드에서 제외
+        # 마스터 관리자(admin) 및 현재 본인 매장은 이웃 피드에서 제외
         if u_id == "admin" or u_id == user_key:
             continue
         
-        other_stores = True
+        o_deal = u_info.get("today_deal", "").strip()
+        # 💡 [핵심]: 특가가 준비 중이거나 비어있으면 공유창에 표시하지 않음
+        if not o_deal or o_deal == "오늘의 특가 준비 중" or o_deal == "오늘의 특가 품목 등록 대기 중":
+            continue
+
+        active_deals_count += 1
         o_name = u_info.get("store_name", u_id)
         o_addr = u_info.get("map_address", u_info.get("location", ""))
-        o_deal = u_info.get("today_deal", "오늘의 특가 준비 중")
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
         o_upd = u_info.get("today_updated", "")
         o_nav_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(o_addr)}"
         
         feed_card_html = f"""<div class="simple-card" style="margin-bottom:12px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-<span style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</span>
+<span style="font-size:1.1rem; font-weight:800; color:#0F172A;">{o_name}</span>
 <span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
 </div>
 <div style="font-size:0.86rem; color:#64748B; margin-bottom:10px;">{o_addr}</div>
-<div style="background:#F8FAFC; border-left:4px solid #2563EB; border-radius:6px; padding:12px 16px; margin-bottom:10px;">
-<div style="font-size:0.75rem; font-weight:700; color:#2563EB;">오늘의 할인 품목</div>
-<div style="font-size:1.05rem; font-weight:800; color:#0F172A; margin-top:2px;">{o_deal}</div>
+<div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:12px 16px; margin-bottom:10px;">
+<div style="font-size:0.75rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
+<div style="font-size:1.1rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
 </div>
 <div style="font-size:0.88rem; color:#475569; margin-bottom:12px;"><b>상시 혜택:</b> {o_perk}</div>
 <a href="{o_nav_url}" target="_blank" style="text-decoration:none;">
 <button style="width:100%; height:36px; background:#F8FAFC; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
-네이버 플레이스 길찾기 및 지도 확인
+네이버 플레이스 길찾기 및 매장 확인
 </button>
 </a>
 </div>"""
         st.markdown(feed_card_html, unsafe_allow_html=True)
 
-    if not other_stores:
-        st.info("현재 등록된 다른 제휴 매장의 특가 소식이 없습니다.")
+    if active_deals_count == 0:
+        st.info("현재 오늘 날짜로 등록된 이웃 매장의 번개 특가가 없습니다. 먼저 첫 번째 특가를 등록해 보세요!")
 
     # 4. 진행 중인 공동구매 요약
     st.markdown("""<div class="simple-card" style="margin-top:20px;">
@@ -610,7 +579,36 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. 📢 마케팅 스튜디오
+# TAB 2. ⚙️ 내 특가 관리 (입력 및 수정을 독립 공간으로 전면 분리!)
+# ------------------------------------------
+with tab_my_deal:
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 단골 제휴 혜택 설정</div>
+<div style="font-size:0.88rem; color:#64748B;">여기서 등록한 특가 품목은 홈 대시보드의 '실시간 상생 특가 피드'에 즉시 노출됩니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    current_deal_val = curr_user.get("today_deal", "")
+    current_perk_val = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
+
+    with st.form("my_store_deal_form"):
+        st.markdown("##### 1. 오늘의 번개 특가 / 할인 품목")
+        st.caption("비워두거나 '오늘의 특가 준비 중'으로 적으시면 공유 피드에서 자동으로 숨겨집니다.")
+        inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌/염색 30% 게릴라 할인 (선착순 5명)")
+        
+        st.markdown("##### 2. 상시 회원 제휴 혜택")
+        inp_perk = st.text_input("상시 혜택 문구", value=current_perk_val, placeholder="예: 용친 회원 방문 시 10% 현장 할인 및 샘플 증정")
+        
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+        if st.form_submit_button("내 매장 혜택 저장 및 공유창 즉시 반영", use_container_width=True):
+            users_db[user_key]["today_deal"] = inp_deal.strip()
+            users_db[user_key]["map_perk"] = inp_perk.strip()
+            users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+            save_users(users_db)
+            st.success("내 매장 혜택이 성공적으로 저장되었습니다! 홈 대시보드 공유창을 확인해 보세요.")
+            st.rerun()
+
+# ------------------------------------------
+# TAB 3. 📢 마케팅 스튜디오
 # ------------------------------------------
 with tab_mkt:
     current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
@@ -626,10 +624,10 @@ with tab_mkt:
             col_b1, col_b2 = st.columns(2)
             with col_b1:
                 b_kw = st.text_input("메인 키워드 (지역 자동 반영)", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
-                b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 추천, 정밀 서비스", key="m_b_sub")
+                b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 추천, 맞춤 관리", key="m_b_sub")
                 b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
             with col_b2:
-                b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 장비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
+                b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
                 b_core = st.text_area("매장 강점", value=sel_feature, height=75, key="m_b_core")
 
             if st.button("SEO 전문 원고 생성", key="m_b_btn", use_container_width=True):
@@ -645,7 +643,7 @@ with tab_mkt:
             col_d1, col_d2 = st.columns(2)
             with col_d1:
                 d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
-                d_prm = st.selectbox("제공 혜택", ["무상 정밀 점검 및 세척 서비스", "단독 추가 할인 바우처", "선착순 사은품 증정"], key="m_d_prm")
+                d_prm = st.selectbox("제공 혜택", ["무상 정밀 점검 및 체험 서비스", "단독 추가 할인 바우처", "선착순 사은품 증정"], key="m_d_prm")
             with col_d2:
                 d_ctx = st.text_input("상황적 훅 (지역 & 날씨 연계)", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
                 d_cta = st.text_input("행동 유도 (CTA)", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
@@ -665,7 +663,7 @@ with tab_mkt:
                 i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
                 i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
             with col_i2:
-                i_subj = st.text_input("주제", value="나에게 딱 맞는 전문 스타일링 가이드", key="m_i_subj")
+                i_subj = st.text_input("주제", value="나에게 딱 맞는 인생 스타일링 노하우", key="m_i_subj")
                 i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk")
 
             if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
@@ -725,7 +723,7 @@ with tab_mkt:
                 st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 3. 🛒 로컬 공동구매
+# TAB 4. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["진행 프로젝트 목록", "소모품 도매 발주", "신규 공구 제안"])
@@ -758,17 +756,15 @@ with tab_deals:
             dday = get_dday(deal["deadline"])
             is_closed = (dday == "마감")
 
-            st.markdown(f"""
-            <div class="simple-card" style="margin-bottom:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:4px;">{dday}</span>
-                    <span style="font-size:0.85rem; color:#64748B;">목표 {deal['target']}개</span>
-                </div>
-                <h4 style="margin:8px 0 4px 0; color:#0F172A;">{deal['title']}</h4>
-                <div style="font-size:1.15rem; font-weight:900; color:#2563EB;">{deal['price']}</div>
-                <div style="font-size:0.88rem; color:#475569; margin:4px 0 8px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="simple-card" style="margin-bottom:8px;">
+<div style="display:flex; justify-content:space-between; align-items:center;">
+<span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:4px;">{dday}</span>
+<span style="font-size:0.85rem; color:#64748B;">목표 {deal['target']}개</span>
+</div>
+<h4 style="margin:8px 0 4px 0; color:#0F172A;">{deal['title']}</h4>
+<div style="font-size:1.15rem; font-weight:900; color:#2563EB;">{deal['price']}</div>
+<div style="font-size:0.88rem; color:#475569; margin:4px 0 8px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
+</div>""", unsafe_allow_html=True)
             st.progress(min(tot_qty / deal["target"], 1.0))
 
             col_ctrl_a, col_ctrl_b = st.columns([1.5, 1])
@@ -785,10 +781,8 @@ with tab_deals:
                         deals_to_del.append(deal["id"])
 
             if user_key == "admin":
-                st.markdown("""
-                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-top:8px;">
-                    <div style="font-size:0.82rem; font-weight:700; color:#0F172A; margin-bottom:6px;">관리자 전용: 신청자 데이터 관리</div>
-                """, unsafe_allow_html=True)
+                st.markdown("""<div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-top:8px;">
+<div style="font-size:0.82rem; font-weight:700; color:#0F172A; margin-bottom:6px;">관리자 전용: 신청자 데이터 관리</div>""", unsafe_allow_html=True)
                 col_adm_dl, _ = st.columns([1.5, 2])
                 with col_adm_dl:
                     if len(deal["participants"]) > 0:
@@ -809,10 +803,8 @@ with tab_deals:
                 st.markdown("</div>", unsafe_allow_html=True)
 
             if st.session_state.active_join_deal_id == deal["id"]:
-                st.markdown(f"""
-                <div class="simple-card" style="margin-top:8px; border-left:4px solid #2563EB;">
-                    <div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:10px;">[{deal['title']}] 참여 신청서</div>
-                """, unsafe_allow_html=True)
+                st.markdown(f"""<div class="simple-card" style="margin-top:8px; border-left:4px solid #2563EB;">
+<div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:10px;">[{deal['title']}] 참여 신청서</div>""", unsafe_allow_html=True)
                 with st.form(key=f"join_form_{deal['id']}"):
                     j_name = st.text_input("성함 또는 상호", key=f"j_n_{deal['id']}")
                     j_phone = st.text_input("연락처", key=f"j_p_{deal['id']}")
@@ -836,12 +828,10 @@ with tab_deals:
             st.rerun()
 
     with deal_sub2:
-        st.markdown("""
-        <div class="simple-card">
-            <h4 style="margin:0; color:#0F172A;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
-            <p style="color:#475569; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="simple-card">
+<h4 style="margin:0; color:#0F172A;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
+<p style="color:#475569; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
+</div>""", unsafe_allow_html=True)
         if st.button("소모품 도매 공동발주 접수", key="btn_b2b_submit", use_container_width=True):
             st.success("발주 신청이 접수되었습니다.")
 
@@ -865,15 +855,13 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 4. 🎧 음악 스튜디오
+# TAB 5. 🎧 음악 스튜디오
 # ------------------------------------------
 with tab_music:
-    st.markdown("""
-    <div class="simple-card">
-        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">매장 분위기 & 시간대별 사운드 스테이션</div>
-        <div style="font-size:0.88rem; color:#64748B;">매장의 품격을 높이고 고객 체류 시간을 늘리는 원클릭 스트리밍 큐레이션</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">매장 분위기 & 시간대별 사운드 스테이션</div>
+<div style="font-size:0.88rem; color:#64748B;">매장의 품격을 높이고 고객 체류 시간을 늘리는 원클릭 스트리밍 큐레이션</div>
+</div>""", unsafe_allow_html=True)
 
     st.markdown("##### 시간대별 원클릭 추천 스테이션")
     
@@ -913,35 +901,31 @@ with tab_music:
         target_col = col_s1 if idx % 2 == 0 else col_s2
         p_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(preset['query'])}"
         with target_col:
-            st.markdown(f"""
-            <div class="sound-station-card" style="margin-bottom:14px;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.72rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 8px; border-radius:4px;">{preset['tag']}</span>
-                        <span style="font-size:0.75rem; color:#94A3B8;">CH 0{idx+1}</span>
-                    </div>
-                    <div style="font-weight:800; font-size:1rem; color:#0F172A; margin:8px 0 2px 0;">{preset['slot']}</div>
-                    <div style="font-size:0.86rem; color:#2563EB; font-weight:700;">{preset['vibe']}</div>
-                    <div style="font-size:0.82rem; color:#64748B; margin-top:4px;">{preset['desc']}</div>
-                </div>
-                <div style="margin-top:14px;">
-                    <a href="{p_url}" target="_blank" style="text-decoration:none;">
-                        <button style="width:100%; height:36px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
-                            유튜브에서 즉시 재생
-                        </button>
-                    </a>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="sound-station-card" style="margin-bottom:14px;">
+<div>
+<div style="display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:0.72rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 8px; border-radius:4px;">{preset['tag']}</span>
+<span style="font-size:0.75rem; color:#94A3B8;">CH 0{idx+1}</span>
+</div>
+<div style="font-weight:800; font-size:1rem; color:#0F172A; margin:8px 0 2px 0;">{preset['slot']}</div>
+<div style="font-size:0.86rem; color:#2563EB; font-weight:700;">{preset['vibe']}</div>
+<div style="font-size:0.82rem; color:#64748B; margin-top:4px;">{preset['desc']}</div>
+</div>
+<div style="margin-top:14px;">
+<a href="{p_url}" target="_blank" style="text-decoration:none;">
+<button style="width:100%; height:36px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
+유튜브에서 즉시 재생
+</button>
+</a>
+</div>
+</div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
     st.markdown("##### 맞춤형 사운드 검색 조율기")
     with st.container():
-        st.markdown("""
-        <div class="simple-card">
-            <div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:12px;">원하는 분위기와 장르를 직접 조합하여 유튜브 스트리밍 채널을 탐색합니다.</div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="simple-card">
+<div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:12px;">원하는 분위기와 장르를 직접 조합하여 유튜브 스트리밍 채널을 탐색합니다.</div>""", unsafe_allow_html=True)
         col_m_cust1, col_m_cust2 = st.columns(2)
         with col_m_cust1:
             m_time_custom = st.selectbox("1. 원하는 매장 분위기/시간대", [
@@ -970,15 +954,13 @@ with tab_music:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 5. 🌙 영업 마감 리포트 (독립 탭)
+# TAB 6. 🌙 영업 마감 리포트 (독립 탭)
 # ------------------------------------------
 with tab_close:
-    st.markdown("""
-    <div class="simple-card">
-        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">일일 영업 결산 & 내일 경영 플래너</div>
-        <div style="font-size:0.88rem; color:#64748B;">오늘 하루 매출과 유입 분위기를 정리하고, 내일 우선 실행 과제를 AI로 도출합니다.</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">일일 영업 결산 & 내일 경영 플래너</div>
+<div style="font-size:0.88rem; color:#64748B;">오늘 하루 매출과 유입 분위기를 정리하고, 내일 우선 실행 과제를 AI로 도출합니다.</div>
+</div>""", unsafe_allow_html=True)
 
     col_cl1, col_cl2 = st.columns(2)
     with col_cl1:
@@ -1007,7 +989,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:14px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 6. 💼 경영 & 행정지원 (4대 금융계산기)
+# TAB 7. 💼 경영 & 행정지원 (4대 금융계산기)
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
@@ -1016,115 +998,111 @@ with tab_biz:
 
     with biz_sub1:
         st.markdown("##### 정책자금 및 금융 필수 4대 증빙 서류 발급처")
-        st.markdown("""
-        <div class="unified-grid">
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">소상공인 증빙</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인확인서</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 발급처: 중소기업현황정보시스템<br>
-                        • 용도: 국비 지원금 및 보증 신청 필수<br>
-                        • 수수료: 무료 (온라인 즉시 발급)
-                    </div>
-                </div>
-                <a href="https://sminfo.mss.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">발급 사이트 바로가기</button>
-                </a>
-            </div>
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매출 규모 증빙</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">부가가치세 과세표준증명</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 발급처: 국세청 홈택스 / 손택스<br>
-                        • 용도: 대출 및 신용보증 심사 시 매출 확인<br>
-                        • 수수료: 무료 (온라인 즉시 발급)
-                    </div>
-                </div>
-                <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">홈택스 발급 바로가기</button>
-                </a>
-            </div>
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">국세 체납 확인</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">국세 완납증명서 (납세증명)</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 발급처: 국세청 홈택스<br>
-                        • 용도: 세금 체납 여부 확인 (정책자금 필수)<br>
-                        • 수수료: 무료 (유효기간 30일)
-                    </div>
-                </div>
-                <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">납세증명 메뉴 바로가기</button>
-                </a>
-            </div>
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">지방세 체납 확인</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">지방세 납세증명서</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 발급처: 정부24 / 주민센터<br>
-                        • 용도: 지방세(재산세 등) 완납 여부 증빙<br>
-                        • 수수료: 무료 (온라인 즉시 발급)
-                    </div>
-                </div>
-                <a href="https://www.gov.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">정부24 발급 바로가기</button>
-                </a>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="unified-grid">
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">소상공인 증빙</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인확인서</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 발급처: 중소기업현황정보시스템<br>
+• 용도: 국비 지원금 및 보증 신청 필수<br>
+• 수수료: 무료 (온라인 즉시 발급)
+</div>
+</div>
+<a href="https://sminfo.mss.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">발급 사이트 바로가기</button>
+</a>
+</div>
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매출 규모 증빙</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">부가가치세 과세표준증명</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 발급처: 국세청 홈택스 / 손택스<br>
+• 용도: 대출 및 신용보증 심사 시 매출 확인<br>
+• 수수료: 무료 (온라인 즉시 발급)
+</div>
+</div>
+<a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">홈택스 발급 바로가기</button>
+</a>
+</div>
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">국세 체납 확인</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">국세 완납증명서 (납세증명)</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 발급처: 국세청 홈택스<br>
+• 용도: 세금 체납 여부 확인 (정책자금 필수)<br>
+• 수수료: 무료 (유효기간 30일)
+</div>
+</div>
+<a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">납세증명 메뉴 바로가기</button>
+</a>
+</div>
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">지방세 체납 확인</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">지방세 납세증명서</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 발급처: 정부24 / 주민센터<br>
+• 용도: 지방세(재산세 등) 완납 여부 증빙<br>
+• 수수료: 무료 (온라인 즉시 발급)
+</div>
+</div>
+<a href="https://www.gov.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">정부24 발급 바로가기</button>
+</a>
+</div>
+</div>""", unsafe_allow_html=True)
 
     with biz_sub2:
         st.markdown("##### 2026 소상공인 정책금융 및 국비 지원사업 분석")
-        st.markdown("""
-        <div class="unified-grid">
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">비용 절감</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 지원 규모: 사업장당 최대 20~25만 원 감면<br>
-                        • 자격: 연 매출 6천만 원 이하 영세 소상공인<br>
-                        • 접수: 전용 신청 사이트 온라인 접수
-                    </div>
-                </div>
-                <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
-                </a>
-            </div>
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">이자 경감</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 지원 혜택: 7% 이상 대출을 4%대로 전환<br>
-                        • 보증 한도: 사업자당 최대 5,000만 원<br>
-                        • 접수: 신용보증재단 및 정책자금 포털
-                    </div>
-                </div>
-                <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
-                </a>
-            </div>
-            <div class="unified-card">
-                <div>
-                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매장 인프라</span>
-                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
-                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
-                        • 지원 혜택: 키오스크/테이블오더 70% 국비 지원<br>
-                        • 지원 한도: 일반형 500만 원 / 미래형 1,000만 원<br>
-                        • 접수: 소상공인스마트상점 공식 포털
-                    </div>
-                </div>
-                <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:12px;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
-                </a>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="unified-grid">
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">비용 절감</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 지원 규모: 사업장당 최대 20~25만 원 감면<br>
+• 자격: 연 매출 6천만 원 이하 영세 소상공인<br>
+• 접수: 전용 신청 사이트 온라인 접수
+</div>
+</div>
+<a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
+</a>
+</div>
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">이자 경감</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 지원 혜택: 7% 이상 대출을 4%대로 전환<br>
+• 보증 한도: 사업자당 최대 5,000만 원<br>
+• 접수: 신용보증재단 및 정책자금 포털
+</div>
+</div>
+<a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
+</a>
+</div>
+<div class="unified-card">
+<div>
+<span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매장 인프라</span>
+<div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
+<div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+• 지원 혜택: 키오스크/테이블오더 70% 국비 지원<br>
+• 지원 한도: 일반형 500만 원 / 미래형 1,000만 원<br>
+• 접수: 소상공인스마트상점 공식 포털
+</div>
+</div>
+<a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:12px;">
+<button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
+</a>
+</div>
+</div>""", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         col_pol1, col_pol2 = st.columns(2)
@@ -1143,7 +1121,6 @@ with tab_biz:
             "알바 급여 & 주휴수당", "사업자 대출 이자 계산기", "마진율 & 판매가 역산", "카드 수수료 실입금액"
         ])
 
-        # 1. 알바 급여 계산기
         with calc_tab1:
             w1, w2 = st.columns(2)
             with w1:
@@ -1156,15 +1133,12 @@ with tab_biz:
             tot = base + holiday
             ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
             net = tot - ded
-            st.markdown(f"""
-            <div class="calc-result-box">
-                <div style="font-size:0.88rem; color:#64748B;">기본급: {int(base):,}원 &nbsp;·&nbsp; 법정 주휴수당: {int(holiday):,}원 &nbsp;·&nbsp; 공제액: {int(ded):,}원</div>
-                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">예상 실지급액: {int(net):,}원</div>
-                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(주 15시간 이상 근무 시 주휴수당 의무 지급 대상입니다.)</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="calc-result-box">
+<div style="font-size:0.88rem; color:#64748B;">기본급: {int(base):,}원 &nbsp;·&nbsp; 법정 주휴수당: {int(holiday):,}원 &nbsp;·&nbsp; 공제액: {int(ded):,}원</div>
+<div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">예상 실지급액: {int(net):,}원</div>
+<div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(주 15시간 이상 근무 시 주휴수당 의무 지급 대상입니다.)</div>
+</div>""", unsafe_allow_html=True)
 
-        # 2. 대출 이자 & 상환 계산기
         with calc_tab2:
             l1, l2 = st.columns(2)
             with l1:
@@ -1185,20 +1159,17 @@ with tab_biz:
                 total_interest = sum([(loan_amt - (monthly_principal * i)) * r for i in range(n)])
                 monthly_pay = monthly_principal + (loan_amt * r)
                 total_pay = loan_amt + total_interest
-            else: # 만기일시
+            else:
                 monthly_pay = loan_amt * r
                 total_interest = monthly_pay * n
                 total_pay = loan_amt + total_interest
 
-            st.markdown(f"""
-            <div class="calc-result-box">
-                <div style="font-size:0.88rem; color:#64748B;">총 상환금액: {int(total_pay):,}원 &nbsp;·&nbsp; 총 대출 이자: {int(total_interest):,}원</div>
-                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">1회차 월 상환액: {int(monthly_pay):,}원</div>
-                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(신용보증재단 저금리 대환보증 및 정책자금 심사 시 참고 기준액입니다.)</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="calc-result-box">
+<div style="font-size:0.88rem; color:#64748B;">총 상환금액: {int(total_pay):,}원 &nbsp;·&nbsp; 총 대출 이자: {int(total_interest):,}원</div>
+<div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">1회차 월 상환액: {int(monthly_pay):,}원</div>
+<div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(신용보증재단 저금리 대환보증 및 정책자금 심사 시 참고 기준액입니다.)</div>
+</div>""", unsafe_allow_html=True)
 
-        # 3. 마진율 & 판매가 역산기
         with calc_tab3:
             m1, m2 = st.columns(2)
             with m1:
@@ -1212,15 +1183,12 @@ with tab_biz:
             discounted_selling = calc_selling_price * (1 - (discount_rate / 100))
             discounted_profit = discounted_selling - cost_price
 
-            st.markdown(f"""
-            <div class="calc-result-box">
-                <div style="font-size:0.88rem; color:#64748B;">권장 정상 판매가: {int(calc_selling_price):,}원 &nbsp;·&nbsp; 개당 순수익: {int(net_profit):,}원</div>
-                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">{int(discount_rate)}% 할인 적용 판매가: {int(discounted_selling):,}원 (순이익: {int(discounted_profit):,}원)</div>
-                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(공동구매나 번개 특가 품목 가격 책정 시 마진을 방어할 수 있습니다.)</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="calc-result-box">
+<div style="font-size:0.88rem; color:#64748B;">권장 정상 판매가: {int(calc_selling_price):,}원 &nbsp;·&nbsp; 개당 순수익: {int(net_profit):,}원</div>
+<div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">{int(discount_rate)}% 할인 적용 판매가: {int(discounted_selling):,}원 (순이익: {int(discounted_profit):,}원)</div>
+<div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(공동구매나 번개 특가 품목 가격 책정 시 마진을 방어할 수 있습니다.)</div>
+</div>""", unsafe_allow_html=True)
 
-        # 4. 카드 수수료 & 정산액 계산기
         with calc_tab4:
             k1, k2 = st.columns(2)
             with k1:
@@ -1244,10 +1212,8 @@ with tab_biz:
             calc_fee = card_sales * cur_rate
             settle_amt = card_sales - calc_fee
 
-            st.markdown(f"""
-            <div class="calc-result-box">
-                <div style="font-size:0.88rem; color:#64748B;">적용 수수료율: {cur_rate*100}% &nbsp;·&nbsp; 차감 수수료: {int(calc_fee):,}원</div>
-                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">실제 계좌 입금 예정액: {int(settle_amt):,}원</div>
-                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(카드사 공제 후 실제 영업 계좌에 입금되는 정산 기준액입니다.)</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="calc-result-box">
+<div style="font-size:0.88rem; color:#64748B;">적용 수수료율: {cur_rate*100}% &nbsp;·&nbsp; 차감 수수료: {int(calc_fee):,}원</div>
+<div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">실제 계좌 입금 예정액: {int(settle_amt):,}원</div>
+<div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(카드사 공제 후 실제 영업 계좌에 입금되는 정산 기준액입니다.)</div>
+</div>""", unsafe_allow_html=True)

@@ -46,6 +46,7 @@ def load_users():
         "admin": {
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
+            "phone": "031-332-1001",
             "location": "용인시 처인구 이동읍 경기동로 725",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
@@ -351,6 +352,7 @@ if not st.session_state.logged_in_user:
                 new_id = st.text_input("아이디 (연락처)")
                 new_pw = st.text_input("비밀번호 설정", type="password")
                 new_store = st.text_input("매장명")
+                new_phone = st.text_input("매장 대표 전화번호", placeholder="예: 031-123-4567")
                 new_ind = st.selectbox("업종", INDUSTRY_LIST)
                 new_loc = st.text_input("매장 주소")
                 if st.form_submit_button("가입 신청", use_container_width=True):
@@ -358,6 +360,7 @@ if not st.session_state.logged_in_user:
                         users_db[new_id] = {
                             "store_name": new_store,
                             "industry": new_ind,
+                            "phone": new_phone if new_phone else new_id,
                             "location": new_loc,
                             "feature": "전문 고객 맞춤 케어",
                             "map_address": new_loc,
@@ -379,6 +382,7 @@ user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
 store_name = curr_user.get("store_name", "라브리지헤어살롱")
 sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
+sel_phone = curr_user.get("phone", user_key if "-" in user_key else "전화번호 미등록")
 sel_loc = curr_user.get("location", "용인시 처인구")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
 is_pro_user = curr_user.get("is_pro", False)
@@ -448,7 +452,7 @@ def generate_safe_content(prompt):
 col_h1, col_h2 = st.columns([1, 1.2])
 with col_h1:
     st.markdown(f"### {store_name} &nbsp;<span style='font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:3px 8px; border-radius:4px;'>{'PRO 파트너' if is_pro_user else '스탠다드'}</span>", unsafe_allow_html=True)
-    st.caption(f"등록 매장지: {sel_loc} · {sel_industry}")
+    st.caption(f"등록 매장지: {sel_loc} · ☎ {sel_phone} · {sel_industry}")
 with col_h2:
     st.markdown("""<div style="display:flex; justify-content:flex-end; gap:8px; padding-top:6px; flex-wrap:wrap;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">용인친구들 페이스북</a>
@@ -459,19 +463,20 @@ with col_h2:
 st.markdown("<hr style='margin:12px 0 16px 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
 # ==========================================
-# 메인 7대 탭 (특가 입력 탭 독립 분리!)
+# 메인 7대 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감 리포트", "경영 & 행정지원"]
 tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드 (공유창 전면 배치 & 준비중 자동 숨김)
+# TAB 1. 🏠 홈 대시보드 (전화번호 연동 완비)
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
     my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
     my_today_deal = curr_user.get("today_deal", "").strip()
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
+    naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
     # 1. ☀️ 실시간 날씨 카드
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
@@ -506,23 +511,26 @@ with tab_home:
             except Exception:
                 st.warning("위치를 가져오지 못해 기본 주소를 유지합니다.")
 
-    # 2. 내 매장 특가 상태 안내 (특가가 있을 때만 강조 표시)
+    # 2. 내 매장 특가 상태 안내 (주소 및 대표 전화번호 선명하게 노출)
     if my_today_deal and my_today_deal != "오늘의 특가 준비 중":
         my_deal_html = f"""<div class="simple-card" style="border-left: 4px solid #2563EB;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
 <span style="font-size:1.15rem; font-weight:900; color:#0F172A;">내 매장 ({store_name}) 오늘 진행 중인 특가</span>
 <span style="font-size:0.8rem; color:#64748B;">갱신: {my_deal_updated}</span>
 </div>
+<div style="font-size:0.92rem; color:#475569; margin-bottom:8px;">
+📍 {my_saved_addr} &nbsp;|&nbsp; ☎ <a href="tel:{sel_phone}" style="color:#2563EB; font-weight:700; text-decoration:none;">{sel_phone}</a>
+</div>
 <div style="font-size:1.15rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
 <div style="font-size:0.88rem; color:#475569;">상시 혜택: {my_perk}</div>
 </div>"""
         st.markdown(my_deal_html, unsafe_allow_html=True)
     else:
-        st.markdown("""<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:12px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-<span style="font-size:0.9rem; color:#64748B;">현재 내 매장의 당일 특가가 비어 있습니다. 상단 <b>[내 특가 관리]</b> 탭에서 등록하시면 공유창에 바로 노출됩니다.</span>
+        st.markdown(f"""<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; padding:12px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:0.9rem; color:#64748B;">내 매장 ({store_name} · ☎ {sel_phone})의 당일 특가가 비어 있습니다. 상단 <b>[내 특가 관리]</b> 탭에서 등록하시면 공유창에 바로 노출됩니다.</span>
 </div>""", unsafe_allow_html=True)
 
-    # 3. 📢 용인친구들 이웃 매장 실시간 상생 특가 공유창 (특가 준비중인 곳은 완전히 자동 숨김!)
+    # 3. 📢 용인친구들 이웃 매장 실시간 상생 특가 공유창 (매장별 전화번호 + 원클릭 통화 연동)
     st.markdown("""<div style="margin:20px 0 10px 0;">
 <span style="font-size:1.2rem; font-weight:900; color:#0F172A;">용인친구들 실시간 상생 특가 피드</span>
 <div style="font-size:0.86rem; color:#64748B; margin-top:2px;">실제로 오늘 특가 할인을 진행 중인 이웃 제휴 매장들의 알짜 혜택입니다.</div>
@@ -530,17 +538,16 @@ with tab_home:
 
     active_deals_count = 0
     for u_id, u_info in users_db.items():
-        # 마스터 관리자(admin) 및 현재 본인 매장은 이웃 피드에서 제외
         if u_id == "admin" or u_id == user_key:
             continue
         
         o_deal = u_info.get("today_deal", "").strip()
-        # 💡 [핵심]: 특가가 준비 중이거나 비어있으면 공유창에 표시하지 않음
         if not o_deal or o_deal == "오늘의 특가 준비 중" or o_deal == "오늘의 특가 품목 등록 대기 중":
             continue
 
         active_deals_count += 1
         o_name = u_info.get("store_name", u_id)
+        o_phone = u_info.get("phone", u_id if "-" in u_id else "전화번호 미등록")
         o_addr = u_info.get("map_address", u_info.get("location", ""))
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
         o_upd = u_info.get("today_updated", "")
@@ -551,7 +558,9 @@ with tab_home:
 <span style="font-size:1.1rem; font-weight:800; color:#0F172A;">{o_name}</span>
 <span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
 </div>
-<div style="font-size:0.86rem; color:#64748B; margin-bottom:10px;">{o_addr}</div>
+<div style="font-size:0.88rem; color:#475569; margin-bottom:10px;">
+📍 {o_addr} &nbsp;|&nbsp; ☎ <a href="tel:{o_phone}" style="color:#2563EB; font-weight:700; text-decoration:none;">{o_phone}</a>
+</div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:12px 16px; margin-bottom:10px;">
 <div style="font-size:0.75rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.1rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
@@ -579,32 +588,39 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (입력 및 수정을 독립 공간으로 전면 분리!)
+# TAB 2. ⚙️ 내 특가 관리 (대표 전화번호 직접 수정 기능 탑재)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
-<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 단골 제휴 혜택 설정</div>
-<div style="font-size:0.88rem; color:#64748B;">여기서 등록한 특가 품목은 홈 대시보드의 '실시간 상생 특가 피드'에 즉시 노출됩니다.</div>
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">내 매장 특가, 전화번호 & 제휴 혜택 설정</div>
+<div style="font-size:0.88rem; color:#64748B;">여기서 등록한 특가 품목과 대표 전화번호는 홈 대시보드의 '실시간 상생 특가 피드'에 즉시 노출됩니다.</div>
 </div>""", unsafe_allow_html=True)
 
     current_deal_val = curr_user.get("today_deal", "")
     current_perk_val = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
+    current_phone_val = curr_user.get("phone", user_key if "-" in user_key else "")
 
     with st.form("my_store_deal_form"):
-        st.markdown("##### 1. 오늘의 번개 특가 / 할인 품목")
+        col_inp1, col_inp2 = st.columns(2)
+        with col_inp1:
+            st.markdown("##### 1. 매장 대표 전화번호")
+            inp_phone = st.text_input("대표 전화번호", value=current_phone_val, placeholder="예: 031-332-1001 또는 010-1234-5678")
+        with col_inp2:
+            st.markdown("##### 2. 상시 회원 제휴 혜택")
+            inp_perk = st.text_input("상시 혜택 문구", value=current_perk_val, placeholder="예: 용친 회원 방문 시 10% 현장 할인 및 사은품 증정")
+
+        st.markdown("##### 3. 오늘의 번개 특가 / 할인 품목")
         st.caption("비워두거나 '오늘의 특가 준비 중'으로 적으시면 공유 피드에서 자동으로 숨겨집니다.")
         inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌/염색 30% 게릴라 할인 (선착순 5명)")
         
-        st.markdown("##### 2. 상시 회원 제휴 혜택")
-        inp_perk = st.text_input("상시 혜택 문구", value=current_perk_val, placeholder="예: 용친 회원 방문 시 10% 현장 할인 및 샘플 증정")
-        
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        if st.form_submit_button("내 매장 혜택 저장 및 공유창 즉시 반영", use_container_width=True):
+        if st.form_submit_button("내 매장 정보 저장 및 공유창 즉시 반영", use_container_width=True):
+            users_db[user_key]["phone"] = inp_phone.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
             users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             save_users(users_db)
-            st.success("내 매장 혜택이 성공적으로 저장되었습니다! 홈 대시보드 공유창을 확인해 보세요.")
+            st.success("내 매장 대표 전화번호와 혜택 정보가 갱신되었습니다! 홈 대시보드 피드를 확인해 보세요.")
             st.rerun()
 
 # ------------------------------------------
@@ -632,7 +648,7 @@ with tab_mkt:
 
             if st.button("SEO 전문 원고 생성", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
-                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
+                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n전화: {sel_phone}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("작성된 원고", value=out, height=360)
 
@@ -646,11 +662,11 @@ with tab_mkt:
                 d_prm = st.selectbox("제공 혜택", ["무상 정밀 점검 및 체험 서비스", "단독 추가 할인 바우처", "선착순 사은품 증정"], key="m_d_prm")
             with col_d2:
                 d_ctx = st.text_input("상황적 훅 (지역 & 날씨 연계)", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
-                d_cta = st.text_input("행동 유도 (CTA)", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
+                d_cta = st.text_input("행동 유도 (CTA)", value=f"당근 단골 맺기 누르고 매장 방문 시 적용 (문의: {sel_phone})", key="m_d_cta")
 
             if st.button("당근마켓 소식 생성", key="m_d_btn", use_container_width=True):
                 with st.spinner("소식 작성 중..."):
-                    prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
+                    prompt = f"매장: {store_name}\n전화: {sel_phone}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("당근 소식 원고", value=out, height=320)
 
@@ -682,7 +698,7 @@ with tab_mkt:
                 c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인 및 사은품", key="m_c_off")
             with col_c2:
                 c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
-                c_tel = st.text_input("문의처", value=f"{store_name} (문자 회신 가능)", key="m_c_tel")
+                c_tel = st.text_input("문의처", value=f"{store_name} ({sel_phone})", key="m_c_tel")
 
             if st.button("CRM 메시지 3종 생성", key="m_c_btn", use_container_width=True):
                 with st.spinner("문안 작성 중..."):

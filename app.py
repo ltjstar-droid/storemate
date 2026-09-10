@@ -197,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 최적화 CSS (깨진 아이콘 문자열 완벽 제거)
+# 📱 모바일 최적화 CSS (깨진 텍스트 및 사이드바 토글 완전 박멸)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -212,15 +212,16 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
-    /* Streamlit 기본 헤더 및 깨진 툴바/화살표 텍스트 완전 숨김 */
+    /* Streamlit 기본 헤더, 사이드바 토글 버튼 및 깨진 텍스트 완전 숨김 */
     header[data-testid="stHeader"] { display: none !important; }
+    button[data-testid="baseButton-header"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
     button[kind="header"] { display: none !important; }
     #MainMenu, footer { visibility: hidden !important; display: none !important; }
     
-    /* 사이드바 토글 관련 깨진 텍스트 숨김 처리 */
-    span[data-testid="stSidebarNavSeparator"], [data-testid="stSidebarNav"] { display: block; }
-    
+    /* 사이드바 토글 내부 깨진 텍스트 전체 방지 */
+    section[data-testid="stSidebar"] button[kind="tertiary"] { display: none !important; }
+
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
@@ -484,16 +485,6 @@ with st.sidebar:
     st.markdown(f"### {store_name}")
     st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
-    
-    # ☎️ 깨지던 expander 대신 직관적인 버튼 폼으로 연락처 수정 구현
-    st.markdown("##### 매장 연락처 변경")
-    with st.form("sidebar_phone_form"):
-        new_p = st.text_input("새 전화번호", value=store_phone, label_visibility="collapsed")
-        if st.form_submit_button("전화번호 즉시 변경", use_container_width=True):
-            users_db[user_key]["phone"] = new_p.strip()
-            save_users(users_db)
-            st.success("변경 완료되었습니다.")
-            st.rerun()
 
     if not is_approved_permanent:
         if is_in_trial:
@@ -713,7 +704,7 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리
+# TAB 2. ⚙️ 내 특가 관리 (전화번호 수정 폼 통합)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">

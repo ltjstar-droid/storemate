@@ -106,7 +106,7 @@ def save_deals(data):
         pass
 
 # ==========================================
-# 📍 GPS 좌표 기반 역지오코딩 & 동적 날씨 조회
+# ☀️ 직관적인 그래픽 날씨 & 역지오코딩 엔진
 # ==========================================
 def reverse_geocode(lat, lon):
     try:
@@ -123,6 +123,11 @@ def reverse_geocode(lat, lon):
     return "용인시 처인구"
 
 def get_live_weather(lat=37.16, lon=127.21):
+    # 단정하고 세련된 벡터 SVG 그래픽 심볼 정의
+    icon_sun = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>"""
+    icon_cloud = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>"""
+    icon_rain = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>"""
+
     try:
         url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
         res = requests.get(url, timeout=3)
@@ -133,20 +138,24 @@ def get_live_weather(lat=37.16, lon=127.21):
             
             if code in [0, 1]:
                 status = "맑음"
-                tip = "화창한 날씨입니다. 매장 쇼윈도와 입구를 정돈해 자연스러운 워크인 방문을 유도하세요."
+                tip = "화창한 날씨입니다. 매장 쇼윈도와 전면 진열대를 정돈해 자연스러운 방문을 유도하세요."
+                svg_icon = icon_sun
             elif code in [2, 3]:
                 status = "구름 많음 / 흐림"
-                tip = "차분한 날씨입니다. 아늑한 조명과 잔잔한 배경음악으로 고객 체류시간을 늘려보세요."
+                tip = "차분한 날씨입니다. 아늑한 실내 조명과 배경 음악으로 고객 체류시간을 늘려보세요."
+                svg_icon = icon_cloud
             elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
                 status = "비 / 강수"
-                tip = "우천 시 방문 고객을 위해 우산 빗물받이와 단골 전용 우천 혜택을 안내하세요."
+                tip = "비 오는 날 방문 고객을 위해 우산 빗물받이와 단골 전용 우천 혜택을 안내해 보세요."
+                svg_icon = icon_rain
             else:
                 status = "무난함"
-                tip = "일교차와 기온 변화에 맞춰 단골 고객 안부 문자와 번개 특가를 활성화하세요."
-            return {"temp": temp, "status": status, "tip": tip}
+                tip = "기온 변화에 맞춰 단골 고객 안부 문자와 번개 특가를 적극 홍보해 보세요."
+                svg_icon = icon_sun
+            return {"temp": temp, "status": status, "tip": tip, "icon": svg_icon}
     except Exception:
         pass
-    return {"temp": 22.0, "status": "쾌적함", "tip": "오늘 매장 상황에 맞춰 단골 고객 안부 문자와 번개 특가를 활용하세요."}
+    return {"temp": 22.0, "status": "쾌적함", "tip": "오늘 매장 상황에 맞춰 단골 고객 안부 문자와 번개 특가를 활용하세요.", "icon": icon_sun}
 
 st.set_page_config(
     page_title="STORE MATE | 매장비서",
@@ -156,7 +165,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 미니멀 화이트 테마 CSS
+# 🎨 가독성 중심 미니멀 화이트 테마 CSS
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -219,18 +228,19 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
     }
 
+    /* 실시간 그래픽 날씨 카드 */
     .live-weather-card {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-left: 4px solid #2563EB;
         border-radius: 12px;
-        padding: 16px 20px;
+        padding: 18px 22px;
         margin-bottom: 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 14px;
     }
 
     .sound-station-card {
@@ -301,7 +311,7 @@ if "show_deal_edit" not in st.session_state:
 if "active_join_deal_id" not in st.session_state:
     st.session_state.active_join_deal_id = None
 
-# GPS 동적 상태 관리 (기본값: 용인 송전)
+# GPS 동적 상태
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -467,28 +477,34 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. 📍 실시간 GPS 날씨 & 지역 브리핑 카드
+    # 1. ☀️ 실시간 그래픽 날씨 & 위치 감지 카드
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
     
-    col_w_info, col_w_btn = st.columns([3, 1])
+    col_w_info, col_w_btn = st.columns([3.2, 1])
     with col_w_info:
         st.markdown(f"""
         <div class="live-weather-card">
-            <div>
-                <div style="font-size:0.75rem; font-weight:800; color:#2563EB; letter-spacing:0.05em; text-transform:uppercase;">CURRENT LOCATION & WEATHER</div>
-                <div style="font-size:1.05rem; font-weight:800; color:#0F172A; margin-top:2px;">
-                    {st.session_state.current_region_name} &nbsp;·&nbsp; <b>{weather_info['status']} ({weather_info['temp']}°C)</b>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <div>{weather_info['icon']}</div>
+                <div>
+                    <div style="font-size:0.75rem; font-weight:800; color:#2563EB; letter-spacing:0.05em; text-transform:uppercase;">CURRENT LOCATION & WEATHER</div>
+                    <div style="font-size:1.08rem; font-weight:800; color:#0F172A; margin-top:1px;">
+                        {st.session_state.current_region_name} &nbsp;·&nbsp; <b>{weather_info['status']}</b>
+                    </div>
+                    <div style="font-size:0.85rem; color:#475569; margin-top:3px;">
+                        {weather_info['tip']}
+                    </div>
                 </div>
-                <div style="font-size:0.85rem; color:#475569; margin-top:4px;">
-                    {weather_info['tip']}
-                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:1.6rem; font-weight:900; color:#0F172A;">{weather_info['temp']}°C</div>
+                <div style="font-size:0.75rem; color:#64748B;">실시간 기상청 연동</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
     with col_w_btn:
-        st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
         if st.button("📍 현재 내 위치 감지", key="btn_detect_gps", use_container_width=True):
-            # 브라우저 IP/네트워크 기반 위치 빠른 감지
             try:
                 ip_res = requests.get("https://ipapi.co/json/", timeout=2).json()
                 lat = ip_res.get("latitude", 37.16)
@@ -559,10 +575,9 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. 📢 마케팅 스튜디오 (현재 감지 지역 자동 매칭)
+# TAB 2. 📢 마케팅 스튜디오
 # ------------------------------------------
 with tab_mkt:
-    # 감지된 현재 지역을 마케팅 키워드 기본값에 반영
     current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
     mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
@@ -642,7 +657,6 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 3종", value=out, height=320)
 
-    # 💬 AI 리뷰 대응 센터 (6대 맞춤형 스타일)
     with mkt_sub5:
         st.markdown("##### 네이버 플레이스 & 배달/당근 리뷰 자동 답글 솔루션")
         cust_rev = st.text_area("고객 리뷰 본문 붙여넣기", placeholder="고객이 남긴 별점 리뷰 또는 후기 내용을 입력하세요.")
@@ -676,7 +690,7 @@ with tab_mkt:
                 st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 3. 🛒 로컬 공동구매 (관리자 전용 명단 제어)
+# TAB 3. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["진행 프로젝트 목록", "소모품 도매 발주", "신규 공구 제안"])
@@ -1073,8 +1087,9 @@ with tab_biz:
         """, unsafe_allow_html=True)
 
         st.markdown("##### 🌙 일일 영업 결산 리포트")
-        cl_col1, cl_col2 = st.columns(2)
-        with cl_col1:
+        # 오타 수정 완료: cl_col1, cl_col2 -> col_cl1, col_cl2 일치화
+        col_cl1, col_cl2 = st.columns(2)
+        with col_cl1:
             c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
             c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석"], key="b_flow")
         with col_cl2:

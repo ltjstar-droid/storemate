@@ -480,15 +480,6 @@ with st.sidebar:
     st.markdown(f"### {store_name}")
     st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
-    
-    st.markdown("##### 매장 연락처 변경")
-    with st.form("sidebar_phone_form"):
-        new_p = st.text_input("새 전화번호", value=store_phone, label_visibility="collapsed")
-        if st.form_submit_button("전화번호 즉시 변경", use_container_width=True):
-            users_db[user_key]["phone"] = new_p.strip()
-            save_users(users_db)
-            st.success("변경 완료되었습니다.")
-            st.rerun()
 
     if not is_approved_permanent:
         if is_in_trial:
@@ -574,39 +565,16 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (🔔 모바일 전용 유료 승인 신청 배너 추가!)
+# 모바일 상단 바
 # ==========================================
-pro_action_html = ""
-if not is_approved_permanent:
-    if curr_user.get("pro_status") != "대기중":
-        pro_action_html = """
-        <form action="" method="get" style="margin-top: 6px;">
-            <button type="submit" name="request_pro" value="true" style="width:100%; height:36px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer;">
-                ⭐ 유료버전 사용 승인 신청하기
-            </button>
-        </form>
-        """
-    else:
-        pro_action_html = '<div style="font-size:0.75rem; color:#D97706; font-weight:700; margin-top:4px;">⏳ 관리자 유료 승인 심사 대기 중입니다.</div>'
-
-# 폼 버튼 제출 감지 처리
-if st.query_params.get("request_pro") == "true":
-    curr_user["pro_status"] = "대기중"
-    users_db[user_key] = curr_user
-    save_users(users_db)
-    st.success("유료 승인 신청이 접수되었습니다.")
-    st.query_params.clear()
-    st.rerun()
-
-st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
 <div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
-{pro_action_html}
 </div>
 </div>
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; margin-top: 8px;">
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
 <a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 인스타</a>
 <a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 스레드</a>
@@ -731,7 +699,7 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리
+# TAB 2. ⚙️ 내 특가 관리 (전화번호 변경 폼 일체화)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -773,7 +741,7 @@ with tab_mkt:
 <div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">PRO 전용 유료 마케팅 기능입니다</div>
 <div style="font-size: 0.86rem; color: #7F1D1D; line-height: 1.5;">
 7일 무료 체험 기간이 만료되었습니다.<br>
-상단 <b>[⭐ 유료버전 사용 승인 신청하기]</b> 버튼을 눌러주시면 관리자 승인 후 계속 이용하실 수 있습니다.
+사이드바에서 <b>[유료버전 사용 승인 신청]</b>을 눌러주시면 관리자 승인 후 계속 이용하실 수 있습니다.
 </div>
 </div>""", unsafe_allow_html=True)
     else:

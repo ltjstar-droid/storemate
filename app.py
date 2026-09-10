@@ -196,7 +196,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 최적화 CSS
+# 📱 모바일 최적화 CSS (깨진 아이콘 및 상단 바 제거)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -211,14 +211,31 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
+    /* Streamlit 기본 헤더 및 툴바, 깨진 화살표 텍스트 숨김 */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    button[kind="header"] {
+        display: none !important;
+    }
+    #MainMenu, footer {
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    /* 본문 상단 패딩 축소 */
     .block-container {
-        padding-top: 1.2rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 2rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
         max-width: 100% !important;
     }
 
+    /* 탭 가로 스크롤 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -297,15 +314,11 @@ st.markdown("""
         justify-content: space-between;
     }
 
-    .sound-station-card {
-        background: #FFFFFF;
+    .audio-mixer-card {
+        background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
         padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
         margin-bottom: 12px;
     }
 
@@ -372,7 +385,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구 이동읍"
 
 # ==========================================
-# 로그인 화면 (가입 시 7일 무료 자동 부여)
+# 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 30px 0 16px 0;">
@@ -397,7 +410,7 @@ if not st.session_state.logged_in_user:
                     st.error("등록되지 않은 계정입니다.")
     with auth_tab2:
         with st.form("signup_form"):
-            st.caption("✨ 신규 가입 시 7일간 모든 PRO 기능(마케팅 스튜디오 등)을 무료로 체험하실 수 있습니다.")
+            st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
             new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
             new_pw = st.text_input("비밀번호 설정", type="password")
             new_store = st.text_input("매장 상호명")
@@ -417,7 +430,7 @@ if not st.session_state.logged_in_user:
                         "today_deal": "",
                         "today_updated": now.strftime("%Y-%m-%d"),
                         "pw": new_pw,
-                        "is_pro": True,  # 7일간 무료 PRO 부여
+                        "is_pro": True,
                         "pro_status": "무료체험",
                         "created_at": now.strftime("%Y-%m-%d"),
                         "trial_end": trial_end_date
@@ -427,7 +440,7 @@ if not st.session_state.logged_in_user:
     st.stop()
 
 # ==========================================
-# ⏳ [7일 무료 만료 및 권한 판정 로직]
+# 회원 권한 계산
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
@@ -436,7 +449,6 @@ sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
 sel_loc = curr_user.get("location", "용인시 처인구")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
 
-# 무료 기간 계산 및 권한 확정
 today_now = datetime.now()
 trial_end_str = curr_user.get("trial_end", today_now.strftime("%Y-%m-%d"))
 try:
@@ -469,9 +481,9 @@ with st.sidebar:
     
     if not is_approved_permanent:
         if is_in_trial:
-            st.caption(f"📅 무료 체험 종료일: {trial_end_str}")
+            st.caption(f"무료 체험 종료일: {trial_end_str}")
         else:
-            st.warning("⚠️ 7일 무료 체험이 종료되었습니다. 관리자 승인 후 유료 버전을 이용하실 수 있습니다.")
+            st.warning("7일 무료 체험이 종료되었습니다. 관리자 승인 후 유료 버전을 이용하실 수 있습니다.")
             
         if curr_user.get("pro_status") != "대기중":
             if st.button("유료버전 사용 승인 신청", use_container_width=True):
@@ -483,9 +495,8 @@ with st.sidebar:
         else:
             st.info("관리자 유료 승인 대기 중입니다.")
     else:
-        st.success("정식 유료 파트너 승인 완료 계정입니다.")
+        st.success("정식 유료 파트너 계정입니다.")
 
-    # 🔒 [관리자 전용 구역]
     if user_key == "admin":
         st.markdown("---")
         st.markdown("##### 📊 관리자: 방문 통계")
@@ -509,7 +520,6 @@ with st.sidebar:
                 continue
             ustore = udata.get("store_name", uid)
             u_status = udata.get("pro_status", "미신청")
-            u_trial_end = udata.get("trial_end", "-")
             st.write(f"**{ustore}** (`{uid}`) | 상태: `{u_status}`")
             col_a, col_b = st.columns(2)
             with col_a:
@@ -586,7 +596,6 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. 실시간 날씨
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
     weather_html = f"""<div class="weather-box">
 <div style="display:flex; align-items:center; gap:14px;">
@@ -618,7 +627,6 @@ with tab_home:
 
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
-    # 2. 내 매장 특가 상태
     if my_today_deal and my_today_deal != "오늘의 특가 준비 중":
         my_deal_html = f"""<div class="simple-card" style="border-left: 4px solid #2563EB;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -636,7 +644,6 @@ with tab_home:
 
     st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
 
-    # 3. 이웃 매장 실시간 특가 피드
     st.markdown("""<div style="margin:20px 0 8px 0;">
 <div style="font-size:1.1rem; font-weight:900; color:#0F172A;">용인친구들 실시간 상생 특가 피드</div>
 <div style="font-size:0.82rem; color:#64748B;">실제 특가를 진행 중인 이웃 제휴 매장의 혜택입니다.</div>
@@ -675,7 +682,6 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
-    # 4. 진행 중인 공동구매
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -719,8 +725,8 @@ with tab_my_deal:
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
-        st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
-<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">⚠️ PRO 전용 유료 마케팅 기능입니다</div>
+        st.markdown("""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
+<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">PRO 전용 유료 마케팅 기능입니다</div>
 <div style="font-size: 0.86rem; color: #7F1D1D; line-height: 1.5;">
 7일 무료 체험 기간이 만료되었습니다.<br>
 사이드바에서 <b>[유료버전 사용 승인 신청]</b>을 눌러주시면 관리자 승인 후 계속 이용하실 수 있습니다.
@@ -926,7 +932,7 @@ with tab_deals:
 with tab_music:
     st.markdown("""<div class="simple-card">
 <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:2px;">매장 전용 음악 큐레이션 스튜디오</div>
-<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 업종 분위기에 맞춰 바로 재생할 수 있는 오디오 스테이션입니다.</div>
+<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 분위기에 맞춰 바로 재생할 수 있는 오디오 스테이션입니다.</div>
 </div>""", unsafe_allow_html=True)
 
     music_presets = [
@@ -978,7 +984,7 @@ with tab_music:
         
         col_m_btn1, col_m_btn2 = st.columns(2)
         with col_m_btn1:
-            if st.button(f"앱 내 플레이어 연결", key=f"btn_embed_play_{idx}", use_container_width=True):
+            if st.button("앱 내 플레이어 연결", key=f"btn_embed_play_{idx}", use_container_width=True):
                 st.session_state.current_stream_embed = preset["yt_embed"]
                 st.session_state.current_stream_title = preset["vibe"]
                 st.toast(f"선택됨: {preset['vibe']}")

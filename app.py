@@ -48,6 +48,7 @@ def load_users():
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
             "location": "용인시 처인구 이동읍 경기동로 725",
+            "phone": "031-332-1234",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
             "map_perk": "용친 회원 안경렌즈 추가 10% DC & 고급 안경 클리너 증정",
@@ -384,7 +385,7 @@ if not st.session_state.logged_in_user:
     auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
     with auth_tab1:
         with st.form("login_form"):
-            login_id = st.text_input("아이디 (전화번호)", placeholder="01012345678")
+            login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")
             login_pw = st.text_input("비밀번호", type="password")
             if st.form_submit_button("로그인", use_container_width=True):
                 if login_id in users_db:
@@ -399,9 +400,10 @@ if not st.session_state.logged_in_user:
     with auth_tab2:
         with st.form("signup_form"):
             st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
-            new_id = st.text_input("전화번호 (아이디로 사용)", placeholder="01012345678")
+            new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
             new_pw = st.text_input("비밀번호 설정", type="password")
             new_store = st.text_input("매장 상호명")
+            new_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             new_loc = st.text_input("매장 주소", placeholder="예: 용인시 처인구 이동읍...")
             if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
@@ -412,6 +414,7 @@ if not st.session_state.logged_in_user:
                         "store_name": new_store,
                         "industry": new_ind,
                         "location": new_loc,
+                        "phone": new_phone if new_phone else "010-0000-0000",
                         "feature": "전문 고객 맞춤 케어",
                         "map_address": new_loc,
                         "map_perk": "용친 회원 방문 시 특별 혜택 제공",
@@ -433,6 +436,7 @@ if not st.session_state.logged_in_user:
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
 store_name = curr_user.get("store_name", "라브리지헤어살롱")
+store_phone = curr_user.get("phone", "031-000-0000")
 sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
 sel_loc = curr_user.get("location", "용인시 처인구")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
@@ -465,9 +469,19 @@ else:
 
 with st.sidebar:
     st.markdown(f"### {store_name}")
-    st.caption(f"📞 연락처: {user_key}")
+    st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
     
+    # ☎️ 사이드바 내 매장 전화번호 편집 기능 추가
+    with st.expander("매장 연락처 수정"):
+        with st.form("sidebar_phone_form"):
+            new_p = st.text_input("전화번호", value=store_phone)
+            if st.form_submit_button("번호 변경", use_container_width=True):
+                users_db[user_key]["phone"] = new_p
+                save_users(users_db)
+                st.success("전화번호가 변경되었습니다.")
+                st.rerun()
+
     if not is_approved_permanent:
         if is_in_trial:
             st.caption(f"무료 체험 종료일: {trial_end_str}")
@@ -552,13 +566,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (전화번호 및 상호명 명시)
+# 모바일 상단 바 (매장 전화번호 및 SNS 노출)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">📞 연락처: {user_key} &nbsp;|&nbsp; {sel_loc}</div>
+<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
@@ -623,7 +637,7 @@ with tab_home:
 <span style="font-size:0.75rem; color:#64748B;">{my_deal_updated}</span>
 </div>
 <div style="font-size:1.1rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
-<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk}</div>
+<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>"""
         st.markdown(my_deal_html, unsafe_allow_html=True)
     else:
@@ -649,12 +663,17 @@ with tab_home:
         active_deals_count += 1
         o_name = u_info.get("store_name", u_id)
         o_addr = u_info.get("map_address", u_info.get("location", ""))
+        o_phone = u_info.get("phone", "전화번호 미등록")
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
+        o_upd = u_info.get("today_updated", "")
         o_nav_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(o_addr)}"
         
         feed_card_html = f"""<div class="simple-card">
-<div style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</div>
-<div style="font-size:0.8rem; color:#64748B; margin-bottom:8px;">{o_addr} (📞 {u_id})</div>
+<div style="display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</span>
+<span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
+</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:6px;">{o_addr} &nbsp;|&nbsp; ☎️ <b>{o_phone}</b></div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:10px 14px; margin-bottom:8px;">
 <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
@@ -691,22 +710,27 @@ with tab_my_deal:
 
     current_deal_val = curr_user.get("today_deal", "")
     current_perk_val = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
+    current_phone_val = curr_user.get("phone", store_phone)
 
     with st.form("my_store_deal_form"):
-        st.markdown("**1. 오늘의 번개 특가 품목**")
+        st.markdown("**1. 매장 대표 전화번호**")
+        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="031-000-0000", label_visibility="collapsed")
+        
+        st.markdown("**2. 오늘의 번개 특가 품목**")
         inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌 30% 게릴라 할인 (선착순 5명)", label_visibility="collapsed")
         st.caption("비워두시면 공유창에서 자동으로 숨겨집니다.")
         
-        st.markdown("**2. 상시 회원 제휴 혜택**")
+        st.markdown("**3. 상시 회원 제휴 혜택**")
         inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC", label_visibility="collapsed")
         
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
+            users_db[user_key]["phone"] = inp_phone.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
             users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             save_users(users_db)
-            st.success("내 매장 혜택이 저장되었습니다.")
+            st.success("내 매장 정보가 저장되었습니다.")
             st.rerun()
 
 # ------------------------------------------
@@ -916,12 +940,12 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 5. 🎧 음악 스튜디오
+# TAB 5. 🎧 음악 스튜디오 (앱 내 플레이어 제거 및 큐레이션 최적화)
 # ------------------------------------------
 with tab_music:
     st.markdown("""<div class="simple-card">
 <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:2px;">매장 전용 음악 큐레이션 스튜디오</div>
-<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 분위기에 맞춰 바로 재생할 수 있는 오디오 스테이션입니다.</div>
+<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 분위기에 맞춰 유튜브 스트리밍 플레이리스트를 원클릭으로 연결합니다.</div>
 </div>""", unsafe_allow_html=True)
 
     music_presets = [
@@ -929,64 +953,46 @@ with tab_music:
             "slot": "오전 오픈 준비 (09:00~11:30)", 
             "vibe": "경쾌한 모닝 보사노바 & 어쿠스틱", 
             "query": "재즈 보사노바 오전 매장 음악 연속재생", 
-            "tag": "모닝 스타트",
-            "yt_embed": "https://www.youtube.com/embed/5qap5aO4i9A"
+            "tag": "모닝 스타트"
         },
         {
             "slot": "점심 / 피크 (11:30~14:00)", 
             "vibe": "생동감 넘치는 칠 팝 & 라운지", 
             "query": "어쿠스틱 팝 피크타임 매장 음악 연속재생", 
-            "tag": "피크 활력",
-            "yt_embed": "https://www.youtube.com/embed/jfKfPfyJRdk"
+            "tag": "피크 활력"
         },
         {
             "slot": "나른한 오후 (14:00~17:30)", 
             "vibe": "편안한 감성 발라드 피아노 커버", 
             "query": "2000년대 감성 발라드 피아노 연주곡 연속재생", 
-            "tag": "힐링 케어",
-            "yt_embed": "https://www.youtube.com/embed/DWcJFNfaw9c"
+            "tag": "힐링 케어"
         },
         {
             "slot": "저녁 & 마감 (17:30~21:00)", 
             "vibe": "고급스럽고 아늑한 라운지 재즈", 
             "query": "세련된 카페 라운지 재즈 음악 연속재생", 
-            "tag": "이브닝 마감",
-            "yt_embed": "https://www.youtube.com/embed/Dx5qFachd3A"
+            "tag": "이브닝 마감"
         }
     ]
 
-    st.markdown("##### 1. 시간대별 원클릭 스테이션")
-    if "current_stream_embed" not in st.session_state:
-        st.session_state.current_stream_embed = music_presets[0]["yt_embed"]
-        st.session_state.current_stream_title = music_presets[0]["vibe"]
-
+    st.markdown("##### 1. 시간대별 원클릭 추천 스테이션")
     for idx, preset in enumerate(music_presets):
         p_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(preset['query'])}"
-        
         st.markdown(f"""<div class="audio-mixer-card">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
 <span style="font-size:0.75rem; font-weight:800; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">{preset['tag']}</span>
 <span style="font-size:0.8rem; color:#64748B;">{preset['slot']}</span>
 </div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-bottom:10px;">{preset['vibe']}</div>
+<a href="{p_url}" target="_blank" style="text-decoration:none;">
+<button style="width:100%; height:40px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
+유튜브 음악 스트리밍 열기
+</button>
+</a>
 </div>""", unsafe_allow_html=True)
-        
-        col_m_btn1, col_m_btn2 = st.columns(2)
-        with col_m_btn1:
-            if st.button("앱 내 플레이어 연결", key=f"btn_embed_play_{idx}", use_container_width=True):
-                st.session_state.current_stream_embed = preset["yt_embed"]
-                st.session_state.current_stream_title = preset["vibe"]
-                st.toast(f"선택됨: {preset['vibe']}")
-        with col_m_btn2:
-            st.link_button("유튜브 앱으로 열기", p_url, use_container_width=True)
 
     st.markdown("---")
-    st.markdown(f"##### 2. 실시간 매장 오디오 플레이어 : `{st.session_state.current_stream_title}`")
-    st.components.v1.iframe(st.session_state.current_stream_embed, height=220, scrolling=False)
-    st.caption("휴대폰 화면을 켜둔 채 백그라운드로 매장 블루투스 스피커에 연결해 사용하세요.")
-
-    st.markdown("---")
-    st.markdown("##### 3. 장르 & 분위기 맞춤 검색 조율기")
+    st.markdown("##### 2. 장르 & 분위기 맞춤 검색 조율기")
     with st.container():
         st.markdown("""<div class="simple-card">
 <div style="font-size:0.88rem; color:#475569; margin-bottom:8px;">원하는 분위기를 선택하면 유튜브 스트리밍 채널을 즉시 찾아줍니다.</div>""", unsafe_allow_html=True)

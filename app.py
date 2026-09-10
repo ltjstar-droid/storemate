@@ -109,7 +109,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 깔끔한 모던 CSS
+# 정통 모던 엔터프라이즈 CSS
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -215,6 +215,26 @@ st.markdown("""
         margin-bottom: 14px;
         font-weight: 500;
     }
+
+    /* 정책지원 전용 카드 그리드 */
+    .policy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 14px;
+        margin-top: 10px;
+    }
+    .policy-box {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .policy-box-title { font-size: 0.98rem; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .policy-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; width: fit-content; }
+    .policy-detail { font-size: 0.85rem; color: #475569; line-height: 1.5; margin-bottom: 12px; }
 
     .pro-builder-box {
         background: #FFFFFF;
@@ -451,8 +471,8 @@ client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
-너는 골목상권 및 로컬 비즈니스 분야 20년 경력의 수석 마케팅 디렉터다.
-이모티콘 남발은 배제하고, 전문 컨설턴트처럼 정갈하고 세련된 문장으로 실제 집행 가능한 완성본을 제공한다.
+너는 소상공인 실무 정책 및 세무 행정, 로컬 마케팅 분야의 20년 경력 수석 컨설턴트다.
+모호한 미사여구나 이모티콘은 배제하고, 정확한 신청 자격, 구체적인 제출 단계, 절세 전략을 표준 공문서 및 전문 컨설팅 리포트 형식으로 전달한다.
 """
 
 def generate_safe_content(prompt):
@@ -523,7 +543,7 @@ with tabs[1]:
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 공동구매 (원래 완벽했던 3단 서브탭 복원!)
+# 2. 공동구매 (3단 서브탭 + D-day + 참여자 명단)
 # ==========================================
 with tabs[2]:
     st.markdown("""
@@ -637,7 +657,6 @@ with tabs[3]:
         <div class="pro-builder-box">
             <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
             <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">네이버 로컬 스마트블록 전문 포스팅 아키텍트</div>
-            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">검색 유입과 플레이스 예약 전환율을 동시에 노리는 상업용 전문 포스팅을 기획합니다.</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -655,7 +674,7 @@ with tabs[3]:
             bl_core_point = st.text_area("매장 핵심 차별점 (시그니처/장비/서비스)", value=sel_feature, height=85, key="orig_bl_core")
 
         if st.button("네이버 상위노출 최적화 전문 원고 생성", key="orig_bl_submit"):
-            with st.spinner("알고리즘 적합성 및 검색 키워드 가중치 분석 중..."):
+            with st.spinner("알고리즘 적합성 분석 중..."):
                 prompt = f"""
                 업종: {sel_industry}
                 매장명: {store_name}
@@ -687,7 +706,6 @@ with tabs[4]:
         st.markdown("""
         <div class="pro-lock-banner">
             <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">당근마켓 동네생활 바이럴 엔진 (PRO 회원 전용)</div>
-            <div style="font-size:0.88rem;">동네 이웃 주민들의 댓글과 단골 맺기를 이끌어내는 전문 소식 작성기입니다.</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -849,61 +867,205 @@ with tabs[7]:
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 8. 행정서류 (원래 좋았던 직관적인 안내 방식으로 100% 원복!)
+# 8. 행정서류 (사장님이 요청한 바로 그 완전 고도화 버전!)
 # ==========================================
 with tabs[8]:
-    st.markdown("##### 지원금 필수 서류 발급처 안내")
-    doc = st.selectbox("필요 서류 선택", [
-        "소상공인확인서", 
-        "부가가치세 과세표준증명원", 
-        "국세 완납증명서", 
-        "지방세 완납증명서"
-    ], key="orig_doc_sel")
-    
-    DOCS = {
-        "소상공인확인서": ("중소기업현황정보시스템", "회원가입 후 [확인서 발급신청] ➡️ 온라인 서류 제출 ➡️ PDF 다운로드"),
-        "부가가치세 과세표준증명원": ("국세청 홈택스", "국세증명·사업자등록 ➡️ [부가가치세 과세표준증명] 신청 후 발급"),
-        "국세 완납증명서": ("국세청 홈택스", "국세증명·사업자등록 ➡️ [납세증명서(국세완납증명)] 출력"),
-        "지방세 완납증명서": ("정부24", "검색창에 '지방세 납세증명' 검색 ➡️ 본인 인증 후 즉시 발급")
-    }
-    site, step = DOCS[doc]
-    st.info(f"발급처: **{site}**\n\n신청 방법: {step}")
+    st.markdown("#### 정책자금 및 금융 필수 행정 서식 가이드")
+    st.markdown("""
+    소상공인 정책자금, 신용보증재단 보증서 발급, 금융권 대환대출 신청 시 요구되는 **4대 필수 증빙 서류**의 공식 발급 절차입니다.
+    """)
+
+    st.markdown("""
+    | 서류명 | 주 발급처 | 신청 대상 및 용도 | 법정 수수료 | 평균 소요시간 |
+    | :--- | :--- | :--- | :--- | :--- |
+    | **소상공인확인서** | 중소기업현황정보시스템 | 정부 지원사업, 국비 지원금 신청 시 소상공인 증빙 | 무료 | 즉시 (온라인) |
+    | **부가가치세 과세표준증명** | 국세청 홈택스 / 손택스 | 대출 심사, 보증 심사 시 사업장 매출 규모 증빙 | 무료 | 즉시 (온라인) |
+    | **국세 완납증명서 (납세증명)** | 국세청 홈택스 | 세금 체납 여부 확인 (미납 시 정책 지원 전면 제한) | 무료 | 즉시 (온라인) |
+    | **지방세 완납증명서** | 정부24 / 주민센터 | 지방세(재산세, 주민세 등) 체납 여부 확인 | 무료 | 즉시 (온라인) |
+    """)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("##### 서류별 상세 발급 경로 및 유의사항")
+
+    c_doc1, c_doc2 = st.columns(2)
+    with c_doc1:
+        st.markdown("""
+        <div class="clean-card">
+            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">1. 소상공인확인서 (중소기업확인서)</div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
+                • <b>공식 포털:</b> 중소기업현황정보시스템 (sminfo.mss.go.kr)<br>
+                • <b>발급 단계:</b> 회원가입 및 로그인 ➡️ [확인서 발급신청] ➡️ 사업자 정보 입력 ➡️ 온라인 자료제출(홈택스 자료 연동) ➡️ 확인서 출력<br>
+                • <b>주의사항:</b> 직전 연도 소득세 신고가 완료되어야 정상 발급되며, 매년 갱신이 필요합니다.
+            </p>
+            <a href="https://sminfo.mss.go.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    중소기업현황정보시스템 바로가기
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="clean-card">
+            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">2. 부가가치세 과세표준증명원</div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
+                • <b>공식 포털:</b> 국세청 홈택스 (hometax.go.kr)<br>
+                • <b>발급 단계:</b> 공동/금융인증서 로그인 ➡️ [국세증명·사업자등록 세금관련 신청/신고] ➡️ [부가가치세 과세표준증명] ➡️ 과세기간 선택 후 발급<br>
+                • <b>주의사항:</b> 간이과세자는 [부가가치세 면세사업자 수입금액증명] 또는 해당 간이과세 증명으로 대체될 수 있습니다.
+            </p>
+            <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    국세청 홈택스 바로가기
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_doc2:
+        st.markdown("""
+        <div class="clean-card">
+            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">3. 국세 완납증명서 (납세증명서)</div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
+                • <b>공식 포털:</b> 국세청 홈택스 (hometax.go.kr)<br>
+                • <b>발급 단계:</b> 홈택스 로그인 ➡️ [국세증명·사업자등록] ➡️ [납세증명서(국세완납증명)] ➡️ 수령방법 및 제출처 선택 ➡️ 신청<br>
+                • <b>주의사항:</b> 유효기간이 통상 30일로 짧으므로 보증재단이나 은행 제출 직전에 발급받는 것이 권장됩니다.
+            </p>
+            <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    국세청 납세증명 메뉴 바로가기
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="clean-card">
+            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">4. 지방세 납세증명서 (지방세 완납)</div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
+                • <b>공식 포털:</b> 정부24 (gov.kr)<br>
+                • <b>발급 단계:</b> 정부24 간편인증 로그인 ➡️ 검색창에 '지방세 납세증명' 입력 ➡️ 신청하기 ➡️ 사업자등록번호 입력 후 PDF 발급<br>
+                • <b>주의사항:</b> 개인사업자의 경우 개인 명의와 법인/상호 명의 체납 내역이 모두 조회되니 유의해야 합니다.
+            </p>
+            <a href="https://www.gov.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    정부24 바로가기
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ==========================================
-# 9. 정책지원 (원래 좋았던 직관적인 질의 방식으로 100% 원복!)
+# 9. 정책지원 (사장님이 요청한 바로 그 완전 고도화 버전!)
 # ==========================================
 with tabs[9]:
-    st.markdown("##### 국비 지원금 및 절세 가이드")
-    sub_q = st.selectbox("궁금한 지원 정책 선택", [
-        "전기세 25만 원 국비 지원받는 법",
-        "비싼 대출 이자 4%대로 낮추는 법",
-        "소상공인 간판/키오스크 교체 70% 지원"
-    ], key="orig_sub_q")
-    
-    if st.button("정책 설명 및 신청처 확인", key="orig_sub_btn"):
-        with st.spinner("정책 데이터 조회 중..."):
-            prompt = f"질문: {sub_q}\n소상공인이 바로 실행할 수 있도록 1) 혜택 2) 자격 요건 3) 공식 신청처를 간결하고 명확하게 정리하라."
-            out = generate_safe_content(prompt)
-            if out:
-                st.markdown(f"""
-                <div class="clean-card" style="border-left: 3px solid #2563EB;">
-                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">{sub_q} 가이드</div>
-                    <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
+    st.markdown("#### 2026 소상공인 정책금융 및 국비 지원사업 분석")
+    st.markdown("""
+    소상공인시장진흥공단 및 중소벤처기업부에서 주관하는 주요 지원 정책 핵심 내용입니다.
+    """)
+
+    st.markdown("""
+    <div class="policy-grid">
+        <div class="policy-box">
+            <div>
+                <span class="policy-tag">비용 절감</span>
+                <div class="policy-box-title">소상공인 전기요금 특별지원</div>
+                <div class="policy-detail">
+                    • <b>지원 한도:</b> 사업장당 최대 20만 원~25만 원 전기요금 감면<br>
+                    • <b>신청 자격:</b> 연 매출 6천만 원 이하 소상공인 (일반용·산업용 전력 사용자)<br>
+                    • <b>접수 기관:</b> 소상공인전기요금특별지원.kr (온라인 신청)
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    전기요금 지원 신청처
+                </button>
+            </a>
+        </div>
+        <div class="policy-box">
+            <div>
+                <span class="policy-tag">금융 비용 경감</span>
+                <div class="policy-box-title">고금리 소상공인 저금리 대환보증</div>
+                <div class="policy-detail">
+                    • <b>지원 혜택:</b> 제2금융권 7% 이상 고금리 대출을 4%대 정책 대출로 전환<br>
+                    • <b>보증 한도:</b> 사업자당 최대 5,000만 원 한도 (보증비율 90% 이상)<br>
+                    • <b>접수 기관:</b> 신용보증기금 및 각 시·도 지역신용보증재단
+                </div>
+            </div>
+            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    소상공인정책자금 안내
+                </button>
+            </a>
+        </div>
+        <div class="policy-box">
+            <div>
+                <span class="policy-tag">매장 인프라 국비 지원</span>
+                <div class="policy-box-title">스마트상점 기술보급 국비 지원사업</div>
+                <div class="policy-detail">
+                    • <b>지원 혜택:</b> 테이블오더, 무인 키오스크, 서빙로봇 도입 비용 최대 70% 국비 보조<br>
+                    • <b>지원 한도:</b> 일반형 최대 500만 원, 미래형 최대 1,000만 원 국비 지원<br>
+                    • <b>접수 기관:</b> 소상공인스마트상점 (sbiz.or.kr/smst/index.do)
+                </div>
+            </div>
+            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none;">
+                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+                    스마트상점 공고 보기
+                </button>
+            </a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("##### 사업장 조건별 맞춤형 정책지원 AI 진단")
+
+    with st.container():
+        st.markdown("""
+        <div class="clean-card">
+            <p style="font-size:0.9rem; color:#475569; margin-bottom:12px;">
+                현재 매장의 매출 규모와 자금 필요 목적을 선택하시면 적합한 정책자금 항목과 신청 로드맵을 AI가 브리핑합니다.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            p_rev = st.selectbox("사업장 연 매출 규모", ["3,000만 원 미만 (영세 소상공인)", "3,000만 원 ~ 1억 원 미만", "1억 원 ~ 3억 원 미만", "3억 원 초과"], key="p_rev")
+        with col_p2:
+            p_purpose = st.selectbox("가장 시급한 지원 분야", ["고금리 대출 이자 부담 완화", "매장 설비/디지털 인프라(키오스크 등) 구축", "운영자금 및 고정비(임대료·전기세) 보조", "사업장 간판·인테리어 개선"], key="p_purpose")
+
+        if st.button("내 맞춤형 지원사업 진단서 확인", key="btn_p_ai"):
+            with st.spinner("전문 정책지원 데이터를 분석하고 있습니다..."):
+                prompt = f"""
+                업종: {sel_industry}
+                소재지: {sel_loc}
+                연매출: {p_rev}
+                목적: {p_purpose}
+
+                위 사업장에 가장 유리한 정책자금 및 정부지원사업을 2가지 추천하고,
+                1) 구체적 지원 내용
+                2) 신청 요건 및 필수 구비 서류
+                3) 신청 시 탈락을 방지하는 실무 팁
+                을 표준 비즈니스 컨설팅 리포트 양식으로 간결하고 전문적으로 제시하라.
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.markdown(f"""
+                    <div class="clean-card" style="border-left: 4px solid #2563EB; margin-top:14px;">
+                        <div style="font-weight:700; color:#0F172A; font-size:1.05rem; margin-bottom:10px;">사업장 맞춤 정책지원 분석 리포트</div>
+                        <div style="color:#334155; font-size:0.92rem; line-height:1.7;">{out}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 # 10. 영업마감
 with tabs[10]:
-    st.markdown("##### 일일 영업 마감 리포트")
     t_mood = st.selectbox("오늘 매장 분위기", ["한산해서 아쉬움", "특정 시간대만 바쁨", "목표 매출 달성"], key="orig_t_mood")
-    if st.button("마감 브리핑 및 내일 처방 받기", key="orig_close_btn"):
+    if st.button("마감 브리핑 작성 실행", key="v4_close_btn"):
         with st.spinner("마감 리포트 작성 중..."):
-            prompt = f"가게: {store_name} ({sel_industry})\n오늘 분위기: {t_mood}\n1. 일일 브리핑 2. 내일 영업 팁 1가지 작성."
-            out = generate_safe_content(prompt)
+            out = generate_safe_content(f"가게: {store_name} ({sel_industry})\n오늘 분위기: {t_mood}\n전문적인 일일 영업 마감 분석과 익일 매출 증대 전략 제언 1가지 작성.")
             if out:
                 st.markdown(f"""
                 <div class="clean-card" style="border-left: 3px solid #2563EB;">
-                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">영업 마감 브리핑</div>
+                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">일일 영업 마감 분석 리포트</div>
                     <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
                 </div>
                 """, unsafe_allow_html=True)

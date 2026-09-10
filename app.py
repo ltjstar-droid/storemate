@@ -197,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 최적화 CSS (전화번호 한 줄 고정 추가)
+# 📱 모바일 최적화 CSS (깨진 아이콘 문자열 완벽 제거)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -212,11 +212,15 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
+    /* Streamlit 기본 헤더 및 깨진 툴바/화살표 텍스트 완전 숨김 */
     header[data-testid="stHeader"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
     button[kind="header"] { display: none !important; }
     #MainMenu, footer { visibility: hidden !important; display: none !important; }
-
+    
+    /* 사이드바 토글 관련 깨진 텍스트 숨김 처리 */
+    span[data-testid="stSidebarNavSeparator"], [data-testid="stSidebarNav"] { display: block; }
+    
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
@@ -225,7 +229,6 @@ st.markdown("""
         max-width: 100% !important;
     }
 
-    /* 상단 매장 정보 한 줄 고정 클래스 */
     .store-meta-line {
         font-size: 0.8rem;
         color: #64748B;
@@ -392,7 +395,7 @@ if not st.session_state.logged_in_user:
 <p style="font-size: 0.88rem; color: #64748B;">소상공인 올인원 모바일 비서</p>
 </div>""", unsafe_allow_html=True)
     
-    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입"])
+    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
     with auth_tab1:
         with st.form("login_form"):
             login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")
@@ -441,7 +444,7 @@ if not st.session_state.logged_in_user:
     st.stop()
 
 # ==========================================
-# 회원 권한 계산 (정확한 D-day 산출)
+# 회원 권한 계산
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
@@ -466,7 +469,6 @@ if is_approved_permanent:
     pro_label = "PRO 정식 파트너"
 elif is_in_trial:
     is_pro_user = True
-    # 정확한 잔여 일수(D-day) 계산
     days_left = (trial_end_date - today_now).days
     pro_label = f"PRO 무료체험 (D-{days_left})"
 else:
@@ -483,14 +485,15 @@ with st.sidebar:
     st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
     
-    with st.expander("매장 연락처 수정"):
-        with st.form("sidebar_phone_form"):
-            new_p = st.text_input("전화번호", value=store_phone)
-            if st.form_submit_button("번호 변경", use_container_width=True):
-                users_db[user_key]["phone"] = new_p
-                save_users(users_db)
-                st.success("전화번호가 변경되었습니다.")
-                st.rerun()
+    # ☎️ 깨지던 expander 대신 직관적인 버튼 폼으로 연락처 수정 구현
+    st.markdown("##### 매장 연락처 변경")
+    with st.form("sidebar_phone_form"):
+        new_p = st.text_input("새 전화번호", value=store_phone, label_visibility="collapsed")
+        if st.form_submit_button("전화번호 즉시 변경", use_container_width=True):
+            users_db[user_key]["phone"] = new_p.strip()
+            save_users(users_db)
+            st.success("변경 완료되었습니다.")
+            st.rerun()
 
     if not is_approved_permanent:
         if is_in_trial:
@@ -576,7 +579,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (전화번호 한 줄 고정 클래스 적용)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>

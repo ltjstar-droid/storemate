@@ -49,8 +49,8 @@ def load_users():
             "location": "용인시 처인구 이동읍 경기동로 725",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
-            "map_perk": "용친 회원 안경렌즈 10% 현장 할인 및 클리너 제공",
-            "today_deal": "블루라이트 차단 렌즈 30% 게릴라 특가 (선착순 5명)",
+            "map_perk": "용친 회원 안경렌즈 추가 10% DC & 고급 안경 클리너 증정",
+            "today_deal": "누진다초점 렌즈 50% 할인",
             "today_updated": datetime.now().strftime("%Y-%m-%d"),
             "pw": "1234",
             "is_pro": True,
@@ -132,7 +132,7 @@ def get_live_weather(lat=37.16, lon=127.21):
         res = requests.get(url, timeout=3)
         if res.status_code == 200:
             data = res.json().get("current_weather", {})
-            temp = data.get("temperature", 22.0)
+            temp = data.get("temperature", 20.2)
             code = data.get("weathercode", 0)
             
             if code in [0, 1]:
@@ -154,7 +154,7 @@ def get_live_weather(lat=37.16, lon=127.21):
             return {"temp": temp, "status": status, "tip": tip, "icon": svg_icon}
     except Exception:
         pass
-    return {"temp": 22.0, "status": "쾌적함", "tip": "오늘 매장 상황에 맞춰 단골 고객 안부 문자와 번개 특가를 활용하세요.", "icon": icon_sun}
+    return {"temp": 20.2, "status": "구름 많음 / 흐림", "tip": "차분한 날씨입니다. 실내 조명과 음악으로 편안한 분위기를 만드세요.", "icon": icon_cloud}
 
 st.set_page_config(
     page_title="STORE MATE | 매장비서",
@@ -164,7 +164,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [큰 글씨 & 가독성 극대화 CSS]
+# 🎨 가독성 중심 미니멀 화이트 테마 CSS
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -178,18 +178,17 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
-    /* 대형 탭 가독성 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
-        gap: 24px !important;
+        gap: 20px !important;
         background: transparent !important;
-        padding: 0 0 10px 0 !important;
-        margin-bottom: 22px !important;
+        padding: 0 0 8px 0 !important;
+        margin-bottom: 20px !important;
         border-bottom: 2px solid #F1F5F9 !important;
     }
     .stTabs [data-baseweb="tab"] {
         height: 44px !important;
-        font-size: 1.05rem !important;
+        font-size: 1rem !important;
         font-weight: 700 !important;
         color: #64748B !important;
         background: transparent !important;
@@ -203,7 +202,6 @@ st.markdown("""
     }
     .stTabs [aria-selected="true"] * { color: #2563EB !important; }
 
-    /* 시원한 단일 카드 */
     .simple-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
@@ -213,7 +211,6 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
-    /* 날씨 카드 */
     .weather-box {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
@@ -225,6 +222,15 @@ st.markdown("""
         align-items: center;
         flex-wrap: wrap;
         gap: 16px;
+    }
+
+    .calc-result-box {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-left: 4px solid #2563EB;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-top: 14px;
     }
 
     .unified-grid {
@@ -241,20 +247,6 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-    }
-
-    .sound-station-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
-    }
-    .sound-station-card:hover {
-        border-color: #2563EB;
     }
 
     .stButton>button {
@@ -348,7 +340,7 @@ if not st.session_state.logged_in_user:
         with auth_tab2:
             with st.form("signup_form"):
                 new_id = st.text_input("아이디 (연락처)")
-                new_pw = st.text_input("비밀번호", type="password")
+                new_pw = st.text_input("비밀번호 설정", type="password")
                 new_store = st.text_input("매장명")
                 new_ind = st.selectbox("업종", INDUSTRY_LIST)
                 new_loc = st.text_input("매장 주소")
@@ -460,13 +452,13 @@ with col_h2:
 st.markdown("<hr style='margin:12px 0 16px 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
 # ==========================================
-# 메인 5대 탭
+# 메인 6대 탭 (영업마감 독립 탭 분리!)
 # ==========================================
-main_tabs = ["홈 대시보드", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "경영 & 행정지원"]
-tab_home, tab_mkt, tab_deals, tab_music, tab_biz = st.tabs(main_tabs)
+main_tabs = ["홈 대시보드", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감 리포트", "경영 & 행정지원"]
+tab_home, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드 (어르신도 편한 큰 글씨 심플 레이아웃)
+# TAB 1. 🏠 홈 대시보드 (오류 원천 수정 완료)
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
@@ -475,30 +467,25 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. ☀️ 실시간 날씨 카드 (영어 제거, 큰 글씨, 단정하고 직관적인 뷰)
+    # 1. ☀️ 실시간 날씨 카드
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
     
     col_w1, col_w2 = st.columns([3.4, 1])
     with col_w1:
-        st.markdown(f"""
-        <div class="weather-box">
-            <div style="display:flex; align-items:center; gap:18px;">
-                <div>{weather_info['icon']}</div>
-                <div>
-                    <div style="font-size:1.25rem; font-weight:900; color:#0F172A;">
-                        {st.session_state.current_region_name} &nbsp;·&nbsp; {weather_info['status']}
-                    </div>
-                    <div style="font-size:0.92rem; color:#475569; margin-top:4px;">
-                        {weather_info['tip']}
-                    </div>
-                </div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:1.9rem; font-weight:900; color:#0F172A; line-height:1;">{weather_info['temp']}°C</div>
-                <div style="font-size:0.75rem; color:#64748B; margin-top:4px;">기상청 연동</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        weather_html = f"""<div class="weather-box">
+<div style="display:flex; align-items:center; gap:18px;">
+<div>{weather_info['icon']}</div>
+<div>
+<div style="font-size:1.25rem; font-weight:900; color:#0F172A;">{st.session_state.current_region_name} &nbsp;·&nbsp; {weather_info['status']}</div>
+<div style="font-size:0.92rem; color:#475569; margin-top:4px;">{weather_info['tip']}</div>
+</div>
+</div>
+<div style="text-align:right;">
+<div style="font-size:1.9rem; font-weight:900; color:#0F172A; line-height:1;">{weather_info['temp']}°C</div>
+<div style="font-size:0.75rem; color:#64748B; margin-top:4px;">기상청 연동</div>
+</div>
+</div>"""
+        st.markdown(weather_html, unsafe_allow_html=True)
     with col_w2:
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.button("현재 내 위치 찾기", key="btn_detect_gps", use_container_width=True):
@@ -514,27 +501,23 @@ with tab_home:
             except Exception:
                 st.warning("위치를 가져오지 못해 기본 주소를 유지합니다.")
 
-    # 2. 오늘의 상생 특가 (중첩 박스 걷어내고 시원한 단일 박스 구성)
-    st.markdown(f"""
-    <div class="simple-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:1.2rem; font-weight:900; color:#0F172A;">오늘의 매장 특가 & 단골 혜택</span>
-            <span style="font-size:0.8rem; color:#64748B;">최근 변경: {my_deal_updated}</span>
-        </div>
-        <div style="font-size:0.92rem; color:#475569; margin-bottom:14px;">{my_saved_addr}</div>
-        
-        <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:14px 18px; margin-bottom:14px;">
-            <div style="font-size:0.8rem; font-weight:700; color:#2563EB;">오늘의 할인 품목</div>
-            <div style="font-size:1.15rem; font-weight:900; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
-        </div>
-        
-        <div style="font-size:0.95rem; color:#334155; margin-bottom:16px;">
-            <b>상시 혜택:</b> {my_perk}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # 2. 오늘의 상생 특가 (들여쓰기 오인에 따른 HTML 태그 노출 오류 해결)
+    special_card_html = f"""<div class="simple-card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="font-size:1.2rem; font-weight:900; color:#0F172A;">오늘의 매장 특가 & 단골 혜택</span>
+<span style="font-size:0.8rem; color:#64748B;">최근 변경: {my_deal_updated}</span>
+</div>
+<div style="font-size:0.92rem; color:#475569; margin-bottom:14px;">{my_saved_addr}</div>
+<div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:14px 18px; margin-bottom:14px;">
+<div style="font-size:0.8rem; font-weight:700; color:#2563EB;">오늘의 할인 품목</div>
+<div style="font-size:1.15rem; font-weight:900; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
+</div>
+<div style="font-size:0.95rem; color:#334155; margin-bottom:16px;">
+<b>상시 혜택:</b> {my_perk}
+</div>
+</div>"""
+    st.markdown(special_card_html, unsafe_allow_html=True)
 
-    # 특가 수정 및 네이버 지도 버튼 정돈
     col_h_b1, col_h_b2 = st.columns(2)
     with col_h_b1:
         if st.button("특가 품목 / 혜택 문구 수정하기", key="btn_h_edit_deal", use_container_width=True):
@@ -543,10 +526,8 @@ with tab_home:
         st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
 
     if st.session_state.show_deal_edit:
-        st.markdown("""
-        <div class="simple-card" style="margin-top:14px; border:2px solid #2563EB;">
-            <div style="font-weight:800; font-size:1rem; color:#0F172A; margin-bottom:12px;">오늘의 특가 품목 및 상시 혜택 변경</div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class="simple-card" style="margin-top:14px; border:2px solid #2563EB;">
+<div style="font-weight:800; font-size:1rem; color:#0F172A; margin-bottom:12px;">오늘의 특가 품목 및 상시 혜택 변경</div>""", unsafe_allow_html=True)
         col_ed1, col_ed2 = st.columns(2)
         with col_ed1:
             new_today_deal = st.text_input("오늘의 특가 품목", value=my_today_deal, key="h_edit_deal")
@@ -562,11 +543,9 @@ with tab_home:
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # 3. 진행 중인 공동구매 요약 (깔끔한 1줄 리스트)
-    st.markdown("""
-    <div class="simple-card" style="margin-top:16px;">
-        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:14px;">현재 진행 중인 공동구매</div>
-    """, unsafe_allow_html=True)
+    # 3. 진행 중인 공동구매 요약
+    st.markdown("""<div class="simple-card" style="margin-top:16px;">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:14px;">현재 진행 중인 공동구매</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
         tot_qty = sum([p["qty"] for p in d["participants"]])
         st.markdown(f"**{d['title']}** &nbsp;·&nbsp; <span style='color:#2563EB; font-weight:800;'>{d['price']}</span> &nbsp;·&nbsp; 현재 **{len(d['participants'])}명 참여** ({tot_qty}개 누적)", unsafe_allow_html=True)
@@ -935,11 +914,48 @@ with tab_music:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 5. 💼 경영 & 행정지원
+# TAB 5. 🌙 영업 마감 리포트 (독립 탭으로 격상)
+# ------------------------------------------
+with tab_close:
+    st.markdown("""
+    <div class="simple-card">
+        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">일일 영업 결산 & 내일 경영 플래너</div>
+        <div style="font-size:0.88rem; color:#64748B;">오늘 하루 매출과 유입 분위기를 정리하고, 내일 우선 실행 과제를 AI로 도출합니다.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_cl1, col_cl2 = st.columns(2)
+    with col_cl1:
+        c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
+        c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "특정 피크타임 집중 방문", "종일 만석 / 목표 초과 달성"], key="b_flow")
+    with col_cl2:
+        c_memo = st.text_input("오늘의 특이사항 또는 재고 이슈", placeholder="예: 특정 렌즈 재고 소진, 단골 3명 방문", key="b_memo")
+        c_sat = st.selectbox("오늘 매장 운영 만족도", ["다소 아쉬움 (내일 만회 필요)", "무난하고 안정적", "매우 만족스러움 (추세 유지)"], key="b_sat")
+
+    if st.button("일일 경영 결산 리포트 생성 실행", key="b_close_btn", use_container_width=True):
+        with st.spinner("경영 데이터 종합 분석 중..."):
+            prompt = f"""
+            매장명: {store_name}
+            업종: {sel_industry}
+            소재지: {st.session_state.current_region_name}
+            당일 매출: {c_sales if c_sales else '미입력'}
+            고객 유입 체감: {c_flow}
+            특이사항: {c_memo if c_memo else '없음'}
+            운영 만족도: {c_sat}
+
+            당신은 20년 경력의 매장 경영 수석 컨설턴트다.
+            오늘 하루 고생한 사장님을 위해 1) 오늘 경영 총평 2) 내일 필수 실행과제 3가지 3) 퇴근길 멘탈 리셋 격려를 정갈한 비즈니스 리포트 양식으로 작성하라.
+            """
+            out = generate_safe_content(prompt)
+            if out:
+                st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:14px;'>{out}</div>", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 6. 💼 경영 & 행정지원 (소상공인 4대 금융계산기 허브 완비)
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
-        "4대 행정서류 발급처", "2026 정책금융 진단", "알바 급여 & 영업 결산"
+        "4대 행정서류 발급처", "2026 정책금융 진단", "소상공인 금융계산기 센터"
     ])
 
     with biz_sub1:
@@ -1065,35 +1081,119 @@ with tab_biz:
                 out = generate_safe_content(f"업종: {sel_industry}\n매출: {rev_s}\n목적: {aid_p}\n가장 적합한 정부 정책 2종과 신청 요건을 공문서 리포트로 작성.")
                 if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
+    # 💡 [소상공인 4대 금융계산기 센터 전면 구축]
     with biz_sub3:
-        st.markdown("##### 💰 파트타이머 주휴수당 및 실수령액 산출")
-        w1, w2 = st.columns(2)
-        with w1:
-            wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="b_wage")
-            hrs = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="b_hrs")
-        with w2:
-            tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="b_tax")
-        base = wage * hrs * 4.345
-        holiday = ((hrs / 40.0) * 8.0 * wage * 4.345) if hrs >= 15 else 0
-        tot = base + holiday
-        ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
-        net = tot - ded
-        st.markdown(f"""
-        <div class="simple-card" style="margin-top:6px; margin-bottom:14px;">
-            <div style="font-size:0.92rem; color:#64748B;">기본급: {int(base):,}원 | 주휴수당: {int(holiday):,}원 (원천공제: {int(ded):,}원)</div>
-            <div style="font-size:1.3rem; font-weight:900; color:#0F172A; margin-top:3px;">예상 실지급액: {int(net):,}원</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("##### 🧮 소상공인 실무 금융 & 운영 계산기 센터")
+        calc_tab1, calc_tab2, calc_tab3, calc_tab4 = st.tabs([
+            "알바 급여 & 주휴수당", "사업자 대출 이자 계산기", "마진율 & 판매가 역산", "카드 수수료 실입금액"
+        ])
 
-        st.markdown("##### 🌙 일일 영업 결산 리포트")
-        col_cl1, col_cl2 = st.columns(2)
-        with col_cl1:
-            c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
-            c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석"], key="b_flow")
-        with col_cl2:
-            c_memo = st.text_input("특이사항/재고 이슈", placeholder="예: 특정 렌즈 재고 소진", key="b_memo")
-            c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="b_sat")
-        if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):
-            with st.spinner("경영 데이터 종합 분석 중..."):
-                out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3선, 퇴근길 멘탈 리셋 조언 작성.")
-                if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
+        # 1. 알바 급여 계산기
+        with calc_tab1:
+            w1, w2 = st.columns(2)
+            with w1:
+                wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="c1_wage")
+                hrs = st.number_input("주당 소정근로시간 (시간)", value=16.0, step=0.5, key="c1_hrs")
+            with w2:
+                tax_opt = st.selectbox("공제 방식", ["사업소득세 3.3% 공제 (3.3%)", "고용보험 0.9% 공제 (0.9%)", "공제 없음 (100% 지급)"], key="c1_tax")
+            base = wage * hrs * 4.345
+            holiday = ((hrs / 40.0) * 8.0 * wage * 4.345) if hrs >= 15 else 0
+            tot = base + holiday
+            ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
+            net = tot - ded
+            st.markdown(f"""
+            <div class="calc-result-box">
+                <div style="font-size:0.88rem; color:#64748B;">기본급: {int(base):,}원 &nbsp;·&nbsp; 법정 주휴수당: {int(holiday):,}원 &nbsp;·&nbsp; 공제액: {int(ded):,}원</div>
+                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">예상 실지급액: {int(net):,}원</div>
+                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(주 15시간 이상 근무 시 주휴수당 의무 지급 대상입니다.)</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # 2. 대출 이자 & 상환 계산기
+        with calc_tab2:
+            l1, l2 = st.columns(2)
+            with l1:
+                loan_amt = st.number_input("대출 원금 (원)", value=30000000, step=1000000, key="c2_amt")
+                loan_rate = st.number_input("연 이자율 (%)", value=4.5, step=0.1, key="c2_rate")
+            with l2:
+                loan_months = st.number_input("대출 기간 (개월)", value=36, step=12, key="c2_months")
+                loan_type = st.selectbox("상환 방식", ["원리금균등상환", "원금균등상환", "만기일시상환"], key="c2_type")
+
+            r = (loan_rate / 100) / 12
+            n = loan_months
+            if loan_type == "원리금균등상환":
+                monthly_pay = (loan_amt * r * ((1 + r)**n)) / (((1 + r)**n) - 1)
+                total_pay = monthly_pay * n
+                total_interest = total_pay - loan_amt
+            elif loan_type == "원금균등상환":
+                monthly_principal = loan_amt / n
+                total_interest = sum([(loan_amt - (monthly_principal * i)) * r for i in range(n)])
+                monthly_pay = monthly_principal + (loan_amt * r)
+                total_pay = loan_amt + total_interest
+            else: # 만기일시
+                monthly_pay = loan_amt * r
+                total_interest = monthly_pay * n
+                total_pay = loan_amt + total_interest
+
+            st.markdown(f"""
+            <div class="calc-result-box">
+                <div style="font-size:0.88rem; color:#64748B;">총 상환금액: {int(total_pay):,}원 &nbsp;·&nbsp; 총 대출 이자: {int(total_interest):,}원</div>
+                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">1회차 월 상환액: {int(monthly_pay):,}원</div>
+                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(신용보증재단 저금리 대환보증 및 정책자금 심사 시 참고 기준액입니다.)</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # 3. 마진율 & 판매가 역산기
+        with calc_tab3:
+            m1, m2 = st.columns(2)
+            with m1:
+                cost_price = st.number_input("제품/메뉴 매입원가 (원)", value=15000, step=1000, key="c3_cost")
+                target_margin = st.number_input("목표 마진율 (%)", value=60.0, step=5.0, key="c3_margin")
+            with m2:
+                discount_rate = st.number_input("고객 할인 제공율 (%) - 선택", value=10.0, step=5.0, key="c3_dc")
+            
+            # 마진율 공식: (판매가 - 원가) / 판매가 = 마진율 => 판매가 = 원가 / (1 - 마진율)
+            calc_selling_price = cost_price / (1 - (target_margin / 100))
+            net_profit = calc_selling_price - cost_price
+            discounted_selling = calc_selling_price * (1 - (discount_rate / 100))
+            discounted_profit = discounted_selling - cost_price
+
+            st.markdown(f"""
+            <div class="calc-result-box">
+                <div style="font-size:0.88rem; color:#64748B;">권장 정상 판매가: {int(calc_selling_price):,}원 &nbsp;·&nbsp; 개당 순수익: {int(net_profit):,}원</div>
+                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">{int(discount_rate)}% 할인 적용 판매가: {int(discounted_selling):,}원 (순이익: {int(discounted_profit):,}원)</div>
+                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(공동구매나 번개 특가 품목 가격 책정 시 마진을 방어할 수 있습니다.)</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # 4. 카드 수수료 & 정산액 계산기
+        with calc_tab4:
+            k1, k2 = st.columns(2)
+            with k1:
+                card_sales = st.number_input("카드 결제 매출액 (원)", value=1000000, step=100000, key="c4_sales")
+            with k2:
+                card_fee_tier = st.selectbox("가맹점 연매출 구간 (우대 수수료)", [
+                    "영세 가맹점 (연매출 3억 이하 / 0.5%)",
+                    "중소1 가맹점 (연매출 3억~5억 / 1.1%)",
+                    "중소2 가맹점 (연매출 5억~10억 / 1.25%)",
+                    "중소3 가맹점 (연매출 10억~30억 / 1.5%)",
+                    "일반 가맹점 (연매출 30억 초과 / 2.0%)"
+                ], key="c4_fee")
+            
+            fee_rates = {"0.5%": 0.005, "1.1%": 0.011, "1.25%": 0.0125, "1.5%": 0.015, "2.0%": 0.02}
+            cur_rate = 0.005
+            for k, v in fee_rates.items():
+                if k in card_fee_tier:
+                    cur_rate = v
+                    break
+            
+            calc_fee = card_sales * cur_rate
+            settle_amt = card_sales - calc_fee
+
+            st.markdown(f"""
+            <div class="calc-result-box">
+                <div style="font-size:0.88rem; color:#64748B;">적용 수수료율: {cur_rate*100}% &nbsp;·&nbsp; 차감 수수료: {int(calc_fee):,}원</div>
+                <div style="font-size:1.35rem; font-weight:900; color:#0F172A; margin-top:4px;">실제 계좌 입금 예정액: {int(settle_amt):,}원</div>
+                <div style="font-size:0.8rem; color:#94A3B8; margin-top:2px;">(카드사 공제 후 실제 영업 계좌에 입금되는 정산 기준액입니다.)</div>
+            </div>
+            """, unsafe_allow_html=True)

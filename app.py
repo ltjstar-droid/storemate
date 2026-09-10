@@ -106,7 +106,7 @@ def save_deals(data):
         pass
 
 # ==========================================
-# ☀️ 직관적인 그래픽 날씨 & 역지오코딩 엔진
+# ☀️ 그래픽 날씨 & 역지오코딩
 # ==========================================
 def reverse_geocode(lat, lon):
     try:
@@ -123,10 +123,9 @@ def reverse_geocode(lat, lon):
     return "용인시 처인구"
 
 def get_live_weather(lat=37.16, lon=127.21):
-    # 단정하고 세련된 벡터 SVG 그래픽 심볼 정의
-    icon_sun = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>"""
-    icon_cloud = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>"""
-    icon_rain = """<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>"""
+    icon_sun = """<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>"""
+    icon_cloud = """<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>"""
+    icon_rain = """<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>"""
 
     try:
         url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
@@ -138,19 +137,19 @@ def get_live_weather(lat=37.16, lon=127.21):
             
             if code in [0, 1]:
                 status = "맑음"
-                tip = "화창한 날씨입니다. 매장 쇼윈도와 전면 진열대를 정돈해 자연스러운 방문을 유도하세요."
+                tip = "화창한 날씨입니다. 매장 쇼윈도와 입구를 점검해 방문을 유도하세요."
                 svg_icon = icon_sun
             elif code in [2, 3]:
                 status = "구름 많음 / 흐림"
-                tip = "차분한 날씨입니다. 아늑한 실내 조명과 배경 음악으로 고객 체류시간을 늘려보세요."
+                tip = "차분한 날씨입니다. 실내 조명과 음악으로 편안한 분위기를 만드세요."
                 svg_icon = icon_cloud
             elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-                status = "비 / 강수"
-                tip = "비 오는 날 방문 고객을 위해 우산 빗물받이와 단골 전용 우천 혜택을 안내해 보세요."
+                status = "비 / 소나기"
+                tip = "비 오는 날 방문 고객을 위한 우천 단골 혜택을 안내하세요."
                 svg_icon = icon_rain
             else:
                 status = "무난함"
-                tip = "기온 변화에 맞춰 단골 고객 안부 문자와 번개 특가를 적극 홍보해 보세요."
+                tip = "기온 변화에 맞춰 단골 고객 안부 문자와 특가를 활용하세요."
                 svg_icon = icon_sun
             return {"temp": temp, "status": status, "tip": tip, "icon": svg_icon}
     except Exception:
@@ -165,7 +164,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 가독성 중심 미니멀 화이트 테마 CSS
+# 🎨 [큰 글씨 & 가독성 극대화 CSS]
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -179,18 +178,19 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
+    /* 대형 탭 가독성 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
-        gap: 20px !important;
+        gap: 24px !important;
         background: transparent !important;
-        padding: 0 0 8px 0 !important;
-        margin-bottom: 20px !important;
-        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 0 0 10px 0 !important;
+        margin-bottom: 22px !important;
+        border-bottom: 2px solid #F1F5F9 !important;
     }
     .stTabs [data-baseweb="tab"] {
         height: 44px !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
         color: #64748B !important;
         background: transparent !important;
         border: none !important;
@@ -199,16 +199,32 @@ st.markdown("""
     .stTabs [aria-selected="true"] {
         color: #2563EB !important;
         font-weight: 800 !important;
-        border-bottom: 2px solid #2563EB !important;
+        border-bottom: 3px solid #2563EB !important;
     }
     .stTabs [aria-selected="true"] * { color: #2563EB !important; }
 
-    .clean-box {
+    /* 시원한 단일 카드 */
+    .simple-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
+        border-radius: 14px;
+        padding: 22px 24px;
+        margin-bottom: 18px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    /* 날씨 카드 */
+    .weather-box {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
     }
 
     .unified-grid {
@@ -225,22 +241,6 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
-    }
-
-    /* 실시간 그래픽 날씨 카드 */
-    .live-weather-card {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-left: 4px solid #2563EB;
-        border-radius: 12px;
-        padding: 18px 22px;
-        margin-bottom: 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 14px;
     }
 
     .sound-station-card {
@@ -255,12 +255,11 @@ st.markdown("""
     }
     .sound-station-card:hover {
         border-color: #2563EB;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
     }
 
     .stButton>button {
         height: 2.8rem !important;
-        font-size: 0.92rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
         border-radius: 8px !important;
         background: #2563EB !important;
@@ -275,7 +274,7 @@ st.markdown("""
         border-radius: 8px !important;
         color: #1E293B !important;
         font-weight: 700 !important;
-        font-size: 0.88rem !important;
+        font-size: 0.9rem !important;
         padding: 8px 14px !important;
         text-decoration: none !important;
         display: flex !important;
@@ -311,7 +310,6 @@ if "show_deal_edit" not in st.session_state:
 if "active_join_deal_id" not in st.session_state:
     st.session_state.active_join_deal_id = None
 
-# GPS 동적 상태
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -325,8 +323,8 @@ if "current_region_name" not in st.session_state:
 if not st.session_state.logged_in_user:
     st.markdown("""
     <div style="max-width: 400px; margin: 60px auto 20px auto; text-align: center;">
-        <h2 style="font-size: 1.6rem; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">STORE MATE</h2>
-        <p style="font-size: 0.9rem; color: #64748B;">소상공인 통합 관리 플랫폼</p>
+        <h2 style="font-size: 1.7rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">STORE MATE</h2>
+        <p style="font-size: 0.92rem; color: #64748B;">소상공인 통합 관리 플랫폼</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -468,7 +466,7 @@ main_tabs = ["홈 대시보드", "마케팅 스튜디오", "로컬 공동구매"
 tab_home, tab_mkt, tab_deals, tab_music, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드
+# TAB 1. 🏠 홈 대시보드 (어르신도 편한 큰 글씨 심플 레이아웃)
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
@@ -477,34 +475,33 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. ☀️ 실시간 그래픽 날씨 & 위치 감지 카드
+    # 1. ☀️ 실시간 날씨 카드 (영어 제거, 큰 글씨, 단정하고 직관적인 뷰)
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
     
-    col_w_info, col_w_btn = st.columns([3.2, 1])
-    with col_w_info:
+    col_w1, col_w2 = st.columns([3.4, 1])
+    with col_w1:
         st.markdown(f"""
-        <div class="live-weather-card">
-            <div style="display:flex; align-items:center; gap:16px;">
+        <div class="weather-box">
+            <div style="display:flex; align-items:center; gap:18px;">
                 <div>{weather_info['icon']}</div>
                 <div>
-                    <div style="font-size:0.75rem; font-weight:800; color:#2563EB; letter-spacing:0.05em; text-transform:uppercase;">CURRENT LOCATION & WEATHER</div>
-                    <div style="font-size:1.08rem; font-weight:800; color:#0F172A; margin-top:1px;">
-                        {st.session_state.current_region_name} &nbsp;·&nbsp; <b>{weather_info['status']}</b>
+                    <div style="font-size:1.25rem; font-weight:900; color:#0F172A;">
+                        {st.session_state.current_region_name} &nbsp;·&nbsp; {weather_info['status']}
                     </div>
-                    <div style="font-size:0.85rem; color:#475569; margin-top:3px;">
+                    <div style="font-size:0.92rem; color:#475569; margin-top:4px;">
                         {weather_info['tip']}
                     </div>
                 </div>
             </div>
             <div style="text-align:right;">
-                <div style="font-size:1.6rem; font-weight:900; color:#0F172A;">{weather_info['temp']}°C</div>
-                <div style="font-size:0.75rem; color:#64748B;">실시간 기상청 연동</div>
+                <div style="font-size:1.9rem; font-weight:900; color:#0F172A; line-height:1;">{weather_info['temp']}°C</div>
+                <div style="font-size:0.75rem; color:#64748B; margin-top:4px;">기상청 연동</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
-    with col_w_btn:
-        st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
-        if st.button("📍 현재 내 위치 감지", key="btn_detect_gps", use_container_width=True):
+    with col_w2:
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+        if st.button("현재 내 위치 찾기", key="btn_detect_gps", use_container_width=True):
             try:
                 ip_res = requests.get("https://ipapi.co/json/", timeout=2).json()
                 lat = ip_res.get("latitude", 37.16)
@@ -512,48 +509,50 @@ with tab_home:
                 st.session_state.current_lat = lat
                 st.session_state.current_lon = lon
                 st.session_state.current_region_name = reverse_geocode(lat, lon)
-                st.toast(f"현재 위치 감지 완료: {st.session_state.current_region_name}")
+                st.toast(f"현재 위치: {st.session_state.current_region_name}")
                 st.rerun()
             except Exception:
-                st.warning("위치 정보를 불러오지 못해 기본 매장 주소를 유지합니다.")
+                st.warning("위치를 가져오지 못해 기본 주소를 유지합니다.")
 
-    # 2. 오늘의 특가 카드
+    # 2. 오늘의 상생 특가 (중첩 박스 걷어내고 시원한 단일 박스 구성)
     st.markdown(f"""
-    <div class="clean-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="font-weight:800; font-size:1.05rem; color:#0F172A;">오늘의 상생 특가 & 혜택</div>
-            <span style="font-size:0.78rem; color:#64748B;">갱신: {my_deal_updated}</span>
+    <div class="simple-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:1.2rem; font-weight:900; color:#0F172A;">오늘의 매장 특가 & 단골 혜택</span>
+            <span style="font-size:0.8rem; color:#64748B;">최근 변경: {my_deal_updated}</span>
         </div>
-        <div style="font-size:0.88rem; color:#475569; margin-bottom:12px;">{my_saved_addr}</div>
-        <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-left:4px solid #2563EB; border-radius:8px; padding:12px 16px; margin-bottom:12px;">
-            <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">TODAY'S SPECIAL</div>
-            <div style="font-size:1.02rem; font-weight:800; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
+        <div style="font-size:0.92rem; color:#475569; margin-bottom:14px;">{my_saved_addr}</div>
+        
+        <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:14px 18px; margin-bottom:14px;">
+            <div style="font-size:0.8rem; font-weight:700; color:#2563EB;">오늘의 할인 품목</div>
+            <div style="font-size:1.15rem; font-weight:900; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
         </div>
-        <div style="font-size:0.88rem; color:#475569; margin-bottom:14px;"><b>상시 혜택:</b> {my_perk}</div>
-        <a href="{naver_url}" target="_blank" style="text-decoration:none;">
-            <button style="width:100%; height:38px; background:#03C75A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; cursor:pointer;">
-                네이버 플레이스 지도 연동 확인
-            </button>
-        </a>
+        
+        <div style="font-size:0.95rem; color:#334155; margin-bottom:16px;">
+            <b>상시 혜택:</b> {my_perk}
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    col_h_btn1, _ = st.columns([1.5, 3])
-    with col_h_btn1:
-        if st.button("특가/혜택 내용 편집", key="btn_h_edit_deal", use_container_width=True):
+    # 특가 수정 및 네이버 지도 버튼 정돈
+    col_h_b1, col_h_b2 = st.columns(2)
+    with col_h_b1:
+        if st.button("특가 품목 / 혜택 문구 수정하기", key="btn_h_edit_deal", use_container_width=True):
             st.session_state.show_deal_edit = not st.session_state.show_deal_edit
+    with col_h_b2:
+        st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
 
     if st.session_state.show_deal_edit:
         st.markdown("""
-        <div class="clean-box" style="margin-top:10px;">
-            <div style="font-weight:700; font-size:0.92rem; color:#0F172A; margin-bottom:10px;">특가 및 상시 혜택 수정</div>
+        <div class="simple-card" style="margin-top:14px; border:2px solid #2563EB;">
+            <div style="font-weight:800; font-size:1rem; color:#0F172A; margin-bottom:12px;">오늘의 특가 품목 및 상시 혜택 변경</div>
         """, unsafe_allow_html=True)
         col_ed1, col_ed2 = st.columns(2)
         with col_ed1:
-            new_today_deal = st.text_input("오늘의 번개 특가 품목", value=my_today_deal, key="h_edit_deal")
+            new_today_deal = st.text_input("오늘의 특가 품목", value=my_today_deal, key="h_edit_deal")
         with col_ed2:
             new_perk = st.text_input("기본 상시 혜택", value=my_perk, key="h_edit_perk")
-        if st.button("저장 및 즉시 반영", key="h_save_deal_btn", use_container_width=True):
+        if st.button("저장하고 바로 반영하기", key="h_save_deal_btn", use_container_width=True):
             users_db[user_key]["today_deal"] = new_today_deal
             users_db[user_key]["map_perk"] = new_perk
             users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -563,15 +562,16 @@ with tab_home:
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # 3. 진행 중인 공동구매
+    # 3. 진행 중인 공동구매 요약 (깔끔한 1줄 리스트)
     st.markdown("""
-    <div class="clean-box" style="margin-top:14px;">
-        <div style="font-weight:800; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">현재 진행 중인 주요 공동구매</div>
+    <div class="simple-card" style="margin-top:16px;">
+        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:14px;">현재 진행 중인 공동구매</div>
     """, unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
         tot_qty = sum([p["qty"] for p in d["participants"]])
-        st.write(f"**{d['title']}** ({d['price']}) - **{len(d['participants'])}명 참여** ({tot_qty}개)")
+        st.markdown(f"**{d['title']}** &nbsp;·&nbsp; <span style='color:#2563EB; font-weight:800;'>{d['price']}</span> &nbsp;·&nbsp; 현재 **{len(d['participants'])}명 참여** ({tot_qty}개 누적)", unsafe_allow_html=True)
         st.progress(min(tot_qty / d["target"], 1.0))
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
@@ -724,14 +724,14 @@ with tab_deals:
             is_closed = (dday == "마감")
 
             st.markdown(f"""
-            <div class="clean-box" style="margin-bottom:8px;">
+            <div class="simple-card" style="margin-bottom:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:4px;">{dday}</span>
-                    <span style="font-size:0.8rem; color:#64748B;">목표 {deal['target']}개</span>
+                    <span style="font-size:0.85rem; color:#64748B;">목표 {deal['target']}개</span>
                 </div>
                 <h4 style="margin:8px 0 4px 0; color:#0F172A;">{deal['title']}</h4>
-                <div style="font-size:1.1rem; font-weight:800; color:#2563EB;">{deal['price']}</div>
-                <div style="font-size:0.85rem; color:#475569; margin:4px 0 8px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
+                <div style="font-size:1.15rem; font-weight:900; color:#2563EB;">{deal['price']}</div>
+                <div style="font-size:0.88rem; color:#475569; margin:4px 0 8px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
             </div>
             """, unsafe_allow_html=True)
             st.progress(min(tot_qty / deal["target"], 1.0))
@@ -754,7 +754,6 @@ with tab_deals:
                 <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-top:8px;">
                     <div style="font-size:0.82rem; font-weight:700; color:#0F172A; margin-bottom:6px;">관리자 전용: 신청자 데이터 관리</div>
                 """, unsafe_allow_html=True)
-                
                 col_adm_dl, _ = st.columns([1.5, 2])
                 with col_adm_dl:
                     if len(deal["participants"]) > 0:
@@ -776,8 +775,8 @@ with tab_deals:
 
             if st.session_state.active_join_deal_id == deal["id"]:
                 st.markdown(f"""
-                <div class="clean-box" style="margin-top:8px; border-left:4px solid #2563EB;">
-                    <div style="font-weight:700; font-size:0.92rem; color:#0F172A; margin-bottom:10px;">[{deal['title']}] 참여 신청서</div>
+                <div class="simple-card" style="margin-top:8px; border-left:4px solid #2563EB;">
+                    <div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:10px;">[{deal['title']}] 참여 신청서</div>
                 """, unsafe_allow_html=True)
                 with st.form(key=f"join_form_{deal['id']}"):
                     j_name = st.text_input("성함 또는 상호", key=f"j_n_{deal['id']}")
@@ -803,7 +802,7 @@ with tab_deals:
 
     with deal_sub2:
         st.markdown("""
-        <div class="clean-box">
+        <div class="simple-card">
             <h4 style="margin:0; color:#0F172A;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
             <p style="color:#475569; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
         </div>
@@ -835,8 +834,8 @@ with tab_deals:
 # ------------------------------------------
 with tab_music:
     st.markdown("""
-    <div class="clean-box">
-        <div style="font-weight:800; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">매장 분위기 & 시간대별 사운드 스테이션</div>
+    <div class="simple-card">
+        <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">매장 분위기 & 시간대별 사운드 스테이션</div>
         <div style="font-size:0.88rem; color:#64748B;">매장의 품격을 높이고 고객 체류 시간을 늘리는 원클릭 스트리밍 큐레이션</div>
     </div>
     """, unsafe_allow_html=True)
@@ -905,7 +904,7 @@ with tab_music:
     st.markdown("##### 맞춤형 사운드 검색 조율기")
     with st.container():
         st.markdown("""
-        <div class="clean-box">
+        <div class="simple-card">
             <div style="font-weight:700; font-size:0.95rem; color:#0F172A; margin-bottom:12px;">원하는 분위기와 장르를 직접 조합하여 유튜브 스트리밍 채널을 탐색합니다.</div>
         """, unsafe_allow_html=True)
         col_m_cust1, col_m_cust2 = st.columns(2)
@@ -1064,7 +1063,7 @@ with tab_biz:
         if st.button("맞춤 정책자금 AI 진단 실행", key="b_aid_btn", use_container_width=True):
             with st.spinner("정책 분석 중..."):
                 out = generate_safe_content(f"업종: {sel_industry}\n매출: {rev_s}\n목적: {aid_p}\n가장 적합한 정부 정책 2종과 신청 요건을 공문서 리포트로 작성.")
-                if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
+                if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
     with biz_sub3:
         st.markdown("##### 💰 파트타이머 주휴수당 및 실수령액 산출")
@@ -1080,14 +1079,13 @@ with tab_biz:
         ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
         net = tot - ded
         st.markdown(f"""
-        <div class="clean-box" style="margin-top:6px; margin-bottom:14px;">
-            <div style="font-size:0.86rem; color:#64748B;">기본급: {int(base):,}원 | 주휴수당: {int(holiday):,}원 (원천공제: {int(ded):,}원)</div>
-            <div style="font-size:1.2rem; font-weight:800; color:#0F172A; margin-top:2px;">예상 실지급액: {int(net):,}원</div>
+        <div class="simple-card" style="margin-top:6px; margin-bottom:14px;">
+            <div style="font-size:0.92rem; color:#64748B;">기본급: {int(base):,}원 | 주휴수당: {int(holiday):,}원 (원천공제: {int(ded):,}원)</div>
+            <div style="font-size:1.3rem; font-weight:900; color:#0F172A; margin-top:3px;">예상 실지급액: {int(net):,}원</div>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("##### 🌙 일일 영업 결산 리포트")
-        # 오타 수정 완료: cl_col1, cl_col2 -> col_cl1, col_cl2 일치화
         col_cl1, col_cl2 = st.columns(2)
         with col_cl1:
             c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
@@ -1098,4 +1096,4 @@ with tab_biz:
         if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):
             with st.spinner("경영 데이터 종합 분석 중..."):
                 out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3선, 퇴근길 멘탈 리셋 조언 작성.")
-                if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
+                if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)

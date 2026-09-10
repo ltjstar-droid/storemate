@@ -196,7 +196,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 최적화 CSS (깨진 아이콘 및 상단 바 제거)
+# 📱 모바일 최적화 CSS
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -211,22 +211,11 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
-    /* Streamlit 기본 헤더 및 툴바, 깨진 화살표 텍스트 숨김 */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    button[kind="header"] {
-        display: none !important;
-    }
-    #MainMenu, footer {
-        visibility: hidden !important;
-        display: none !important;
-    }
+    header[data-testid="stHeader"] { display: none !important; }
+    [data-testid="collapsedControl"] { display: none !important; }
+    button[kind="header"] { display: none !important; }
+    #MainMenu, footer { visibility: hidden !important; display: none !important; }
 
-    /* 본문 상단 패딩 축소 */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
@@ -235,7 +224,6 @@ st.markdown("""
         max-width: 100% !important;
     }
 
-    /* 탭 가로 스크롤 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -396,7 +384,7 @@ if not st.session_state.logged_in_user:
     auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
     with auth_tab1:
         with st.form("login_form"):
-            login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")
+            login_id = st.text_input("아이디 (전화번호)", placeholder="01012345678")
             login_pw = st.text_input("비밀번호", type="password")
             if st.form_submit_button("로그인", use_container_width=True):
                 if login_id in users_db:
@@ -411,7 +399,7 @@ if not st.session_state.logged_in_user:
     with auth_tab2:
         with st.form("signup_form"):
             st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
-            new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
+            new_id = st.text_input("전화번호 (아이디로 사용)", placeholder="01012345678")
             new_pw = st.text_input("비밀번호 설정", type="password")
             new_store = st.text_input("매장 상호명")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
@@ -477,6 +465,7 @@ else:
 
 with st.sidebar:
     st.markdown(f"### {store_name}")
+    st.caption(f"📞 연락처: {user_key}")
     st.markdown(f"**상태:** `{pro_label}`")
     
     if not is_approved_permanent:
@@ -563,13 +552,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (전화번호 및 상호명 명시)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{sel_loc} · {sel_industry}</div>
+<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">📞 연락처: {user_key} &nbsp;|&nbsp; {sel_loc}</div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
@@ -665,7 +654,7 @@ with tab_home:
         
         feed_card_html = f"""<div class="simple-card">
 <div style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</div>
-<div style="font-size:0.8rem; color:#64748B; margin-bottom:8px;">{o_addr}</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:8px;">{o_addr} (📞 {u_id})</div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:10px 14px; margin-bottom:8px;">
 <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>

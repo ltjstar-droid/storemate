@@ -5,6 +5,7 @@ import json
 import urllib.parse
 from datetime import datetime, timedelta
 import pandas as pd
+import requests
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
@@ -104,6 +105,49 @@ def save_deals(data):
     except Exception:
         pass
 
+# ==========================================
+# 📍 GPS 좌표 기반 역지오코딩 & 동적 날씨 조회
+# ==========================================
+def reverse_geocode(lat, lon):
+    try:
+        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=14&addressdetails=1"
+        headers = {"User-Agent": "StoreMate-Local-App/1.0"}
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            addr = res.json().get("address", {})
+            city = addr.get("city") or addr.get("county") or addr.get("province") or "용인시"
+            district = addr.get("borough") or addr.get("suburb") or addr.get("town") or ""
+            return f"{city} {district}".strip()
+    except Exception:
+        pass
+    return "용인시 처인구"
+
+def get_live_weather(lat=37.16, lon=127.21):
+    try:
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        res = requests.get(url, timeout=3)
+        if res.status_code == 200:
+            data = res.json().get("current_weather", {})
+            temp = data.get("temperature", 22.0)
+            code = data.get("weathercode", 0)
+            
+            if code in [0, 1]:
+                status = "맑음"
+                tip = "화창한 날씨입니다. 매장 쇼윈도와 입구를 정돈해 자연스러운 워크인 방문을 유도하세요."
+            elif code in [2, 3]:
+                status = "구름 많음 / 흐림"
+                tip = "차분한 날씨입니다. 아늑한 조명과 잔잔한 배경음악으로 고객 체류시간을 늘려보세요."
+            elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
+                status = "비 / 강수"
+                tip = "우천 시 방문 고객을 위해 우산 빗물받이와 단골 전용 우천 혜택을 안내하세요."
+            else:
+                status = "무난함"
+                tip = "일교차와 기온 변화에 맞춰 단골 고객 안부 문자와 번개 특가를 활성화하세요."
+            return {"temp": temp, "status": status, "tip": tip}
+    except Exception:
+        pass
+    return {"temp": 22.0, "status": "쾌적함", "tip": "오늘 매장 상황에 맞춰 단골 고객 안부 문자와 번개 특가를 활용하세요."}
+
 st.set_page_config(
     page_title="STORE MATE | 매장비서",
     page_icon="M",
@@ -112,7 +156,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [가독성 중심 미니멀 화이트 테마 CSS]
+# 🎨 미니멀 화이트 테마 CSS
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -124,11 +168,8 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
     
-    .stApp, html, body { 
-        background-color: #FFFFFF !important; 
-    }
+    .stApp, html, body { background-color: #FFFFFF !important; }
 
-    /* 상단 대형 탭 가독성 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         gap: 20px !important;
@@ -145,19 +186,13 @@ st.markdown("""
         background: transparent !important;
         border: none !important;
         padding: 0 4px !important;
-        box-shadow: none !important;
-        text-decoration: none !important;
     }
     .stTabs [aria-selected="true"] {
         color: #2563EB !important;
         font-weight: 800 !important;
         border-bottom: 2px solid #2563EB !important;
-        background: transparent !important;
-        box-shadow: none !important;
     }
-    .stTabs [aria-selected="true"] * {
-        color: #2563EB !important;
-    }
+    .stTabs [aria-selected="true"] * { color: #2563EB !important; }
 
     .clean-box {
         background: #FFFFFF;
@@ -184,8 +219,7 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
     }
 
-    /* 🎧 홈 대시보드 음악 바로가기 바 */
-    .home-music-bar {
+    .live-weather-card {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-left: 4px solid #2563EB;
@@ -199,13 +233,11 @@ st.markdown("""
         gap: 12px;
     }
 
-    /* 🎶 음악 대시보드 전용 사운드 스테이션 카드 */
     .sound-station-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
         padding: 18px;
-        transition: all 0.2s ease;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -216,7 +248,6 @@ st.markdown("""
         box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
     }
 
-    /* 버튼 스타일 */
     .stButton>button {
         height: 2.8rem !important;
         font-size: 0.92rem !important;
@@ -239,10 +270,6 @@ st.markdown("""
         text-decoration: none !important;
         display: flex !important;
         justify-content: center !important;
-    }
-    .stLinkButton > a:hover {
-        background: #F1F5F9 !important;
-        border-color: #94A3B8 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -273,6 +300,14 @@ if "show_deal_edit" not in st.session_state:
 
 if "active_join_deal_id" not in st.session_state:
     st.session_state.active_join_deal_id = None
+
+# GPS 동적 상태 관리 (기본값: 용인 송전)
+if "current_lat" not in st.session_state:
+    st.session_state.current_lat = 37.16
+if "current_lon" not in st.session_state:
+    st.session_state.current_lon = 127.21
+if "current_region_name" not in st.session_state:
+    st.session_state.current_region_name = "용인시 처인구 이동읍"
 
 # ==========================================
 # 로그인 화면
@@ -315,7 +350,7 @@ if not st.session_state.logged_in_user:
                             "store_name": new_store,
                             "industry": new_ind,
                             "location": new_loc,
-                            "feature": "전문 검안 및 정밀 서비스",
+                            "feature": "전문 검안 및 맞춤 가공",
                             "map_address": new_loc,
                             "map_perk": "용친 회원 방문 시 특별 혜택 제공",
                             "today_deal": "오늘의 특가 준비 중",
@@ -399,12 +434,12 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 상단 타이틀 & 공식 채널 바 (용인친구들 문구 반영!)
+# 상단 타이틀 & 공식 채널 바
 # ==========================================
 col_h1, col_h2 = st.columns([1, 1.2])
 with col_h1:
     st.markdown(f"### {store_name} &nbsp;<span style='font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:3px 8px; border-radius:4px;'>{'PRO 파트너' if is_pro_user else '스탠다드'}</span>", unsafe_allow_html=True)
-    st.caption(f"{sel_loc} · {sel_industry}")
+    st.caption(f"등록 매장지: {sel_loc} · {sel_industry}")
 with col_h2:
     st.markdown("""
     <div style="display:flex; justify-content:flex-end; gap:8px; padding-top:6px; flex-wrap:wrap;">
@@ -432,20 +467,39 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. 홈 상단: 사운드 위젯 안내 바
-    st.markdown("""
-    <div class="home-music-bar">
-        <div>
-            <div style="font-size:0.75rem; font-weight:800; color:#2563EB; letter-spacing:0.05em; text-transform:uppercase;">STORE AMBIENT STUDIO</div>
-            <div style="font-size:1.02rem; font-weight:800; color:#0F172A; margin-top:2px;">
-                영업 시간대별 맞춤 음악 큐레이션 & 감성 사운드보드
-            </div>
-            <div style="font-size:0.85rem; color:#64748B; margin-top:2px;">
-                오전 오픈, 피크타임, 나른한 오후, 골든타임 분위기를 상단 [음악 스튜디오] 탭에서 원클릭으로 선택하세요.
+    # 1. 📍 실시간 GPS 날씨 & 지역 브리핑 카드
+    weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
+    
+    col_w_info, col_w_btn = st.columns([3, 1])
+    with col_w_info:
+        st.markdown(f"""
+        <div class="live-weather-card">
+            <div>
+                <div style="font-size:0.75rem; font-weight:800; color:#2563EB; letter-spacing:0.05em; text-transform:uppercase;">CURRENT LOCATION & WEATHER</div>
+                <div style="font-size:1.05rem; font-weight:800; color:#0F172A; margin-top:2px;">
+                    {st.session_state.current_region_name} &nbsp;·&nbsp; <b>{weather_info['status']} ({weather_info['temp']}°C)</b>
+                </div>
+                <div style="font-size:0.85rem; color:#475569; margin-top:4px;">
+                    {weather_info['tip']}
+                </div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    with col_w_btn:
+        st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+        if st.button("📍 현재 내 위치 감지", key="btn_detect_gps", use_container_width=True):
+            # 브라우저 IP/네트워크 기반 위치 빠른 감지
+            try:
+                ip_res = requests.get("https://ipapi.co/json/", timeout=2).json()
+                lat = ip_res.get("latitude", 37.16)
+                lon = ip_res.get("longitude", 127.21)
+                st.session_state.current_lat = lat
+                st.session_state.current_lon = lon
+                st.session_state.current_region_name = reverse_geocode(lat, lon)
+                st.toast(f"현재 위치 감지 완료: {st.session_state.current_region_name}")
+                st.rerun()
+            except Exception:
+                st.warning("위치 정보를 불러오지 못해 기본 매장 주소를 유지합니다.")
 
     # 2. 오늘의 특가 카드
     st.markdown(f"""
@@ -505,9 +559,12 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. 📢 마케팅 스튜디오
+# TAB 2. 📢 마케팅 스튜디오 (현재 감지 지역 자동 매칭)
 # ------------------------------------------
 with tab_mkt:
+    # 감지된 현재 지역을 마케팅 키워드 기본값에 반영
+    current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
+
     mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
         "네이버 블로그 SEO", "당근마켓 바이럴", "인스타그램 피드", "단골 CRM 문자", "AI 리뷰 대응"
     ])
@@ -518,8 +575,8 @@ with tab_mkt:
         else:
             col_b1, col_b2 = st.columns(2)
             with col_b1:
-                b_kw = st.text_input("메인 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", key="m_b_kw")
-                b_sub = st.text_input("서브 키워드", value=f"{sel_loc.split()[1] if len(sel_loc.split())>1 else ''} 안경 추천, 정밀 시력검사", key="m_b_sub")
+                b_kw = st.text_input("메인 키워드 (지역 자동 반영)", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
+                b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 안경 추천, 정밀 시력검사", key="m_b_sub")
                 b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
             with col_b2:
                 b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 검안 기술/정밀 장비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
@@ -527,7 +584,7 @@ with tab_mkt:
 
             if st.button("SEO 전문 원고 생성", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
-                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
+                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("작성된 원고", value=out, height=360)
 
@@ -540,12 +597,12 @@ with tab_mkt:
                 d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
                 d_prm = st.selectbox("제공 혜택", ["무상 정밀 점검 및 세척 서비스", "단독 추가 할인 바우처", "선착순 사은품 증정"], key="m_d_prm")
             with col_d2:
-                d_ctx = st.text_input("상황적 훅", value="봄맞이 시력 점검 및 미세먼지 케어", key="m_d_ctx")
+                d_ctx = st.text_input("상황적 훅 (지역 & 날씨 연계)", value=f"{current_area_tag} 날씨 맞춤 시력 점검 및 단골 케어", key="m_d_ctx")
                 d_cta = st.text_input("행동 유도 (CTA)", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
 
             if st.button("당근마켓 소식 생성", key="m_d_btn", use_container_width=True):
                 with st.spinner("소식 작성 중..."):
-                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
+                    prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("당근 소식 원고", value=out, height=320)
 
@@ -563,7 +620,7 @@ with tab_mkt:
 
             if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
                 with st.spinner("피드 생성 중..."):
-                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n형식: {i_type}\n무드: {i_mood}\n주제: {i_subj}\n혜택: {i_perk}\n촬영 가이드, 첫 줄 카피, 줄바꿈 본문, 해시태그 15종 작성."
+                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n형식: {i_type}\n무드: {i_mood}\n주제: {i_subj}\n혜택: {i_perk}\n촬영 가이드, 첫 줄 카피, 줄바꿈 본문, 해시태그 15종 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("인스타그램 피드", value=out, height=320)
 
@@ -585,7 +642,7 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 3종", value=out, height=320)
 
-    # 💬 AI 리뷰 대응 센터
+    # 💬 AI 리뷰 대응 센터 (6대 맞춤형 스타일)
     with mkt_sub5:
         st.markdown("##### 네이버 플레이스 & 배달/당근 리뷰 자동 답글 솔루션")
         cust_rev = st.text_area("고객 리뷰 본문 붙여넣기", placeholder="고객이 남긴 별점 리뷰 또는 후기 내용을 입력하세요.")
@@ -605,11 +662,10 @@ with tab_mkt:
                     prompt = f"""
                     매장명: {store_name}
                     업종: {sel_industry}
-                    소재지: {sel_loc}
+                    소재지: {st.session_state.current_region_name}
                     고객 리뷰 본문: "{cust_rev}"
                     선택한 답글 스타일: {rev_stl}
 
-                    당신은 20년 경력의 고객 경험(CX) 및 로컬 매장 리뷰 관리 전문가다.
                     위 고객 리뷰를 바탕으로 플레이스 방문자들이 보고 신뢰감을 느낄 수 있는 완성도 높은 답글 3종을 작성하라.
                     - 불필요한 이모티콘은 배제하고 정갈하게 작성할 것.
                     - 리뷰 스타일에 완벽히 부합하면서도 고객의 언급 사항을 섬세하게 짚어줄 것.
@@ -620,7 +676,7 @@ with tab_mkt:
                 st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 3. 🛒 로컬 공동구매
+# TAB 3. 🛒 로컬 공동구매 (관리자 전용 명단 제어)
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["진행 프로젝트 목록", "소모품 도매 발주", "신규 공구 제안"])
@@ -679,7 +735,6 @@ with tab_deals:
                     if st.button("프로젝트 삭제", key=f"del_{deal['id']}", use_container_width=True):
                         deals_to_del.append(deal["id"])
 
-            # 🔒 관리자 전용 명단 제어
             if user_key == "admin":
                 st.markdown("""
                 <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-top:8px;">
@@ -705,7 +760,6 @@ with tab_deals:
                         st.caption("현재 신청자가 없습니다.")
                 st.markdown("</div>", unsafe_allow_html=True)
 
-            # 사용자 참여 폼
             if st.session_state.active_join_deal_id == deal["id"]:
                 st.markdown(f"""
                 <div class="clean-box" style="margin-top:8px; border-left:4px solid #2563EB;">
@@ -1023,7 +1077,7 @@ with tab_biz:
         with cl_col1:
             c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
             c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석"], key="b_flow")
-        with cl_col2:
+        with col_cl2:
             c_memo = st.text_input("특이사항/재고 이슈", placeholder="예: 특정 렌즈 재고 소진", key="b_memo")
             c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="b_sat")
         if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):

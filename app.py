@@ -185,19 +185,42 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
     }
 
-    /* 홈 대시보드 음악 슬림 바 */
-    .music-widget-bar {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-left: 4px solid #0F172A;
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 16px;
+    /* 🎧 하이엔드 오디오 미디어 스테이션 스타일 */
+    .studio-audio-player {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 18px 22px;
+        color: #FFFFFF;
+        margin-bottom: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.25);
+    }
+    .audio-meta-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #FFFFFF;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
+        gap: 8px;
+    }
+    .audio-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #2563EB;
+        color: #FFFFFF;
+        padding: 3px 8px;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+    }
+    .audio-subtext {
+        font-size: 0.85rem;
+        color: #94A3B8;
+        margin-top: 4px;
     }
 
     /* 버튼 스타일 통일 */
@@ -417,34 +440,34 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. 홈 상단: 세련된 앰비언트 음악 퀵 플레이어
+    # 1. 홈 상단: 세련된 하이엔드 앰비언트 오디오 스테이션
     cur_hour = datetime.now().hour
     if cur_hour < 11:
-        auto_mood = "오전 오픈 준비 (경쾌하고 맑은 분위기)"
+        auto_mood = "오전 오픈 준비 (경쾌한 어쿠스틱 & 보사노바)"
         auto_query = "재즈 보사노바 오전 매장 음악 연속재생"
     elif cur_hour < 14:
-        auto_mood = "점심 피크타임 (활기차고 경쾌한 팝)"
+        auto_mood = "점심 피크타임 (활기찬 템포 & 칠 팝)"
         auto_query = "어쿠스틱 팝 피크타임 매장 음악 연속재생"
     elif cur_hour < 18:
-        auto_mood = "오후 나른한 시간 (감성 힐링 칠아웃)"
+        auto_mood = "오후 나른한 시간 (감성 힐링 & 명곡 피아노)"
         auto_query = "2000년대 감성 발라드 피아노 연주곡 연속재생"
     else:
-        auto_mood = "저녁 골든타임 & 마감 (아늑한 라운지 재즈)"
+        auto_mood = "저녁 골든타임 & 마감 (무드 라운지 재즈)"
         auto_query = "세련된 카페 라운지 재즈 음악 연속재생"
 
     home_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(auto_query)}"
 
     st.markdown(f"""
-    <div class="music-widget-bar">
+    <div class="studio-audio-player">
         <div>
-            <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase;">STORE AMBIENT SOUND</div>
-            <div style="font-size:0.95rem; font-weight:700; color:#0F172A; margin-top:2px;">
-                현재 매장 추천 큐레이션: <b>{auto_mood}</b>
+            <div class="audio-meta-title">
+                <span class="audio-badge">LIVE AMBIENT</span> {auto_mood}
             </div>
+            <div class="audio-subtext">현재 매장 분위기에 맞춰 큐레이션된 스트리밍 채널입니다.</div>
         </div>
         <a href="{home_music_url}" target="_blank" style="text-decoration:none;">
-            <button style="height:36px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; padding:0 16px; cursor:pointer;">
-                유튜브 즉시 재생
+            <button style="height:38px; background:#2563EB; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; font-size:0.86rem; padding:0 18px; cursor:pointer; box-shadow:0 2px 8px rgba(37,99,235,0.3);">
+                스트리밍 재생
             </button>
         </a>
     </div>
@@ -588,20 +611,42 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 3종", value=out, height=320)
 
+    # 💬 AI 리뷰 대응 센터 (6대 맞춤형 스타일 지원)
     with mkt_sub5:
-        cust_rev = st.text_area("고객 리뷰 본문 붙여넣기", placeholder="고객이 남긴 리뷰를 입력하세요.")
-        rev_stl = st.selectbox("답글 스타일", ["정중한 전문 감사형", "친근한 동네 이웃형", "차별점 강조 마케팅형"], key="m_r_stl")
-        if st.button("전문 답글 3종 생성", key="m_r_btn", use_container_width=True):
+        st.markdown("##### 네이버 플레이스 & 배달/당근 리뷰 자동 답글 솔루션")
+        cust_rev = st.text_area("고객 리뷰 본문 붙여넣기", placeholder="고객이 남긴 별점 리뷰 또는 후기 내용을 입력하세요.")
+        
+        rev_stl = st.selectbox("답글 전략 스타일 (6종)", [
+            "1. 정중하고 품격 있는 VIP 감사형 (예의와 신뢰를 중시하는 고급스러운 어조)",
+            "2. 다정하고 센스 있는 동네 이웃형 (단골 이웃에게 이야기하듯 따뜻하고 친근한 톤)",
+            "3. 매장 특장점 & 장비 전문성 각인형 (정밀 검안 및 전문 설비의 강점을 은근히 각인)",
+            "4. 재방문 유도 & 단골 혜택 안내형 (다음 방문 시 무상 점검/세척 혜택을 자연스럽게 제시)",
+            "5. 위트 있고 유쾌한 에너지형 (기분 좋은 센스와 활기를 불어넣는 톡톡 튀는 답변)",
+            "6. 불만/아쉬움 리뷰 케어 및 재방문 약속형 (정중한 사과, 원인 설명 및 개선 보상 약속)"
+        ], key="m_r_stl")
+        
+        if st.button("전문 답글 3종 생성 실행", key="m_r_btn", use_container_width=True):
             if cust_rev:
-                with st.spinner("답글 작성 중..."):
-                    prompt = f"매장: {store_name}\n리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 감동적인 답글 3종 작성."
+                with st.spinner("리뷰 맥락 분석 및 3종 맞춤 답글 생성 중..."):
+                    prompt = f"""
+                    매장명: {store_name}
+                    업종: {sel_industry}
+                    소재지: {sel_loc}
+                    고객 리뷰 본문: "{cust_rev}"
+                    선택한 답글 스타일: {rev_stl}
+
+                    당신은 20년 경력의 고객 경험(CX) 및 로컬 매장 리뷰 관리 전문가다.
+                    위 고객 리뷰를 바탕으로 플레이스 방문자들이 보고 신뢰감을 느낄 수 있는 완성도 높은 답글 3종을 작성하라.
+                    - 불필요한 이모티콘은 배제하고 정갈하게 작성할 것.
+                    - 리뷰 스타일에 완벽히 부합하면서도 고객의 언급 사항(칭찬 또는 불만)을 섬세하게 짚어줄 것.
+                    """
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("추천 답글 3종", value=out, height=260)
+                    if out: st.text_area("추천 답글 3종 세트", value=out, height=320)
             else:
                 st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 3. 🛒 로컬 공동구매
+# TAB 3. 🛒 로컬 공동구매 (관리자 전용 명단 제어)
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["진행 프로젝트 목록", "소모품 도매 발주", "신규 공구 제안"])
@@ -634,6 +679,7 @@ with tab_deals:
             dday = get_dday(deal["deadline"])
             is_closed = (dday == "마감")
 
+            # 깨끗한 카드 레이아웃
             st.markdown(f"""
             <div class="clean-box" style="margin-bottom:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -647,31 +693,47 @@ with tab_deals:
             """, unsafe_allow_html=True)
             st.progress(min(tot_qty / deal["target"], 1.0))
 
-            c_btn_a, c_btn_b, c_btn_c = st.columns([1.2, 1.2, 1])
-            with c_btn_a:
-                if len(deal["participants"]) > 0:
-                    df_parts = pd.DataFrame(deal["participants"])
-                    df_parts.columns = ["성함/상호", "연락처", "신청수량", "신청일시"]
-                    csv_data = df_parts.to_csv(index=False, encoding="utf-8-sig")
-                    st.download_button(
-                        label="📥 명단 CSV 다운로드",
-                        data=csv_data,
-                        file_name=f"공구명단_{deal['id']}.csv",
-                        mime="text/csv",
-                        key=f"csv_{deal['id']}",
-                        use_container_width=True
-                    )
-            with c_btn_b:
+            # 참여 버튼 & 관리자 전용 제어 바
+            col_ctrl_a, col_ctrl_b = st.columns([1.5, 1])
+            with col_ctrl_a:
                 is_active = (st.session_state.active_join_deal_id == deal["id"])
                 btn_label = "신청창 닫기" if is_active else "공구 참여 신청"
                 if st.button(btn_label, key=f"toggle_join_{deal['id']}", use_container_width=True):
                     st.session_state.active_join_deal_id = None if is_active else deal["id"]
                     st.rerun()
-            with c_btn_c:
+
+            with col_ctrl_b:
                 if user_key == "admin" or is_closed:
                     if st.button("프로젝트 삭제", key=f"del_{deal['id']}", use_container_width=True):
                         deals_to_del.append(deal["id"])
 
+            # 🔒 [관리자 전용 구역] 참여자 명단 테이블 및 CSV 다운로드 (일반회원에게 완전 비노출)
+            if user_key == "admin":
+                st.markdown("""
+                <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:8px; padding:12px; margin-top:8px;">
+                    <div style="font-size:0.82rem; font-weight:700; color:#0F172A; margin-bottom:6px;">관리자 전용: 신청자 데이터 관리</div>
+                """, unsafe_allow_html=True)
+                
+                col_adm_dl, _ = st.columns([1.5, 2])
+                with col_adm_dl:
+                    if len(deal["participants"]) > 0:
+                        df_parts = pd.DataFrame(deal["participants"])
+                        df_parts.columns = ["성함/상호", "연락처", "신청수량", "신청일시"]
+                        csv_data = df_parts.to_csv(index=False, encoding="utf-8-sig")
+                        st.download_button(
+                            label=f"📥 참여자 명단 엑셀(CSV) 다운로드 ({len(deal['participants'])}명)",
+                            data=csv_data,
+                            file_name=f"공구명단_{deal['id']}.csv",
+                            mime="text/csv",
+                            key=f"csv_adm_{deal['id']}",
+                            use_container_width=True
+                        )
+                        st.dataframe(df_parts, use_container_width=True)
+                    else:
+                        st.caption("현재 신청자가 없습니다.")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # 일반 사용자 참여 폼 (오류 없는 인라인 토글)
             if st.session_state.active_join_deal_id == deal["id"]:
                 st.markdown(f"""
                 <div class="clean-box" style="margin-top:8px; border-left:4px solid #2563EB;">
@@ -736,7 +798,7 @@ with tab_biz:
         "4대 행정서류 발급처", "2026 정책금융 진단", "알바 급여 & 영업 결산", "매장 시간대별 음악"
     ])
 
-    # 4대 행정서류: 정책금융과 동일한 카드 그리드 스타일로 전면 개편
+    # 4대 행정서류: 통일된 카드 그리드
     with biz_sub1:
         st.markdown("##### 정책자금 및 금융 필수 4대 증빙 서류 발급처")
         st.markdown("""
@@ -861,7 +923,7 @@ with tab_biz:
                 if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
     with biz_sub3:
-        st.markdown("##### 💰 파트타이머 주휴수당 및 실수령액 산출")
+        st.markdown("##### 파트타이머 주휴수당 및 실수령액 산출")
         w1, w2 = st.columns(2)
         with w1:
             wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="b_wage")
@@ -880,7 +942,7 @@ with tab_biz:
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("##### 🌙 일일 영업 결산 리포트")
+        st.markdown("##### 일일 영업 결산 리포트")
         cl_col1, cl_col2 = st.columns(2)
         with cl_col1:
             c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
@@ -893,12 +955,30 @@ with tab_biz:
                 out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3선, 퇴근길 멘탈 리셋 조언 작성.")
                 if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
+    # 🎧 매장 시간대별 음악 큐레이션 스튜디오
     with biz_sub4:
-        st.markdown("##### 🎧 매장 시간대·상황별 음악 큐레이션")
+        st.markdown("##### 매장 맞춤형 사운드 큐레이션 스튜디오")
         col_m1, col_m2 = st.columns(2)
         with col_m1:
-            m_time = st.selectbox("영업 시간대", ["오전 오픈 준비 (경쾌한 무드)", "점심/오후 피크 (활기 유지)", "나른한 오후 3~5시 (편안한 칠아웃)", "저녁 골든타임 (아늑한 라운지/재즈)", "마감 정리 (차분한 피아노)"], key="b_m_time")
+            m_time = st.selectbox("영업 시간대", ["오전 오픈 준비 (경쾌하고 맑은 무드)", "점심/오후 피크 (활기 유지 & 칠)", "나른한 오후 3~5시 (편안한 어쿠스틱)", "저녁 골든타임 (아늑한 라운지 재즈)", "마감 정리 (차분한 피아노 연주)"], key="b_m_time")
         with col_m2:
-            m_style = st.selectbox("장르 스타일", ["재즈/보사노바", "어쿠스틱 팝", "2000년대 감성 발라드 피아노", "90-2000 가요 댄스"], key="b_m_style")
+            m_style = st.selectbox("장르 스타일", ["재즈 / 보사노바 (클래식 매장)", "어쿠스틱 팝 & 인디 감성", "2000년대 감성 발라드 피아노", "90-2000 국민 애창 댄스"], key="b_m_style")
+        
         yt_q = f"{m_style.split('/')[0]} {m_time.split('(')[0].strip()} 플레이리스트 연속재생"
-        st.link_button(f"유튜브 '{yt_q}' 스트리밍 재생", f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_q)}", use_container_width=True)
+        custom_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_q)}"
+        
+        st.markdown(f"""
+        <div class="studio-audio-player" style="margin-top:10px;">
+            <div>
+                <div class="audio-meta-title">
+                    <span class="audio-badge">CURATED TRACK</span> {m_time.split('(')[0]} × {m_style.split('/')[0]}
+                </div>
+                <div class="audio-subtext">검색 쿼리: <code>{yt_q}</code></div>
+            </div>
+            <a href="{custom_music_url}" target="_blank" style="text-decoration:none;">
+                <button style="height:38px; background:#2563EB; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; font-size:0.86rem; padding:0 18px; cursor:pointer;">
+                    유튜브 스트리밍 열기
+                </button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)

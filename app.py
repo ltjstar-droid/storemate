@@ -469,18 +469,18 @@ else:
 
 with st.sidebar:
     st.markdown(f"### {store_name}")
-    st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
     
-    # ☎️ 사이드바 내 매장 전화번호 편집 기능 추가
-    with st.expander("매장 연락처 수정"):
-        with st.form("sidebar_phone_form"):
-            new_p = st.text_input("전화번호", value=store_phone)
-            if st.form_submit_button("번호 변경", use_container_width=True):
-                users_db[user_key]["phone"] = new_p
-                save_users(users_db)
-                st.success("전화번호가 변경되었습니다.")
-                st.rerun()
+    # ☎️ 깨진 화살표(expander)를 없애고 폼으로 직관적 노출
+    st.markdown("---")
+    st.markdown("##### ☎️ 매장 연락처 변경")
+    with st.form("sidebar_phone_form"):
+        new_p = st.text_input("전화번호", value=store_phone)
+        if st.form_submit_button("번호 변경 저장", use_container_width=True):
+            users_db[user_key]["phone"] = new_p
+            save_users(users_db)
+            st.success("전화번호가 변경되었습니다.")
+            st.rerun()
 
     if not is_approved_permanent:
         if is_in_trial:
@@ -566,7 +566,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (매장 전화번호 및 SNS 노출)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -940,39 +940,19 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 5. 🎧 음악 스튜디오 (앱 내 플레이어 제거 및 큐레이션 최적화)
+# TAB 5. 🎧 음악 스튜디오
 # ------------------------------------------
 with tab_music:
     st.markdown("""<div class="simple-card">
 <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:2px;">매장 전용 음악 큐레이션 스튜디오</div>
-<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 분위기에 맞춰 유튜브 스트리밍 플레이리스트를 원클릭으로 연결합니다.</div>
+<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 분위기에 맞춰 바로 재생할 수 있는 오디오 스테이션입니다.</div>
 </div>""", unsafe_allow_html=True)
 
     music_presets = [
-        {
-            "slot": "오전 오픈 준비 (09:00~11:30)", 
-            "vibe": "경쾌한 모닝 보사노바 & 어쿠스틱", 
-            "query": "재즈 보사노바 오전 매장 음악 연속재생", 
-            "tag": "모닝 스타트"
-        },
-        {
-            "slot": "점심 / 피크 (11:30~14:00)", 
-            "vibe": "생동감 넘치는 칠 팝 & 라운지", 
-            "query": "어쿠스틱 팝 피크타임 매장 음악 연속재생", 
-            "tag": "피크 활력"
-        },
-        {
-            "slot": "나른한 오후 (14:00~17:30)", 
-            "vibe": "편안한 감성 발라드 피아노 커버", 
-            "query": "2000년대 감성 발라드 피아노 연주곡 연속재생", 
-            "tag": "힐링 케어"
-        },
-        {
-            "slot": "저녁 & 마감 (17:30~21:00)", 
-            "vibe": "고급스럽고 아늑한 라운지 재즈", 
-            "query": "세련된 카페 라운지 재즈 음악 연속재생", 
-            "tag": "이브닝 마감"
-        }
+        {"slot": "오전 오픈 준비 (09:00~11:30)", "vibe": "경쾌한 모닝 보사노바 & 어쿠스틱", "query": "재즈 보사노바 오전 매장 음악 연속재생", "tag": "모닝 스타트"},
+        {"slot": "점심 / 피크 (11:30~14:00)", "vibe": "생동감 넘치는 칠 팝 & 라운지", "query": "어쿠스틱 팝 피크타임 매장 음악 연속재생", "tag": "피크 활력"},
+        {"slot": "나른한 오후 (14:00~17:30)", "vibe": "편안한 감성 발라드 피아노 커버", "query": "2000년대 감성 발라드 피아노 연주곡 연속재생", "tag": "힐링 케어"},
+        {"slot": "저녁 & 마감 (17:30~21:00)", "vibe": "고급스럽고 아늑한 라운지 재즈", "query": "세련된 카페 라운지 재즈 음악 연속재생", "tag": "이브닝 마감"}
     ]
 
     st.markdown("##### 1. 시간대별 원클릭 추천 스테이션")
@@ -1011,7 +991,7 @@ with tab_music:
             "세련된 Lo-Fi 칠(Chill) 비트",
             "90-2000 국민 애창 댄스 (식당/펍)",
             "최신 트로트 명곡 메들리"
-        ], key="tab_m_style_cust")
+        ], key="tab_m_style_custom")
         
         yt_custom_q = f"{m_style_custom.split('/')[0].strip()} {m_time_custom.split('(')[0].strip()} 플레이리스트 연속재생"
         custom_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_custom_q)}"

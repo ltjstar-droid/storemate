@@ -45,7 +45,7 @@ def load_users():
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
             "location": "용인시 처인구 이동읍 경기동로 725",
-            "feature": "독일식 초정밀 검안 솔루션",
+            "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
             "map_perk": "용친 회원 안경렌즈 10% 현장 할인 및 클리너 제공",
             "pw": "1234",
@@ -72,7 +72,7 @@ def load_deals():
         "deals": [
             {
                 "id": "deal_1",
-                "title": "[처인구 파트너십] 볏짚 숙성 삼겹 3인 세트 + 냉면 이용권",
+                "title": "[처인구 아지트] 볏짚 숙성 삼겹 3인 세트 + 냉면 이용권",
                 "price": "31,000원 (정상가 48,000원)",
                 "target": 100,
                 "deadline": "2026-09-20",
@@ -109,7 +109,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 정통 모던 엔터프라이즈 CSS
+# 깔끔한 모던 CSS
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -137,7 +137,7 @@ st.markdown("""
     .app-header {
         background: #0F172A;
         border-radius: 14px;
-        padding: 22px 26px;
+        padding: 20px 24px;
         color: #FFFFFF;
         margin-bottom: 14px;
         border: 1px solid #1E293B;
@@ -205,6 +205,17 @@ st.markdown("""
         padding: 20px;
         margin-bottom: 14px;
     }
+    .guide-banner {
+        background: #F1F5F9;
+        border-left: 3px solid #2563EB;
+        padding: 12px 14px;
+        border-radius: 6px;
+        font-size: 0.88rem;
+        color: #334155;
+        margin-bottom: 14px;
+        font-weight: 500;
+    }
+
     .pro-builder-box {
         background: #FFFFFF;
         border: 1px solid #CBD5E1;
@@ -336,7 +347,7 @@ if not st.session_state.logged_in_user:
                             "store_name": new_store,
                             "industry": new_ind,
                             "location": new_loc,
-                            "feature": "전문 검안 및 맞춤 가공",
+                            "feature": "전문 검안 및 정밀 서비스",
                             "map_address": new_loc,
                             "map_perk": "용친 회원 방문 시 특별 혜택 제공",
                             "pw": new_pw,
@@ -440,9 +451,8 @@ client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
-너는 국내 최상위 로컬 브랜드 마케팅 대행사 수석 디렉터다.
-유료 기업 고객을 위한 실전 집행용 원고를 작성하며, 진부한 미사여구나 불필요한 이모티콘은 배제하고,
-실제 구매/방문 전환율을 극대화하는 정교하고 완성도 높은 콘텐츠 아키텍처를 제공한다.
+너는 골목상권 및 로컬 비즈니스 분야 20년 경력의 수석 마케팅 디렉터다.
+이모티콘 남발은 배제하고, 전문 컨설턴트처럼 정갈하고 세련된 문장으로 실제 집행 가능한 완성본을 제공한다.
 """
 
 def generate_safe_content(prompt):
@@ -456,7 +466,7 @@ def generate_safe_content(prompt):
             if attempt < max_retries - 1:
                 time.sleep(2)
                 continue
-            st.error("원고 엔진 응답이 지연되고 있습니다. 잠시 후 다시 실행해 주세요.")
+            st.error("데이터 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.")
             return None
 
 tab_titles = [
@@ -482,13 +492,13 @@ with tabs[0]:
             "차분하고 편안한 힐링 (전문상담, 뷰티, 안경원)",
             "활기차고 경쾌한 무드 (일반음식점, 주점, 펍)",
             "푸근한 레트로 (노포, 한식, 단골 중심)"
-        ], key="v5_mood")
+        ], key="mood_sel")
         sel_genre = st.selectbox("장르 선택", [
             "피아노 힐링 연주곡 메들리",
             "2000년대 감성 명곡 발라드",
             "90-2000 국민 애창 댄스곡",
             "트로트 베스트 모음"
-        ], key="v5_genre")
+        ], key="genre_sel")
         target_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(sel_genre + ' 연속재생')}"
     with col_m2:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -512,20 +522,107 @@ with tabs[1]:
     </div>
     """, unsafe_allow_html=True)
 
-# 2. 공동구매
+# ==========================================
+# 2. 공동구매 (원래 완벽했던 3단 서브탭 복원!)
+# ==========================================
 with tabs[2]:
-    for deal in deals_db["deals"]:
-        total_qty = sum([p["qty"] for p in deal["participants"]])
-        st.markdown(f"""
+    st.markdown("""
+    <div class="guide-banner">
+        실시간 로컬 공동구매 시스템: 현재 진행 중인 핫딜과 소모품 공구의 남은 기간과 신청 현황을 확인하세요.
+    </div>
+    """, unsafe_allow_html=True)
+    
+    deal_subtab1, deal_subtab2, deal_subtab3 = st.tabs(["주민 핫딜", "소모품 공구", "공구 제안"])
+    
+    def get_dday(deadline_str):
+        try:
+            d_date = datetime.strptime(deadline_str, "%Y-%m-%d")
+            delta = (d_date - datetime.now()).days
+            if delta > 0:
+                return f"D-{delta}일"
+            elif delta == 0:
+                return "오늘 마감"
+            else:
+                return "마감"
+        except Exception:
+            return "진행 중"
+
+    with deal_subtab1:
+        for deal in deals_db["deals"]:
+            total_qty = sum([p["qty"] for p in deal["participants"]])
+            total_people = len(deal["participants"])
+            dday_txt = get_dday(deal["deadline"])
+            progress_val = min(total_qty / deal["target"], 1.0)
+            
+            st.markdown(f"""
+            <div class="clean-card">
+                <span style="background:#EF4444; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday_txt}</span>
+                <h4 style="margin:8px 0; color:#0F172A; font-size:1.05rem;">{deal['title']}</h4>
+                <p style="color:#2563EB; font-weight:700; font-size:0.95rem; margin-bottom:6px;">{deal['price']}</p>
+                <p style="font-size:0.85rem; color:#475569;">신청 현황: <b>{total_people}명 참여</b> (누적 {total_qty}개)</p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.progress(progress_val)
+            
+            with st.container():
+                with st.form(key=f"form_{deal['id']}"):
+                    st.markdown("##### 공동구매 참여 신청")
+                    p_name = st.text_input("성함 또는 상호명", key=f"name_{deal['id']}")
+                    p_phone = st.text_input("연락처", key=f"phone_{deal['id']}")
+                    p_qty = st.number_input("신청 수량", min_value=1, max_value=100, value=1, step=1, key=f"qty_{deal['id']}")
+                    
+                    if st.form_submit_button("참여 확정하기", use_container_width=True):
+                        if p_name and p_phone:
+                            new_p = {"name": p_name, "phone": p_phone, "qty": int(p_qty), "time": datetime.now().strftime("%Y-%m-%d %H:%M")}
+                            deal["participants"].append(new_p)
+                            save_deals(deals_db)
+                            st.success("신청이 완료되었습니다.")
+                            st.rerun()
+                        else:
+                            st.warning("정보를 입력해 주세요.")
+                
+                st.markdown("##### 참여자 명단")
+                for idx, p in enumerate(deal["participants"], 1):
+                    st.markdown(f"- {idx}. **{p['name']}**님 ({p['qty']}개)")
+            st.markdown("<hr>", unsafe_allow_html=True)
+
+    with deal_subtab2:
+        st.markdown("##### 사업장 소모품 도매가 공동 발주")
+        st.markdown("""
         <div class="clean-card">
-            <h4 style="margin:0; color:#0F172A;">{deal['title']}</h4>
-            <p style="font-size:1rem; font-weight:700; color:#2563EB; margin:6px 0;">{deal['price']}</p>
-            <p style="font-size:0.85rem; color:#64748B; margin:0;">참여 인원: {len(deal['participants'])}명 (신청 수량: {total_qty}개)</p>
+            <h4 style="margin-top:0;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
+            <p style="color:#475569; font-size:0.9rem;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("소모품 공동발주 접수", use_container_width=True, key="b2b_order_btn"):
+            st.success("발주 신청이 접수되었습니다.")
+
+    with deal_subtab3:
+        st.markdown("##### 신규 공동구매 오픈 제안")
+        c_name = st.text_input("상품명", placeholder="예: 블루라이트 차단 렌즈 패키지", key="prop_name")
+        c_qty = st.number_input("목표 수량", min_value=1, max_value=1000, value=30, step=1, key="prop_qty")
+        c_discount = st.text_input("제안 공구가", placeholder="예: 35,000원", key="prop_price")
+        c_days = st.slider("진행 기간 (일 단위)", min_value=3, max_value=30, value=7, key="prop_days")
+        
+        if st.button("공동구매 프로젝트 등록 제출", use_container_width=True, key="prop_submit"):
+            if c_name and c_discount:
+                new_deal = {
+                    "id": f"deal_{int(time.time())}",
+                    "title": f"[{store_name}] {c_name}",
+                    "price": f"{c_discount} (단독 특가)",
+                    "target": int(c_qty),
+                    "deadline": (datetime.now() + timedelta(days=c_days)).strftime("%Y-%m-%d"),
+                    "participants": []
+                }
+                deals_db["deals"].append(new_deal)
+                save_deals(deals_db)
+                st.success("공동구매 프로젝트가 등록되었습니다.")
+                st.rerun()
+            else:
+                st.warning("상품명과 가격을 입력해 주세요.")
 
 # ==========================================
-# 3. 블로그원고 (PRO SEO 엔진 전면 고도화)
+# 3. 블로그원고 (PRO 고품질 엔진)
 # ==========================================
 with tabs[3]:
     if not is_pro_user:
@@ -546,18 +643,18 @@ with tabs[3]:
 
         col_b1, col_b2 = st.columns(2)
         with col_b1:
-            bl_target_keyword = st.text_input("메인 공략 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", placeholder="예: 처인구 안경원, 이동읍 맛집", key="pro_bl_kw")
-            bl_sub_keyword = st.text_input("서브 연관 검색어 (쉼표 구분)", value=f"{sel_loc.split()[1] if len(sel_loc.split())>1 else ''} 추천, 단골", key="pro_bl_sub")
-            bl_photo_count = st.slider("포스팅 사진 첨부 예정 장수", min_value=5, max_value=20, value=8, step=1, key="pro_bl_photo")
+            bl_target_keyword = st.text_input("메인 공략 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", key="orig_bl_kw")
+            bl_sub_keyword = st.text_input("서브 연관 검색어 (쉼표 구분)", value=f"{sel_loc.split()[1] if len(sel_loc.split())>1 else ''} 추천, 단골", key="orig_bl_sub")
+            bl_photo_count = st.slider("포스팅 사진 첨부 예정 장수", min_value=5, max_value=20, value=8, step=1, key="orig_bl_photo")
         with col_b2:
             bl_tone = st.selectbox("원고 스타일 톤앤매너", [
                 "전문가 심층 분석형 (신뢰성, 공학적/기술적 검증, 정밀함 강조)",
                 "동네 단골 솔직 방문기형 (자연스러운 체감 후기, 상세 공간 묘사)",
                 "스마트 소비 가이드형 (가성비, 할인 혜택, 실속 비교 중심)"
-            ], key="pro_bl_tone")
-            bl_core_point = st.text_area("매장 핵심 차별점 (시그니처/장비/서비스)", value=sel_feature, height=85, key="pro_bl_core")
+            ], key="orig_bl_tone")
+            bl_core_point = st.text_area("매장 핵심 차별점 (시그니처/장비/서비스)", value=sel_feature, height=85, key="orig_bl_core")
 
-        if st.button("네이버 상위노출 최적화 전문 원고 생성", key="pro_bl_submit"):
+        if st.button("네이버 상위노출 최적화 전문 원고 생성", key="orig_bl_submit"):
             with st.spinner("알고리즘 적합성 및 검색 키워드 가중치 분석 중..."):
                 prompt = f"""
                 업종: {sel_industry}
@@ -565,32 +662,32 @@ with tabs[3]:
                 위치: {sel_loc}
                 메인 타깃 키워드: {bl_target_keyword}
                 서브 키워드: {bl_sub_keyword}
-                사진 첨부 예정 장수: {bl_photo_count}장
+                사진 장수: {bl_photo_count}장
                 톤앤매너: {bl_tone}
-                매장 차별점: {bl_core_point}
+                차별점: {bl_core_point}
 
-                당신은 네이버 C-Rank 및 DIA+ 검색 로직에 정통한 상위 1% 전문 마케팅 기획자입니다.
+                당신은 네이버 검색 로직에 정통한 상위 1% 전문 마케팅 기획자입니다.
                 다음 4가지 구성 요소를 포함하여 블로그 포스팅 원고를 전문적으로 작성하십시오.
-                모든 항목에서 불필요한 이모티콘은 배제하고 정갈한 비즈니스 문체로 서술하십시오.
+                이모티콘은 배제하고 정갈한 비즈니스 문체로 작성할 것.
 
-                [1] 클릭률을 극대화하는 네이버 최적화 제목 3종 추천 (메인 키워드 전진 배치형, 궁금증 유발형, 후기형)
-                [2] 사진 촬영 및 배치 가이드라인 ({bl_photo_count}장의 사진이 각각 어떤 앵글과 피사체를 담아야 하는지 본문 중간중간 [사진 가이드 1: ...] 형식으로 명시)
-                [3] 본문 본론 (공간 도입부 - 전문 서비스/시그니처 심층 검증 - 실제 혜택 안내 - 플레이스 네이버 예약 및 찾아오는 길 유도 CTA)
-                [4] 연관 태그 10종 추천 (공백 없는 형태)
+                [1] 클릭률 극대화 제목 3종 (키워드 전진배치형, 궁금증 유발형, 솔직후기형)
+                [2] 사진 촬영 및 배치 가이드라인 ({bl_photo_count}장 피사체 앵글 가이드)
+                [3] 본문 (공간 도입 - 전문 서비스 검증 - 실제 혜택 - 플레이스 예약 유도)
+                [4] 연관 태그 10종
                 """
                 out = generate_safe_content(prompt)
                 if out:
-                    st.text_area("생성된 SEO 전문 원고", value=out, height=450)
+                    st.text_area("생성된 SEO 전문 원고", value=out, height=420)
 
 # ==========================================
-# 4. 당근소식 (PRO 로컬 바이럴 엔진)
+# 4. 당근소식 (PRO 고품질 엔진)
 # ==========================================
 with tabs[4]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-banner">
             <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">당근마켓 동네생활 바이럴 엔진 (PRO 회원 전용)</div>
-            <div style="font-size:0.88rem;">광고 티를 내지 않고 동네 주민들의 폭발적 댓글과 단골 맺기를 이끌어내는 전문 소식 작성기입니다.</div>
+            <div style="font-size:0.88rem;">동네 이웃 주민들의 댓글과 단골 맺기를 이끌어내는 전문 소식 작성기입니다.</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -598,52 +695,47 @@ with tabs[4]:
         <div class="pro-builder-box">
             <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
             <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">당근마켓 반경 3km 타깃 로컬 소식 솔루션</div>
-            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">노골적인 전단지형 광고가 아닌, 이웃의 호기심과 공감을 자극하는 바이럴 포스팅을 생성합니다.</div>
         </div>
         """, unsafe_allow_html=True)
 
         col_d1, col_d2 = st.columns(2)
         with col_d1:
-            dg_target_audience = st.selectbox("타깃 고객군", ["3040 자녀 양육 주부층", "인근 거주 2030 직장인 및 1인가구", "동네 터줏대감 5060 중장년층", "전 지역 주민 전체"], key="pro_dg_target")
-            dg_promo_type = st.selectbox("제공 혜택 유형", ["방문 시 무상 정밀 점검/체험 제공", "용인친구들 단독 할인 쿠폰 지급", "선착순 사은품 추가 증정", "새 시즌 한정 신상품 소개"], key="pro_dg_promo")
+            dg_target_audience = st.selectbox("타깃 고객군", ["3040 자녀 양육 주부층", "인근 거주 2030 직장인 및 1인가구", "동네 터줏대감 5060 중장년층", "전 지역 주민 전체"], key="orig_dg_target")
+            dg_promo_type = st.selectbox("제공 혜택 유형", ["방문 시 무상 정밀 점검/체험 제공", "용인친구들 단독 할인 쿠폰 지급", "선착순 사은품 추가 증정", "새 시즌 한정 신상품 소개"], key="orig_dg_promo")
         with col_d2:
-            dg_hook = st.text_input("동네 이슈/상황 연결", placeholder="예: 봄 환절기 미세먼지, 새 학기 준비, 동네 산책길", key="pro_dg_hook")
-            dg_call = st.text_input("유도 액션 (CTA)", value="당근 단골 맺기 누르고 캡처본 보여주시면 적용", key="pro_dg_cta")
+            dg_hook = st.text_input("동네 이슈/상황 연결", placeholder="예: 봄 환절기 미세먼지, 새 학기 준비", key="orig_dg_hook")
+            dg_call = st.text_input("유도 액션 (CTA)", value="당근 단골 맺기 누르고 캡처본 보여주시면 적용", key="orig_dg_cta")
 
-        if st.button("당근마켓 맞춤형 바이럴 소식 생성", key="pro_dg_submit"):
+        if st.button("당근마켓 맞춤형 바이럴 소식 생성", key="orig_dg_submit"):
             with st.spinner("로컬 반경 커뮤니티 데이터 분석 중..."):
                 prompt = f"""
                 업종: {sel_industry}
                 매장명: {store_name}
                 위치: {sel_loc}
                 주 타깃: {dg_target_audience}
-                프로모션 유형: {dg_promo_type}
+                프로모션: {dg_promo_type}
                 상황적 훅: {dg_hook}
                 유도 액션: {dg_call}
                 매장 강점: {sel_feature}
 
-                당근마켓 동네생활 탭에서 '좋아요'와 '단골 추가'를 최대로 유도할 수 있는 게시글을 작성하라.
-                노골적인 전단지 말투는 철저히 배제하고, 동네 이웃 사장님이 진솔하게 정보와 혜택을 나누는 신뢰도 높은 어투를 사용할 것.
-                이모티콘을 도배하지 말고, 텍스트 자체의 진정성과 명확한 혜택으로 어필할 것.
-
-                [구성]
-                1. 피드 노출용 타이틀 2종 (피드 스크롤을 멈추게 만드는 질문형/호기심형)
-                2. 본문 (이웃 안부 - 매장 상황/전문 지식 팁 공유 - 특별 혜택 안내 - 단골 맺기 유도)
-                3. 댓글 반응 유도용 질문 (주민들이 댓글을 남기게 만드는 자연스러운 마무리 문구)
+                당근마켓 동네생활 탭에서 신뢰를 얻는 소식을 작성하라.
+                전단지 어투는 배제하고 진솔한 이웃 사장님 톤으로 작성할 것.
+                1. 피드 노출 타이틀 2종
+                2. 본문 (안부 - 전문 정보 팁 - 혜택 안내 - 단골 유도)
+                3. 댓글 반응 유도 질문
                 """
                 out = generate_safe_content(prompt)
                 if out:
-                    st.text_area("생성된 당근마켓 소식 원고", value=out, height=380)
+                    st.text_area("생성된 당근마켓 소식 원고", value=out, height=360)
 
 # ==========================================
-# 5. 인스타그램 (PRO 비주얼 피드 & 릴스 엔진)
+# 5. 인스타그램 (PRO 고품질 엔진)
 # ==========================================
 with tabs[5]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-banner">
             <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">인스타그램 비주얼 브랜딩 스튜디오 (PRO 회원 전용)</div>
-            <div style="font-size:0.88rem;">촬영 연출 디렉팅, 3초 스크롤 스톱 훅, 타깃별 최적화 해시태그 패키지를 완성형으로 제공합니다.</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -651,55 +743,47 @@ with tabs[5]:
         <div class="pro-builder-box">
             <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
             <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">인스타그램 하이엔드 피드 & 스토리보드 디렉터</div>
-            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">단순 텍스트 생성이 아닌, 비주얼 연출 지침과 해시태그 분류 체계를 갖춘 완성형 포스팅을 설계합니다.</div>
         </div>
         """, unsafe_allow_html=True)
 
         col_i1, col_i2 = st.columns(2)
         with col_i1:
-            ig_format = st.selectbox("콘텐츠 포맷", ["단일 피드 (감성 스냅 1컷)", "카드뉴스형 (정보 전달 4~6슬라이드)", "릴스 숏폼 (15초 텍스트 영상 스크립트)"], key="pro_ig_format")
-            ig_vibe = st.selectbox("비주얼 무드", ["미니멀 모던 (단정하고 세련된 분위기)", "따뜻한 아날로그 (정감 있고 아늑한 톤)", "전문 랩/클리닉 (정밀함과 위생, 하이테크 강조)"], key="pro_ig_vibe")
+            ig_format = st.selectbox("콘텐츠 포맷", ["단일 피드 (감성 스냅 1컷)", "카드뉴스형 (정보 전달 4~6슬라이드)", "릴스 숏폼 (15초 텍스트 영상 스크립트)"], key="orig_ig_fmt")
+            ig_vibe = st.selectbox("비주얼 무드", ["미니멀 모던 (단정하고 세련된 분위기)", "따뜻한 아날로그 (정감 있고 아늑한 톤)", "전문 랩/클리닉 (정밀함과 위생 강조)"], key="orig_ig_vb")
         with col_i2:
-            ig_topic = st.text_input("포스팅 핵심 주제", placeholder="예: 얼굴형에 맞는 맞춤 안경 피팅 가이드, 신상품 입고", key="pro_ig_topic")
-            ig_perk = st.text_input("프로모션/혜택", value=curr_user.get("map_perk", "용친 회원 현장 추가 혜택"), key="pro_ig_perk")
+            ig_topic = st.text_input("포스팅 핵심 주제", placeholder="예: 얼굴형에 맞는 맞춤 안경 피팅 가이드", key="orig_ig_tp")
+            ig_perk = st.text_input("프로모션/혜택", value=curr_user.get("map_perk", "용친 회원 현장 추가 혜택"), key="orig_ig_pk")
 
-        if st.button("인스타그램 비주얼 피드 & 태그 패키지 생성", key="pro_ig_submit"):
-            with st.spinner("비주얼 레이아웃 및 트렌드 태그 매칭 중..."):
+        if st.button("인스타그램 비주얼 피드 & 태그 패키지 생성", key="orig_ig_submit"):
+            with st.spinner("비주얼 레이아웃 구성 중..."):
                 prompt = f"""
                 업종: {sel_industry}
                 매장명: {store_name}
                 위치: {sel_loc}
                 포맷: {ig_format}
-                비주얼 무드: {ig_vibe}
+                무드: {ig_vibe}
                 주제: {ig_topic}
                 혜택: {ig_perk}
-                매장 강점: {sel_feature}
+                강점: {sel_feature}
 
-                인스타그램 전문 브랜드 에이전시의 톤앤매너로 고품격 포스팅 패키지를 완성하라.
-                유치한 이모티콘 나열을 배제하고, 여백과 문장 리듬감이 살아있는 텍스트를 구성할 것.
-
-                [출력 구성]
-                1. 사진/영상 촬영 디렉팅 (어떤 구도, 조명, 소품, 모델 손 동작으로 찍어야 비주얼 무드에 부합하는지 2~3줄 구체적 가이드)
-                2. 피드 첫 줄 훅 멘트 (더보기를 누르지 않고는 못 배기는 세련된 카피)
-                3. 피드 본문 (문단 구분이 깔끔하며 줄바꿈이 최적화된 본문, 프로모션 혜택 자연스러운 녹이기)
-                4. 해시태그 3단 분류 패키지 (복사용):
-                   - 지역/상권 태그 5종
-                   - 업종/핵심 아이템 태그 5종
-                   - 라이프스타일/서브 타깃 태그 5종
+                인스타그램 전문 브랜드 에이전시 톤으로 포스팅을 작성하라.
+                1. 사진/영상 촬영 디렉팅 (구도, 조명 2~3줄)
+                2. 피드 첫 줄 훅 멘트
+                3. 피드 본문 (줄바꿈 최적화)
+                4. 해시태그 15종 (지역 5개, 업종 5개, 타깃 5개)
                 """
                 out = generate_safe_content(prompt)
                 if out:
-                    st.text_area("생성된 인스타그램 브랜드 패키지", value=out, height=420)
+                    st.text_area("생성된 인스타그램 브랜드 패키지", value=out, height=380)
 
 # ==========================================
-# 6. 고객문자 (PRO CRM 리텐션 엔진)
+# 6. 고객문자 (PRO 고품질 엔진)
 # ==========================================
 with tabs[6]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-banner">
             <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">고객 리텐션 CRM 메시지 솔루션 (PRO 회원 전용)</div>
-            <div style="font-size:0.88rem;">스팸으로 분류되지 않는 SMS 규격, 스토리형 LMS, 카카오 알림톡 버튼 규격 3종을 즉시 출력합니다.</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -707,62 +791,49 @@ with tabs[6]:
         <div class="pro-builder-box">
             <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
             <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">재방문율 극대화 CRM 메시지 스위트</div>
-            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">발송 비용 대비 재방문 매출 전환율을 정밀 계산하여 SMS(단문), LMS(장문), 카카오 알림톡 3종을 동시 설계합니다.</div>
         </div>
         """, unsafe_allow_html=True)
 
         col_s1, col_s2 = st.columns(2)
         with col_s1:
-            crm_target = st.selectbox("발송 대상 고객 세그먼트", [
+            crm_target = st.selectbox("발송 대상 고객군", [
                 "첫 방문 후 재방문 유도 (방문 후 1~2주 경과 고객)",
                 "이탈 위험 단골 고객 (최근 60일 이상 미방문 고객)",
                 "정기 점검/관리 주기 도래 고객 (전문 검안/클리닝 권장)",
                 "특정 시즌/명절 감사 프로모션 타깃 전체"
-            ], key="pro_crm_target")
-            crm_coupon = st.text_input("제공 바우처 / 혜택", value="방문 시 무상 정밀 점검 및 10% 추가 할인 쿠폰", key="pro_crm_coupon")
+            ], key="orig_crm_tgt")
+            crm_coupon = st.text_input("제공 바우처 / 혜택", value="방문 시 무상 정밀 점검 및 10% 추가 할인 쿠폰", key="orig_crm_cpn")
         with col_s2:
-            crm_urgency = st.selectbox("기한 및 긴급성 설정", ["이번 주말(일요일)까지 한정", "본 문자 수신 후 14일 이내 방문 시", "선착순 30명 한정 적용"], key="pro_crm_urgency")
-            crm_info = st.text_input("매장 예약 문의처", value=f"{store_name} (031-000-0000 / 문자 회신 가능)", key="pro_crm_info")
+            crm_urgency = st.selectbox("기한 설정", ["이번 주말까지 한정", "수신 후 14일 이내 방문 시", "선착순 30명 한정"], key="orig_crm_urg")
+            crm_info = st.text_input("매장 문의처", value=f"{store_name} (문자 회신 가능)", key="orig_crm_inf")
 
-        if st.button("SMS / LMS / 카카오 알림톡 3종 동시 출력", key="pro_crm_submit"):
-            with st.spinner("통신사 규격 및 스팸 필터링 회피 문안 설계 중..."):
+        if st.button("SMS / LMS / 카카오 알림톡 3종 동시 출력", key="orig_crm_submit"):
+            with st.spinner("스팸 필터 회피 메시지 설계 중..."):
                 prompt = f"""
                 매장명: {store_name}
                 업종: {sel_industry}
-                소재지: {sel_loc}
-                대상 세그먼트: {crm_target}
-                제공 혜택: {crm_coupon}
+                대상: {crm_target}
+                혜택: {crm_coupon}
                 기한: {crm_urgency}
                 문의처: {crm_info}
 
-                전문 CRM 컨설턴트 관점에서 고객이 '광고 스팸'으로 느끼지 않고 'VIP 케어 메시지'로 인식하도록 3가지 규격의 메시지를 완성하라.
-                불필요한 이모티콘을 배제하고 단정하고 신뢰감 있는 비즈니스 문안을 적용할 것.
-
-                [1] 단문 SMS (한글 45자 / 90 Byte 내외 엄수):
-                   - 핵심 요점, 명확한 혜택, 유효기간만 군더더기 없이 압축
-
-                [2] 장문 LMS (스토리텔링형 / 최대 2,000 Byte 규격):
-                   - 고객을 향한 정중한 감사 안부
-                   - 매장의 전문적인 케어/관리 필요성 환기
-                   - 제공 혜택 및 예약 방법 안내
-                   - 무료수신거부 문구 포함 표준 포맷
-
-                [3] 카카오 알림톡 / 브랜드톡 권장 템플릿:
-                   - 알림톡 승인 기준에 부합하는 정형화된 알림 안내문
-                   - 하단 연동 버튼명 가이드 (예: [예약하기], [길찾기])
+                고객이 VIP 케어로 인식하도록 3종 규격으로 작성하라.
+                [1] 단문 SMS (90 Byte 내외 엄수)
+                [2] 장문 LMS (스토리텔링형)
+                [3] 카카오 알림톡 권장 포맷
                 """
                 out = generate_safe_content(prompt)
                 if out:
-                    st.text_area("생성된 CRM 메시지 3종 세트", value=out, height=420)
+                    st.text_area("생성된 CRM 메시지 3종 세트", value=out, height=380)
 
 # 7. 급여계산
 with tabs[7]:
     w1, w2 = st.columns(2)
     with w1:
-        wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="v5_w")
-        hours = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="v5_h")
+        wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="wage_calc")
+        hours = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="hours_calc")
     with w2:
-        tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="v5_t")
+        tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="tax_calc")
     
     base = wage * hours * 4.345
     holiday = ((hours / 40.0) * 8.0 * wage * 4.345) if hours >= 15 else 0
@@ -777,53 +848,62 @@ with tabs[7]:
     </div>
     """, unsafe_allow_html=True)
 
-# 8. 행정서류
+# ==========================================
+# 8. 행정서류 (원래 좋았던 직관적인 안내 방식으로 100% 원복!)
+# ==========================================
 with tabs[8]:
-    st.markdown("#### 정책자금 및 금융 필수 행정 서식 가이드")
-    st.markdown("""
-    소상공인 정책자금, 신용보증재단 보증서 발급, 금융권 대환대출 신청 시 요구되는 **4대 필수 증빙 서류**의 공식 발급 절차입니다.
-    """)
-    st.markdown("""
-    | 서류명 | 주 발급처 | 신청 대상 및 용도 | 법정 수수료 | 평균 소요시간 |
-    | :--- | :--- | :--- | :--- | :--- |
-    | **소상공인확인서** | 중소기업현황정보시스템 | 정부 지원사업, 국비 지원금 신청 시 소상공인 증빙 | 무료 | 즉시 (온라인) |
-    | **부가가치세 과세표준증명** | 국세청 홈택스 / 손택스 | 대출 심사, 보증 심사 시 사업장 매출 규모 증빙 | 무료 | 즉시 (온라인) |
-    | **국세 완납증명서 (납세증명)** | 국세청 홈택스 | 세금 체납 여부 확인 (미납 시 정책 지원 전면 제한) | 무료 | 즉시 (온라인) |
-    | **지방세 완납증명서** | 정부24 / 주민센터 | 지방세(재산세, 주민세 등) 체납 여부 확인 | 무료 | 즉시 (온라인) |
-    """)
+    st.markdown("##### 지원금 필수 서류 발급처 안내")
+    doc = st.selectbox("필요 서류 선택", [
+        "소상공인확인서", 
+        "부가가치세 과세표준증명원", 
+        "국세 완납증명서", 
+        "지방세 완납증명서"
+    ], key="orig_doc_sel")
+    
+    DOCS = {
+        "소상공인확인서": ("중소기업현황정보시스템", "회원가입 후 [확인서 발급신청] ➡️ 온라인 서류 제출 ➡️ PDF 다운로드"),
+        "부가가치세 과세표준증명원": ("국세청 홈택스", "국세증명·사업자등록 ➡️ [부가가치세 과세표준증명] 신청 후 발급"),
+        "국세 완납증명서": ("국세청 홈택스", "국세증명·사업자등록 ➡️ [납세증명서(국세완납증명)] 출력"),
+        "지방세 완납증명서": ("정부24", "검색창에 '지방세 납세증명' 검색 ➡️ 본인 인증 후 즉시 발급")
+    }
+    site, step = DOCS[doc]
+    st.info(f"발급처: **{site}**\n\n신청 방법: {step}")
 
-# 9. 정책지원
+# ==========================================
+# 9. 정책지원 (원래 좋았던 직관적인 질의 방식으로 100% 원복!)
+# ==========================================
 with tabs[9]:
-    st.markdown("#### 2026 소상공인 정책금융 및 국비 지원사업 분석")
-    st.markdown("""
-    소상공인시장진흥공단 및 중소벤처기업부에서 주관하는 주요 지원 정책 핵심 내용입니다.
-    """)
-    col_p1, col_p2 = st.columns(2)
-    with col_p1:
-        p_rev = st.selectbox("사업장 연 매출 규모", ["3,000만 원 미만 (영세 소상공인)", "3,000만 원 ~ 1억 원 미만", "1억 원 ~ 3억 원 미만", "3억 원 초과"], key="p_rev_5")
-    with col_p2:
-        p_purpose = st.selectbox("가장 시급한 지원 분야", ["고금리 대출 이자 부담 완화", "매장 설비/디지털 인프라(키오스크 등) 구축", "운영자금 및 고정비(임대료·전기세) 보조", "사업장 간판·인테리어 개선"], key="p_purpose_5")
-
-    if st.button("사업장 맞춤형 정책지원 AI 진단서 확인", key="btn_p_ai_5"):
-        with st.spinner("전문 정책지원 데이터를 분석하고 있습니다..."):
-            prompt = f"업종: {sel_industry}\n소재지: {sel_loc}\n연매출: {p_rev}\n목적: {p_purpose}\n가장 유리한 정책자금 2종과 구체적 신청 요건을 공문서 리포트 양식으로 간결하게 제시."
+    st.markdown("##### 국비 지원금 및 절세 가이드")
+    sub_q = st.selectbox("궁금한 지원 정책 선택", [
+        "전기세 25만 원 국비 지원받는 법",
+        "비싼 대출 이자 4%대로 낮추는 법",
+        "소상공인 간판/키오스크 교체 70% 지원"
+    ], key="orig_sub_q")
+    
+    if st.button("정책 설명 및 신청처 확인", key="orig_sub_btn"):
+        with st.spinner("정책 데이터 조회 중..."):
+            prompt = f"질문: {sub_q}\n소상공인이 바로 실행할 수 있도록 1) 혜택 2) 자격 요건 3) 공식 신청처를 간결하고 명확하게 정리하라."
             out = generate_safe_content(prompt)
             if out:
                 st.markdown(f"""
-                <div class="clean-card" style="border-left: 4px solid #2563EB; margin-top:14px;">
-                    <div style="font-weight:700; color:#0F172A; font-size:1.05rem; margin-bottom:10px;">사업장 맞춤 정책지원 분석 리포트</div>
-                    <div style="color:#334155; font-size:0.92rem; line-height:1.7;">{out}</div>
+                <div class="clean-card" style="border-left: 3px solid #2563EB;">
+                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">{sub_q} 가이드</div>
+                    <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
 # 10. 영업마감
 with tabs[10]:
-    if st.button("마감 브리핑 작성 실행", key="v5_close_btn"):
-        out = generate_safe_content(f"가게: {store_name} ({sel_industry})\n전문적인 일일 영업 마감 분석과 익일 매출 증대 전략 제언.")
-        if out:
-            st.markdown(f"""
-            <div class="clean-card" style="border-left: 3px solid #2563EB;">
-                <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">일일 영업 마감 리포트</div>
-                <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
-            </div>
-            """, unsafe_allow_html=True)
+    st.markdown("##### 일일 영업 마감 리포트")
+    t_mood = st.selectbox("오늘 매장 분위기", ["한산해서 아쉬움", "특정 시간대만 바쁨", "목표 매출 달성"], key="orig_t_mood")
+    if st.button("마감 브리핑 및 내일 처방 받기", key="orig_close_btn"):
+        with st.spinner("마감 리포트 작성 중..."):
+            prompt = f"가게: {store_name} ({sel_industry})\n오늘 분위기: {t_mood}\n1. 일일 브리핑 2. 내일 영업 팁 1가지 작성."
+            out = generate_safe_content(prompt)
+            if out:
+                st.markdown(f"""
+                <div class="clean-card" style="border-left: 3px solid #2563EB;">
+                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">영업 마감 브리핑</div>
+                    <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
+                </div>
+                """, unsafe_allow_html=True)

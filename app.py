@@ -48,7 +48,7 @@ def load_users():
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
             "location": "용인시 처인구 이동읍 경기동로 725",
-            "phone": "031-332-1234",
+            "phone": "031-323-1215",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
             "map_perk": "용친 회원 안경렌즈 추가 10% DC & 고급 안경 클리너 증정",
@@ -197,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 최적화 CSS
+# 📱 모바일 최적화 CSS (전화번호 한 줄 고정 추가)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -223,6 +223,16 @@ st.markdown("""
         padding-left: 1rem !important;
         padding-right: 1rem !important;
         max-width: 100% !important;
+    }
+
+    /* 상단 매장 정보 한 줄 고정 클래스 */
+    .store-meta-line {
+        font-size: 0.8rem;
+        color: #64748B;
+        margin-top: 2px;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .stTabs [data-baseweb="tab-list"] {
@@ -431,7 +441,7 @@ if not st.session_state.logged_in_user:
     st.stop()
 
 # ==========================================
-# 회원 권한 계산
+# 회원 권한 계산 (정확한 D-day 산출)
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
@@ -441,22 +451,23 @@ sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
 sel_loc = curr_user.get("location", "용인시 처인구")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
 
-today_now = datetime.now()
+today_now = datetime.now().date()
 trial_end_str = curr_user.get("trial_end", today_now.strftime("%Y-%m-%d"))
 try:
-    trial_end_dt = datetime.strptime(trial_end_str, "%Y-%m-%d")
+    trial_end_date = datetime.strptime(trial_end_str, "%Y-%m-%d").date()
 except Exception:
-    trial_end_dt = today_now
+    trial_end_date = today_now
 
 is_approved_permanent = (curr_user.get("pro_status") == "승인완료")
-is_in_trial = (today_now.date() <= trial_end_dt.date())
+is_in_trial = (today_now <= trial_end_date)
 
 if is_approved_permanent:
     is_pro_user = True
     pro_label = "PRO 정식 파트너"
 elif is_in_trial:
     is_pro_user = True
-    days_left = (trial_end_dt.date() - today_now.date()).days
+    # 정확한 잔여 일수(D-day) 계산
+    days_left = (trial_end_date - today_now).days
     pro_label = f"PRO 무료체험 (D-{days_left})"
 else:
     is_pro_user = False
@@ -469,18 +480,17 @@ else:
 
 with st.sidebar:
     st.markdown(f"### {store_name}")
+    st.markdown(f"**연락처:** `{store_phone}`")
     st.markdown(f"**상태:** `{pro_label}`")
     
-    # ☎️ 깨진 화살표(expander)를 없애고 폼으로 직관적 노출
-    st.markdown("---")
-    st.markdown("##### ☎️ 매장 연락처 변경")
-    with st.form("sidebar_phone_form"):
-        new_p = st.text_input("전화번호", value=store_phone)
-        if st.form_submit_button("번호 변경 저장", use_container_width=True):
-            users_db[user_key]["phone"] = new_p
-            save_users(users_db)
-            st.success("전화번호가 변경되었습니다.")
-            st.rerun()
+    with st.expander("매장 연락처 수정"):
+        with st.form("sidebar_phone_form"):
+            new_p = st.text_input("전화번호", value=store_phone)
+            if st.form_submit_button("번호 변경", use_container_width=True):
+                users_db[user_key]["phone"] = new_p
+                save_users(users_db)
+                st.success("전화번호가 변경되었습니다.")
+                st.rerun()
 
     if not is_approved_permanent:
         if is_in_trial:
@@ -566,13 +576,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (전화번호 한 줄 고정 클래스 적용)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
+<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
@@ -955,7 +965,7 @@ with tab_music:
         {"slot": "저녁 & 마감 (17:30~21:00)", "vibe": "고급스럽고 아늑한 라운지 재즈", "query": "세련된 카페 라운지 재즈 음악 연속재생", "tag": "이브닝 마감"}
     ]
 
-    st.markdown("##### 1. 시간대별 원클릭 추천 스테이션")
+    st.markdown("##### 시간대별 원클릭 추천 스테이션")
     for idx, preset in enumerate(music_presets):
         p_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(preset['query'])}"
         st.markdown(f"""<div class="audio-mixer-card">
@@ -972,7 +982,7 @@ with tab_music:
 </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("##### 2. 장르 & 분위기 맞춤 검색 조율기")
+    st.markdown("##### 장르 & 분위기 맞춤 검색 조율기")
     with st.container():
         st.markdown("""<div class="simple-card">
 <div style="font-size:0.88rem; color:#475569; margin-bottom:8px;">원하는 분위기를 선택하면 유튜브 스트리밍 채널을 즉시 찾아줍니다.</div>""", unsafe_allow_html=True)
@@ -991,7 +1001,7 @@ with tab_music:
             "세련된 Lo-Fi 칠(Chill) 비트",
             "90-2000 국민 애창 댄스 (식당/펍)",
             "최신 트로트 명곡 메들리"
-        ], key="tab_m_style_custom")
+        ], key="tab_m_style_cust")
         
         yt_custom_q = f"{m_style_custom.split('/')[0].strip()} {m_time_custom.split('(')[0].strip()} 플레이리스트 연속재생"
         custom_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_custom_q)}"

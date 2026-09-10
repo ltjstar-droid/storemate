@@ -392,7 +392,7 @@ if not st.session_state.logged_in_user:
 <p style="font-size: 0.88rem; color: #64748B;">소상공인 올인원 모바일 비서</p>
 </div>""", unsafe_allow_html=True)
     
-    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
+    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입"])
     with auth_tab1:
         with st.form("login_form"):
             login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")

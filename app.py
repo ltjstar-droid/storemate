@@ -4,6 +4,7 @@ import time
 import json
 import urllib.parse
 from datetime import datetime, timedelta
+import pandas as pd
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
@@ -216,7 +217,6 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* 정책지원 전용 카드 그리드 */
     .policy-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -404,7 +404,7 @@ with st.sidebar:
 
     if user_key == "admin":
         st.markdown("---")
-        st.markdown("### 관리자 회원 승인")
+        st.markdown("### 관리자 회원 승인 센터")
         for uid, udata in users_db.items():
             ustore = udata.get("store_name", uid)
             u_is_pro = udata.get("is_pro", False)
@@ -471,8 +471,8 @@ client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
-너는 소상공인 실무 정책 및 세무 행정, 로컬 마케팅 분야의 20년 경력 수석 컨설턴트다.
-모호한 미사여구나 이모티콘은 배제하고, 정확한 신청 자격, 구체적인 제출 단계, 절세 전략을 표준 공문서 및 전문 컨설팅 리포트 형식으로 전달한다.
+너는 소상공인 실무 정책 및 세무 행정, 로컬 비즈니스 분야 20년 경력의 수석 경영 컨설턴트다.
+모호한 미사여구나 이모티콘은 배제하고, 실질적이고 구조화된 전문 비즈니스 리포트를 제공한다.
 """
 
 def generate_safe_content(prompt):
@@ -504,34 +504,65 @@ tab_titles = [
 ]
 tabs = st.tabs(tab_titles)
 
-# 0. 매장음악
+# ==========================================
+# 0. 매장음악 (시간대 및 상황 큐레이션 엔진으로 대폭 강화)
+# ==========================================
 with tabs[0]:
-    col_m1, col_m2 = st.columns([1.2, 1])
-    with col_m1:
-        sel_mood = st.selectbox("분위기 선택", [
-            "차분하고 편안한 힐링 (전문상담, 뷰티, 안경원)",
-            "활기차고 경쾌한 무드 (일반음식점, 주점, 펍)",
-            "푸근한 레트로 (노포, 한식, 단골 중심)"
-        ], key="mood_sel")
-        sel_genre = st.selectbox("장르 선택", [
-            "피아노 힐링 연주곡 메들리",
-            "2000년대 감성 명곡 발라드",
-            "90-2000 국민 애창 댄스곡",
-            "트로트 베스트 모음"
-        ], key="genre_sel")
-        target_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(sel_genre + ' 연속재생')}"
-    with col_m2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.link_button("유튜브 검색 결과 열기", target_url, use_container_width=True)
+    st.markdown("#### 매장 전용 시간대·상황별 음악 큐레이션")
+    st.markdown("매장 운영 시간대와 당일 매장 환경에 맞춰 최적화된 유튜브 스트리밍을 원클릭으로 실행합니다.")
 
-# 1. 상생아지트
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        m_time_slot = st.selectbox("1. 영업 시간대 기준", [
+            "오전 오픈 준비 및 영업 시작 (경쾌하고 맑은 스타트)",
+            "점심/오후 피크타임 (회전율과 활기 유지)",
+            "나른한 오후 3~5시 (편안한 칠아웃/어쿠스틱 감성)",
+            "저녁 골든타임 (고급스럽고 아늑한 라운지/재즈)",
+            "영업 마감 및 매장 정리 (차분한 피아노/클래식)"
+        ], key="music_time_slot")
+        
+        m_genre_type = st.selectbox("2. 음악 장르 스타일", [
+            "재즈 / 보사노바 (카페, 뷰티, 안경원, 편집숍)",
+            "어쿠스틱 팝 & 인디 감성 보컬",
+            "세련된 라운지 & 로파이 칠(Lo-Fi Chill)",
+            "2000년대 감성 발라드 피아노 연주곡",
+            "90-2000 가요 댄스 & 빠른 템포 팝 (음식점, 펍)"
+        ], key="music_genre_type")
+
+    with col_m2:
+        m_weather = st.selectbox("3. 당일 매장 환경 및 날씨", [
+            "맑고 화창한 날 (생기 있는 무드)",
+            "비 또는 눈 오는 날 (감성적인 센티멘털 무드)",
+            "미세먼지 많고 흐린 날 (포근하고 따뜻한 실내 무드)",
+            "금요일/주말 특별 이벤트 무드 (흥겹고 설레는 템포)"
+        ], key="music_weather")
+
+        combined_search = f"{m_genre_type.split('/')[0].strip()} {m_time_slot.split('(')[0].strip()} 플레이리스트 연속재생"
+        music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(combined_search)}"
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.link_button(f"유튜브 '{m_genre_type.split('/')[0].strip()}' 스트리밍 재생", music_url, use_container_width=True)
+
+    st.markdown(f"""
+    <div class="clean-card" style="background:#F8FAFC; margin-top:10px;">
+        <div style="font-size:0.85rem; color:#64748B;">현재 세팅된 큐레이션 검색어:</div>
+        <div style="font-size:0.95rem; font-weight:700; color:#0F172A;">{combined_search}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ==========================================
+# 1. 상생아지트 (관리자 가맹점 제어 기능 추가)
+# ==========================================
 with tabs[1]:
+    st.markdown("#### 상생아지트 디렉토리 및 네이버 플레이스 연동")
+    
     my_saved_addr = curr_user.get("map_address", sel_loc)
     my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
+    
     st.markdown(f"""
     <div class="clean-card">
-        <h4 style="margin-top:0; color:#0F172A;">공식 제휴 매장: {store_name}</h4>
+        <h4 style="margin-top:0; color:#0F172A;">내 매장 등록 현황: {store_name}</h4>
         <p style="color:#475569; font-size:0.92rem; margin-bottom:6px;">사업장 주소: {my_saved_addr}</p>
         <p style="color:#2563EB; font-weight:700; font-size:0.92rem; margin-bottom:16px;">회원 제휴 혜택: {my_perk}</p>
         <a href="{naver_url}" target="_blank" style="text-decoration:none;">
@@ -542,8 +573,55 @@ with tabs[1]:
     </div>
     """, unsafe_allow_html=True)
 
+    # 🛠️ [마스터 관리자 전용 아지트 가맹점 제어 센터]
+    if user_key == "admin":
+        st.markdown("---")
+        st.markdown("##### 🛠️ 관리자 전용: 상생아지트 등록 매장 총괄 제어")
+        
+        azit_list = []
+        for u_id, u_info in users_db.items():
+            azit_list.append({
+                "아이디": u_id,
+                "상호명": u_info.get("store_name", "-"),
+                "업종": u_info.get("industry", "-"),
+                "위치": u_info.get("location", "-"),
+                "혜택": u_info.get("map_perk", "-")
+            })
+        
+        st.dataframe(pd.DataFrame(azit_list), use_container_width=True)
+
+        st.markdown("###### 가맹점 정보 강제 수정 및 관리")
+        selected_azit_id = st.selectbox("관리할 매장 선택", list(users_db.keys()), key="azit_mod_sel")
+        target_azit = users_db[selected_azit_id]
+        
+        col_az1, col_az2 = st.columns(2)
+        with col_az1:
+            mod_az_name = st.text_input("상호명 수정", value=target_azit.get("store_name", ""), key="mod_az_name")
+            mod_az_loc = st.text_input("도로명 주소 수정", value=target_azit.get("location", ""), key="mod_az_loc")
+        with col_az2:
+            mod_az_perk = st.text_input("회원 제휴 혜택 수정", value=target_azit.get("map_perk", ""), key="mod_az_perk")
+            mod_az_feature = st.text_input("대표 시그니처 수정", value=target_azit.get("feature", ""), key="mod_az_feature")
+        
+        col_btn1, col_btn2 = st.columns([1, 1])
+        with col_btn1:
+            if st.button("가맹점 정보 변경 저장", key="az_save_btn", use_container_width=True):
+                users_db[selected_azit_id]["store_name"] = mod_az_name
+                users_db[selected_azit_id]["location"] = mod_az_loc
+                users_db[selected_azit_id]["map_address"] = mod_az_loc
+                users_db[selected_azit_id]["map_perk"] = mod_az_perk
+                users_db[selected_azit_id]["feature"] = mod_az_feature
+                save_users(users_db)
+                st.success(f"'{mod_az_name}' 매장 정보가 갱신되었습니다.")
+                st.rerun()
+        with col_btn2:
+            if selected_azit_id != "admin" and st.button("매장 등록 강제 삭제", key="az_del_btn", use_container_width=True):
+                del users_db[selected_azit_id]
+                save_users(users_db)
+                st.warning("선택 매장이 데이터베이스에서 삭제되었습니다.")
+                st.rerun()
+
 # ==========================================
-# 2. 공동구매 (3단 서브탭 + D-day + 참여자 명단)
+# 2. 공동구매 (데이터 CSV 다운로드 및 삭제 기능 완비)
 # ==========================================
 with tabs[2]:
     st.markdown("""
@@ -568,22 +646,46 @@ with tabs[2]:
             return "진행 중"
 
     with deal_subtab1:
-        for deal in deals_db["deals"]:
+        deals_to_remove = []
+        for idx, deal in enumerate(deals_db["deals"]):
             total_qty = sum([p["qty"] for p in deal["participants"]])
             total_people = len(deal["participants"])
             dday_txt = get_dday(deal["deadline"])
             progress_val = min(total_qty / deal["target"], 1.0)
+            is_expired = (dday_txt == "마감")
             
             st.markdown(f"""
             <div class="clean-card">
-                <span style="background:#EF4444; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday_txt}</span>
+                <span style="background:{'#64748B' if is_expired else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday_txt}</span>
                 <h4 style="margin:8px 0; color:#0F172A; font-size:1.05rem;">{deal['title']}</h4>
                 <p style="color:#2563EB; font-weight:700; font-size:0.95rem; margin-bottom:6px;">{deal['price']}</p>
-                <p style="font-size:0.85rem; color:#475569;">신청 현황: <b>{total_people}명 참여</b> (누적 {total_qty}개)</p>
+                <p style="font-size:0.85rem; color:#475569;">신청 현황: <b>{total_people}명 참여</b> (누적 {total_qty}개 / 목표 {deal['target']}개)</p>
             </div>
             """, unsafe_allow_html=True)
             st.progress(progress_val)
             
+            # 📥 [데이터 추출 및 관리 기능 바]
+            col_d_act1, col_d_act2 = st.columns([1, 1])
+            with col_d_act1:
+                # 참여자 명단 엑셀/CSV 다운로드 기능
+                if len(deal["participants"]) > 0:
+                    df_parts = pd.DataFrame(deal["participants"])
+                    df_parts.columns = ["성함/상호", "연락처", "신청수량", "신청일시"]
+                    csv_data = df_parts.to_csv(index=False, encoding="utf-8-sig")
+                    st.download_button(
+                        label=f"📥 참여자 명단 엑셀(CSV) 저장 ({total_people}명)",
+                        data=csv_data,
+                        file_name=f"공구명단_{deal['id']}_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv",
+                        key=f"dl_csv_{deal['id']}",
+                        use_container_width=True
+                    )
+            with col_d_act2:
+                # 마감 또는 주최자 관리 삭제 기능
+                if user_key == "admin" or is_expired:
+                    if st.button("공동구매 프로젝트 영구 삭제", key=f"del_deal_{deal['id']}", use_container_width=True):
+                        deals_to_remove.append(deal["id"])
+
             with st.container():
                 with st.form(key=f"form_{deal['id']}"):
                     st.markdown("##### 공동구매 참여 신청")
@@ -601,10 +703,16 @@ with tabs[2]:
                         else:
                             st.warning("정보를 입력해 주세요.")
                 
-                st.markdown("##### 참여자 명단")
-                for idx, p in enumerate(deal["participants"], 1):
-                    st.markdown(f"- {idx}. **{p['name']}**님 ({p['qty']}개)")
+                st.markdown("##### 참여자 명단 미리보기")
+                for p_idx, p in enumerate(deal["participants"], 1):
+                    st.markdown(f"- {p_idx}. **{p['name']}**님 ({p['qty']}개 / {p['time']})")
             st.markdown("<hr>", unsafe_allow_html=True)
+
+        if deals_to_remove:
+            deals_db["deals"] = [d for d in deals_db["deals"] if d["id"] not in deals_to_remove]
+            save_deals(deals_db)
+            st.success("공동구매 프로젝트가 데이터베이스에서 삭제되었습니다.")
+            st.rerun()
 
     with deal_subtab2:
         st.markdown("##### 사업장 소모품 도매가 공동 발주")
@@ -641,15 +749,13 @@ with tabs[2]:
             else:
                 st.warning("상품명과 가격을 입력해 주세요.")
 
-# ==========================================
-# 3. 블로그원고 (PRO 고품질 엔진)
-# ==========================================
+# 3. 블로그원고 (PRO)
 with tabs[3]:
     if not is_pro_user:
         st.markdown("""
         <div class="pro-lock-banner">
             <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">네이버 상위노출 알고리즘 엔진 (PRO 회원 전용)</div>
-            <div style="font-size:0.88rem;">C-Rank 및 스마트블록 기준에 맞춘 검색엔진 최적화(SEO) 원고를 설계합니다. 사이드바에서 PRO 권한을 승인받으세요.</div>
+            <div style="font-size:0.88rem;">C-Rank 및 스마트블록 기준에 맞춘 검색엔진 최적화(SEO) 원고를 설계합니다.</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -688,19 +794,16 @@ with tabs[3]:
                 당신은 네이버 검색 로직에 정통한 상위 1% 전문 마케팅 기획자입니다.
                 다음 4가지 구성 요소를 포함하여 블로그 포스팅 원고를 전문적으로 작성하십시오.
                 이모티콘은 배제하고 정갈한 비즈니스 문체로 작성할 것.
-
-                [1] 클릭률 극대화 제목 3종 (키워드 전진배치형, 궁금증 유발형, 솔직후기형)
-                [2] 사진 촬영 및 배치 가이드라인 ({bl_photo_count}장 피사체 앵글 가이드)
-                [3] 본문 (공간 도입 - 전문 서비스 검증 - 실제 혜택 - 플레이스 예약 유도)
-                [4] 연관 태그 10종
+                1. 클릭률 극대화 제목 3종
+                2. 사진 촬영 및 배치 가이드라인 ({bl_photo_count}장)
+                3. 본문
+                4. 연관 태그 10종
                 """
                 out = generate_safe_content(prompt)
                 if out:
                     st.text_area("생성된 SEO 전문 원고", value=out, height=420)
 
-# ==========================================
-# 4. 당근소식 (PRO 고품질 엔진)
-# ==========================================
+# 4. 당근소식 (PRO)
 with tabs[4]:
     if not is_pro_user:
         st.markdown("""
@@ -737,7 +840,6 @@ with tabs[4]:
                 매장 강점: {sel_feature}
 
                 당근마켓 동네생활 탭에서 신뢰를 얻는 소식을 작성하라.
-                전단지 어투는 배제하고 진솔한 이웃 사장님 톤으로 작성할 것.
                 1. 피드 노출 타이틀 2종
                 2. 본문 (안부 - 전문 정보 팁 - 혜택 안내 - 단골 유도)
                 3. 댓글 반응 유도 질문
@@ -746,9 +848,7 @@ with tabs[4]:
                 if out:
                     st.text_area("생성된 당근마켓 소식 원고", value=out, height=360)
 
-# ==========================================
-# 5. 인스타그램 (PRO 고품질 엔진)
-# ==========================================
+# 5. 인스타그램 (PRO)
 with tabs[5]:
     if not is_pro_user:
         st.markdown("""
@@ -794,9 +894,7 @@ with tabs[5]:
                 if out:
                     st.text_area("생성된 인스타그램 브랜드 패키지", value=out, height=380)
 
-# ==========================================
-# 6. 고객문자 (PRO 고품질 엔진)
-# ==========================================
+# 6. 고객문자 (PRO)
 with tabs[6]:
     if not is_pro_user:
         st.markdown("""
@@ -867,7 +965,7 @@ with tabs[7]:
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 8. 행정서류 (사장님이 요청한 바로 그 완전 고도화 버전!)
+# 8. 행정서류 (표 + 상세경로 + 원클릭 버튼 완비)
 # ==========================================
 with tabs[8]:
     st.markdown("#### 정책자금 및 금융 필수 행정 서식 가이드")
@@ -955,7 +1053,7 @@ with tabs[8]:
         """, unsafe_allow_html=True)
 
 # ==========================================
-# 9. 정책지원 (사장님이 요청한 바로 그 완전 고도화 버전!)
+# 9. 정책지원 (3대 핵심사업 카드 + 맞춤형 AI 진단기)
 # ==========================================
 with tabs[9]:
     st.markdown("#### 2026 소상공인 정책금융 및 국비 지원사업 분석")
@@ -1056,16 +1154,51 @@ with tabs[9]:
                     </div>
                     """, unsafe_allow_html=True)
 
-# 10. 영업마감
+# ==========================================
+# 10. 영업마감 (실무 매출/재고/내일 계획 결산 리포트로 전면 업그레이드)
+# ==========================================
 with tabs[10]:
-    t_mood = st.selectbox("오늘 매장 분위기", ["한산해서 아쉬움", "특정 시간대만 바쁨", "목표 매출 달성"], key="orig_t_mood")
-    if st.button("마감 브리핑 작성 실행", key="v4_close_btn"):
-        with st.spinner("마감 리포트 작성 중..."):
-            out = generate_safe_content(f"가게: {store_name} ({sel_industry})\n오늘 분위기: {t_mood}\n전문적인 일일 영업 마감 분석과 익일 매출 증대 전략 제언 1가지 작성.")
+    st.markdown("#### 일일 영업 실적 결산 및 익일 비즈니스 플래너")
+    st.markdown("오늘 영업에 대한 간단한 실적 데이터를 입력하면 당일 경영 성과 분석과 익일 핵심 실행 과제를 AI가 도출합니다.")
+
+    col_cl1, col_cl2 = st.columns(2)
+    with col_cl1:
+        close_sales = st.text_input("오늘 대략적인 매출액 (선택사항)", placeholder="예: 850,000원", key="cl_sales")
+        close_traffic = st.selectbox("오늘 고객 유입량 체감", ["평소 대비 매우 한산함", "통상적인 평균 수준", "특정 피크시간 집중 방문", "종일 만석 / 목표 초과 달성"], key="cl_traffic")
+    with col_cl2:
+        close_issue = st.text_input("오늘의 특이사항 또는 애로사항", placeholder="예: 단골 고객 3명 방문, 특정 제품 재고 소진", key="cl_issue")
+        close_weather_vibe = st.selectbox("오늘 매장 운영 만족도", ["다소 아쉬움 (내일 만회 필요)", "안정적이고 무난함", "매우 만족스러움 (추세 유지)"], key="cl_satisfaction")
+
+    if st.button("일일 경영 결산 리포트 & 내일 액션플랜 생성", key="v5_close_btn_pro"):
+        with st.spinner("당일 영업 데이터 및 운영 지표 종합 분석 중..."):
+            prompt = f"""
+            매장명: {store_name}
+            업종: {sel_industry}
+            소재지: {sel_loc}
+            당일 매출: {close_sales if close_sales else '미입력'}
+            고객 유입 체감: {close_traffic}
+            당일 특이사항: {close_issue if close_issue else '특이사항 없음'}
+            운영 만족도: {close_weather_vibe}
+
+            당신은 20년 경력의 매장 경영 수석 컨설턴트입니다.
+            오늘 하루 고생한 사장님을 위해 군더더기 없는 비즈니스 브리핑을 다음 3단계 구조로 명확히 작성하십시오:
+
+            [1] 일일 경영 실적 요약 및 총평:
+               - 오늘 매장 유입 현황과 운영 상황에 대한 객관적인 진단 및 사장님을 위한 묵직한 격려
+
+            [2] 내일(익일) 필수 실행 과제 3선:
+               - 매출 만회 또는 유지를 위한 구체적 프로모션(SNS/문자 발송 등) 1개
+               - 재고/발주 및 매장 환경 점검 사항 1개
+               - 현장 응대/고객 관리 액션 1개
+
+            [3] 사장님을 위한 퇴근길 멘탈 리셋 한마디:
+               - 장기 레이스를 달리는 로컬 자영업자에게 힘이 되는 전문적이고 따뜻한 코멘트
+            """
+            out = generate_safe_content(prompt)
             if out:
                 st.markdown(f"""
-                <div class="clean-card" style="border-left: 3px solid #2563EB;">
-                    <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">일일 영업 마감 분석 리포트</div>
-                    <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
+                <div class="clean-card" style="border-left: 4px solid #2563EB; margin-top:14px;">
+                    <div style="font-weight:700; color:#0F172A; font-size:1.05rem; margin-bottom:10px;">일일 영업 결산 및 경영 플래너 리포트</div>
+                    <div style="color:#334155; font-size:0.92rem; line-height:1.7;">{out}</div>
                 </div>
                 """, unsafe_allow_html=True)

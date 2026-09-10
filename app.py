@@ -48,7 +48,6 @@ def load_users():
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
             "location": "용인시 처인구 이동읍 경기동로 725",
-            "phone": "031-332-6054",
             "feature": "독일식 초정밀 시력검사",
             "map_address": "경기도 용인시 처인구 이동읍 경기동로 725",
             "map_perk": "용친 회원 안경렌즈 추가 10% DC & 고급 안경 클리너 증정",
@@ -56,7 +55,9 @@ def load_users():
             "today_updated": datetime.now().strftime("%Y-%m-%d"),
             "pw": "1234",
             "is_pro": True,
-            "pro_status": "승인완료"
+            "pro_status": "승인완료",
+            "created_at": datetime.now().strftime("%Y-%m-%d"),
+            "trial_end": (datetime.now() + timedelta(days=3650)).strftime("%Y-%m-%d")
         }
     }
 
@@ -107,9 +108,6 @@ def save_deals(data):
     except Exception:
         pass
 
-# ==========================================
-# 📊 방문자 통계 엔진
-# ==========================================
 def load_analytics():
     if os.path.exists(ANALYTICS_DB_FILE):
         try:
@@ -140,7 +138,7 @@ def track_visitor():
 track_visitor()
 
 # ==========================================
-# ☀️ 그래픽 날씨 & 역지오코딩
+# ☀️ 날씨 및 지오코딩
 # ==========================================
 def reverse_geocode(lat, lon):
     try:
@@ -299,11 +297,15 @@ st.markdown("""
         justify-content: space-between;
     }
 
-    .audio-mixer-card {
-        background: #F8FAFC;
+    .sound-station-card {
+        background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
         padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
         margin-bottom: 12px;
     }
 
@@ -370,7 +372,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구 이동읍"
 
 # ==========================================
-# 로그인 화면
+# 로그인 화면 (가입 시 7일 무료 자동 부여)
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 30px 0 16px 0;">
@@ -378,7 +380,7 @@ if not st.session_state.logged_in_user:
 <p style="font-size: 0.88rem; color: #64748B;">소상공인 올인원 모바일 비서</p>
 </div>""", unsafe_allow_html=True)
     
-    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입"])
+    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
     with auth_tab1:
         with st.form("login_form"):
             login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")
@@ -395,62 +397,100 @@ if not st.session_state.logged_in_user:
                     st.error("등록되지 않은 계정입니다.")
     with auth_tab2:
         with st.form("signup_form"):
+            st.caption("✨ 신규 가입 시 7일간 모든 PRO 기능(마케팅 스튜디오 등)을 무료로 체험하실 수 있습니다.")
             new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
             new_pw = st.text_input("비밀번호 설정", type="password")
             new_store = st.text_input("매장 상호명")
-            new_tel = st.text_input("매장 대표 전화번호", placeholder="예: 031-123-4567")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             new_loc = st.text_input("매장 주소", placeholder="예: 용인시 처인구 이동읍...")
-            if st.form_submit_button("가입 완료하기", use_container_width=True):
+            if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
                 if new_id and new_pw and new_store:
+                    now = datetime.now()
+                    trial_end_date = (now + timedelta(days=7)).strftime("%Y-%m-%d")
                     users_db[new_id] = {
                         "store_name": new_store,
                         "industry": new_ind,
                         "location": new_loc,
-                        "phone": new_tel if new_tel else "010-0000-0000",
                         "feature": "전문 고객 맞춤 케어",
                         "map_address": new_loc,
                         "map_perk": "용친 회원 방문 시 특별 혜택 제공",
                         "today_deal": "",
-                        "today_updated": datetime.now().strftime("%Y-%m-%d"),
+                        "today_updated": now.strftime("%Y-%m-%d"),
                         "pw": new_pw,
-                        "is_pro": False,
-                        "pro_status": "미신청" 
+                        "is_pro": True,  # 7일간 무료 PRO 부여
+                        "pro_status": "무료체험",
+                        "created_at": now.strftime("%Y-%m-%d"),
+                        "trial_end": trial_end_date
                     }
                     save_users(users_db)
-                    st.success("등록 완료되었습니다. 로그인해 주세요.")
+                    st.success("등록 완료! 7일 무료 PRO 체험이 시작되었습니다. 로그인해 주세요.")
     st.stop()
 
 # ==========================================
-# 대시보드 상태 관리
+# ⏳ [7일 무료 만료 및 권한 판정 로직]
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
 store_name = curr_user.get("store_name", "라브리지헤어살롱")
 sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
 sel_loc = curr_user.get("location", "용인시 처인구")
-sel_phone = curr_user.get("phone", "031-000-0000")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
-is_pro_user = curr_user.get("is_pro", False)
+
+# 무료 기간 계산 및 권한 확정
+today_now = datetime.now()
+trial_end_str = curr_user.get("trial_end", today_now.strftime("%Y-%m-%d"))
+try:
+    trial_end_dt = datetime.strptime(trial_end_str, "%Y-%m-%d")
+except Exception:
+    trial_end_dt = today_now
+
+is_approved_permanent = (curr_user.get("pro_status") == "승인완료")
+is_in_trial = (today_now.date() <= trial_end_dt.date())
+
+if is_approved_permanent:
+    is_pro_user = True
+    pro_label = "PRO 정식 파트너"
+elif is_in_trial:
+    is_pro_user = True
+    days_left = (trial_end_dt.date() - today_now.date()).days
+    pro_label = f"PRO 무료체험 (D-{days_left})"
+else:
+    is_pro_user = False
+    pro_label = "스탠다드 (체험 만료)"
+    if curr_user.get("is_pro", False) and not is_approved_permanent:
+        curr_user["is_pro"] = False
+        curr_user["pro_status"] = "체험만료"
+        users_db[user_key] = curr_user
+        save_users(users_db)
 
 with st.sidebar:
     st.markdown(f"### {store_name}")
-    st.caption(f"매장 전화: {sel_phone}")
-    if is_pro_user:
-        st.caption("등급: PRO 회원")
+    st.markdown(f"**상태:** `{pro_label}`")
+    
+    if not is_approved_permanent:
+        if is_in_trial:
+            st.caption(f"📅 무료 체험 종료일: {trial_end_str}")
+        else:
+            st.warning("⚠️ 7일 무료 체험이 종료되었습니다. 관리자 승인 후 유료 버전을 이용하실 수 있습니다.")
+            
+        if curr_user.get("pro_status") != "대기중":
+            if st.button("유료버전 사용 승인 신청", use_container_width=True):
+                curr_user["pro_status"] = "대기중"
+                users_db[user_key] = curr_user
+                save_users(users_db)
+                st.success("승인 신청이 접수되었습니다.")
+                st.rerun()
+        else:
+            st.info("관리자 유료 승인 대기 중입니다.")
     else:
-        st.caption("등급: 스탠다드")
-        if st.button("PRO 승인 신청", use_container_width=True):
-            curr_user["pro_status"] = "대기중"
-            users_db[user_key] = curr_user
-            save_users(users_db)
-            st.rerun()
+        st.success("정식 유료 파트너 승인 완료 계정입니다.")
 
+    # 🔒 [관리자 전용 구역]
     if user_key == "admin":
         st.markdown("---")
         st.markdown("##### 📊 관리자: 방문 통계")
         analytics_data = load_analytics()
-        today_key = datetime.now().strftime("%Y-%m-%d")
+        today_key = today_now.strftime("%Y-%m-%d")
         today_stat = analytics_data.get(today_key, {"uv": 0, "pv": 0})
         total_uv = sum([v.get("uv", 0) for v in analytics_data.values()])
         total_pv = sum([v.get("pv", 0) for v in analytics_data.values()])
@@ -463,22 +503,26 @@ with st.sidebar:
         st.caption(f"누적 순방문: {total_uv}명 | 누적 페이지뷰: {total_pv}회")
 
         st.markdown("---")
-        st.markdown("##### 회원 권한 제어")
+        st.markdown("##### 🔑 회원 유료 승인 제어")
         for uid, udata in users_db.items():
+            if uid == "admin":
+                continue
             ustore = udata.get("store_name", uid)
-            u_is_pro = udata.get("is_pro", False)
-            st.write(f"{ustore} (`{uid}`)")
+            u_status = udata.get("pro_status", "미신청")
+            u_trial_end = udata.get("trial_end", "-")
+            st.write(f"**{ustore}** (`{uid}`) | 상태: `{u_status}`")
             col_a, col_b = st.columns(2)
             with col_a:
-                if not u_is_pro and st.button("승인", key=f"app_{uid}", use_container_width=True):
+                if u_status != "승인완료" and st.button("유료 승인", key=f"app_{uid}", use_container_width=True):
                     users_db[uid]["is_pro"] = True
                     users_db[uid]["pro_status"] = "승인완료"
                     save_users(users_db)
+                    st.success(f"{ustore} 승인 완료")
                     st.rerun()
             with col_b:
-                if u_is_pro and uid != "admin" and st.button("해제", key=f"rev_{uid}", use_container_width=True):
+                if u_status == "승인완료" and st.button("승인 취소", key=f"rev_{uid}", use_container_width=True):
                     users_db[uid]["is_pro"] = False
-                    users_db[uid]["pro_status"] = "무료전환"
+                    users_db[uid]["pro_status"] = "승인취소"
                     save_users(users_db)
                     st.rerun()
 
@@ -509,13 +553,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (대표 전화번호 반영!)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
-<span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{'PRO 파트너' if is_pro_user else '스탠다드'}</span>
-<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{sel_loc} · 📞 <b>{sel_phone}</b></div>
+<span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
+<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{sel_loc} · {sel_industry}</div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
@@ -533,7 +577,7 @@ main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", 
 tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드 (전화번호 & 바로걸기 버튼 탑재)
+# TAB 1. 🏠 홈 대시보드
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
@@ -574,33 +618,25 @@ with tab_home:
 
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
-    # 2. 내 매장 특가 상태 (대표 전화번호 포함)
+    # 2. 내 매장 특가 상태
     if my_today_deal and my_today_deal != "오늘의 특가 준비 중":
         my_deal_html = f"""<div class="simple-card" style="border-left: 4px solid #2563EB;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
 <span style="font-size:1.05rem; font-weight:900; color:#0F172A;">내 매장 오늘의 특가</span>
 <span style="font-size:0.75rem; color:#64748B;">{my_deal_updated}</span>
 </div>
-<div style="font-size:0.85rem; color:#64748B; margin-top:2px;">{my_saved_addr} · 📞 <b>{sel_phone}</b></div>
-<div style="font-size:1.15rem; font-weight:900; color:#2563EB; margin:8px 0;">{my_today_deal}</div>
+<div style="font-size:1.1rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
 <div style="font-size:0.82rem; color:#475569;">혜택: {my_perk}</div>
 </div>"""
         st.markdown(my_deal_html, unsafe_allow_html=True)
     else:
-        st.markdown(f"""<div class="simple-card" style="background:#F8FAFC;">
-<div style="font-size:0.88rem; color:#64748B;">현재 내 매장의 당일 특가가 비어 있습니다.<br>상단 <b>[내 특가 관리]</b> 탭에서 등록해 보세요. (매장 전화: <b>{sel_phone}</b>)</div>
+        st.markdown("""<div class="simple-card" style="background:#F8FAFC;">
+<div style="font-size:0.88rem; color:#64748B;">현재 내 매장의 당일 특가가 비어 있습니다.<br>상단 <b>[내 특가 관리]</b> 탭에서 등록해 보세요.</div>
 </div>""", unsafe_allow_html=True)
 
-    col_h_b1, col_h_b2 = st.columns(2)
-    with col_h_b1:
-        st.markdown(f"""<a href="tel:{sel_phone}" style="text-decoration:none;">
-<button style="width:100%; height:46px; background:#0F172A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; font-size:0.9rem; cursor:pointer;">
-📞 매장 바로 통화
-</button></a>""", unsafe_allow_html=True)
-    with col_h_b2:
-        st.link_button("네이버 지도 연동 확인", naver_url, use_container_width=True)
+    st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
 
-    # 3. 이웃 매장 실시간 특가 피드 (매장 전화번호 및 바로 통화 연동)
+    # 3. 이웃 매장 실시간 특가 피드
     st.markdown("""<div style="margin:20px 0 8px 0;">
 <div style="font-size:1.1rem; font-weight:900; color:#0F172A;">용인친구들 실시간 상생 특가 피드</div>
 <div style="font-size:0.82rem; color:#64748B;">실제 특가를 진행 중인 이웃 제휴 매장의 혜택입니다.</div>
@@ -617,39 +653,29 @@ with tab_home:
         active_deals_count += 1
         o_name = u_info.get("store_name", u_id)
         o_addr = u_info.get("map_address", u_info.get("location", ""))
-        o_phone = u_info.get("phone", "연락처 미등록")
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
-        o_upd = u_info.get("today_updated", "")
         o_nav_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(o_addr)}"
         
         feed_card_html = f"""<div class="simple-card">
-<div style="display:flex; justify-content:space-between; align-items:center;">
-<span style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</span>
-<span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
-</div>
-<div style="font-size:0.82rem; color:#64748B; margin-bottom:8px;">{o_addr} · 📞 <b>{o_phone}</b></div>
+<div style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:8px;">{o_addr}</div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:10px 14px; margin-bottom:8px;">
 <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
 </div>
 <div style="font-size:0.82rem; color:#475569; margin-bottom:10px;">상시 혜택: {o_perk}</div>
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-<a href="tel:{o_phone}" style="text-decoration:none;">
-<button style="width:100%; height:38px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-📞 바로 통화
-</button></a>
 <a href="{o_nav_url}" target="_blank" style="text-decoration:none;">
-<button style="width:100%; height:38px; background:#F8FAFC; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-네이버 지도
-</button></a>
-</div>
+<button style="width:100%; height:40px; background:#F8FAFC; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
+네이버 지도 길찾기
+</button>
+</a>
 </div>"""
         st.markdown(feed_card_html, unsafe_allow_html=True)
 
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
-    # 4. 진행 중인 공동구매 요약
+    # 4. 진행 중인 공동구매
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -660,53 +686,54 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 및 매장 정보 관리 (전화번호 수정 추가)
+# TAB 2. ⚙️ 내 특가 관리
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
-<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 연락처 관리</div>
-<div style="font-size:0.82rem; color:#64748B;">수정한 전화번호와 특가는 공유창에 실시간으로 표시됩니다.</div>
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 제휴 혜택 설정</div>
+<div style="font-size:0.82rem; color:#64748B;">입력한 특가는 홈 대시보드 실시간 공유창에 노출됩니다.</div>
 </div>""", unsafe_allow_html=True)
 
     current_deal_val = curr_user.get("today_deal", "")
     current_perk_val = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
-    current_phone_val = curr_user.get("phone", sel_phone)
 
     with st.form("my_store_deal_form"):
-        st.markdown("**1. 매장 대표 전화번호**")
-        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="예: 031-123-4567")
-
-        st.markdown("**2. 오늘의 번개 특가 품목**")
-        inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌 30% 게릴라 할인 (선착순 5명)")
+        st.markdown("**1. 오늘의 번개 특가 품목**")
+        inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌 30% 게릴라 할인 (선착순 5명)", label_visibility="collapsed")
         st.caption("비워두시면 공유창에서 자동으로 숨겨집니다.")
         
-        st.markdown("**3. 상시 회원 제휴 혜택**")
-        inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC")
+        st.markdown("**2. 상시 회원 제휴 혜택**")
+        inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC", label_visibility="collapsed")
         
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
-            users_db[user_key]["phone"] = inp_phone.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
             users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             save_users(users_db)
-            st.success("매장 정보 및 특가가 저장되었습니다.")
+            st.success("내 매장 혜택이 저장되었습니다.")
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용)
 # ------------------------------------------
 with tab_mkt:
-    current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
+    if not is_pro_user:
+        st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
+<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">⚠️ PRO 전용 유료 마케팅 기능입니다</div>
+<div style="font-size: 0.86rem; color: #7F1D1D; line-height: 1.5;">
+7일 무료 체험 기간이 만료되었습니다.<br>
+사이드바에서 <b>[유료버전 사용 승인 신청]</b>을 눌러주시면 관리자 승인 후 계속 이용하실 수 있습니다.
+</div>
+</div>""", unsafe_allow_html=True)
+    else:
+        current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
-    mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
-        "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자", "리뷰 대응"
-    ])
+        mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
+            "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자", "리뷰 대응"
+        ])
 
-    with mkt_sub1:
-        if not is_pro_user:
-            st.info("네이버 스마트블록 SEO 원고 설계는 PRO 파트너 전용 기능입니다.")
-        else:
+        with mkt_sub1:
             b_kw = st.text_input("메인 키워드", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
             b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 추천", key="m_b_sub")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
@@ -715,29 +742,23 @@ with tab_mkt:
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
-                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n전화: {sel_phone}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
+                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("작성된 원고 (복사용)", value=out, height=300)
 
-    with mkt_sub2:
-        if not is_pro_user:
-            st.info("당근마켓 바이럴은 PRO 파트너 전용 기능입니다.")
-        else:
+        with mkt_sub2:
             d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
             d_prm = st.selectbox("제공 혜택", ["무상 체험 및 정밀 점검", "단독 추가 할인 쿠폰", "선착순 사은품 증정"], key="m_d_prm")
             d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
-            d_cta = st.text_input("행동 유도", value=f"당근 단골 맺기 후 방문 또는 {sel_phone} 문의", key="m_d_cta")
+            d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
 
             if st.button("당근 소식 생성하기", key="m_d_btn", use_container_width=True):
                 with st.spinner("소식 작성 중..."):
-                    prompt = f"매장: {store_name}\n전화: {sel_phone}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
+                    prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("당근 소식 (복사용)", value=out, height=280)
 
-    with mkt_sub3:
-        if not is_pro_user:
-            st.info("인스타그램 스튜디오는 PRO 파트너 전용 기능입니다.")
-        else:
+        with mkt_sub3:
             i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
             i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
             i_subj = st.text_input("주제", value="나에게 딱 맞는 인생 스타일링 가이드", key="m_i_subj")
@@ -749,14 +770,11 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("인스타그램 피드 (복사용)", value=out, height=280)
 
-    with mkt_sub4:
-        if not is_pro_user:
-            st.info("CRM 리텐션 문자는 PRO 파트너 전용 기능입니다.")
-        else:
+        with mkt_sub4:
             c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 고객"], key="m_c_seg")
             c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off")
             c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
-            c_tel = st.text_input("문의처", value=f"{store_name} ({sel_phone})", key="m_c_tel")
+            c_tel = st.text_input("문의처", value=f"{store_name} (문자 회신 가능)", key="m_c_tel")
 
             if st.button("CRM 문자 3종 생성", key="m_c_btn", use_container_width=True):
                 with st.spinner("문안 작성 중..."):
@@ -764,25 +782,25 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
-    with mkt_sub5:
-        cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객이 남긴 별점 리뷰를 입력하세요.")
-        rev_stl = st.selectbox("답글 스타일", [
-            "1. 정중하고 품격 있는 VIP 감사형",
-            "2. 다정하고 센스 있는 동네 이웃형",
-            "3. 매장 특장점 & 장비 전문성 각인형",
-            "4. 재방문 유도 & 단골 혜택 안내형",
-            "5. 위트 있고 유쾌한 에너지형",
-            "6. 불만/아쉬움 리뷰 케어 및 사과형"
-        ], key="m_r_stl")
-        
-        if st.button("전문 답글 3종 생성", key="m_r_btn", use_container_width=True):
-            if cust_rev:
-                with st.spinner("답글 생성 중..."):
-                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 완성도 높은 답글 3종 작성."
-                    out = generate_safe_content(prompt)
-                    if out: st.text_area("추천 답글 3종", value=out, height=280)
-            else:
-                st.warning("리뷰를 입력해 주세요.")
+        with mkt_sub5:
+            cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객이 남긴 별점 리뷰를 입력하세요.")
+            rev_stl = st.selectbox("답글 스타일", [
+                "1. 정중하고 품격 있는 VIP 감사형",
+                "2. 다정하고 센스 있는 동네 이웃형",
+                "3. 매장 특장점 & 장비 전문성 각인형",
+                "4. 재방문 유도 & 단골 혜택 안내형",
+                "5. 위트 있고 유쾌한 에너지형",
+                "6. 불만/아쉬움 리뷰 케어 및 사과형"
+            ], key="m_r_stl")
+            
+            if st.button("전문 답글 3종 생성", key="m_r_btn", use_container_width=True):
+                if cust_rev:
+                    with st.spinner("답글 생성 중..."):
+                        prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 완성도 높은 답글 3종 작성."
+                        out = generate_safe_content(prompt)
+                        if out: st.text_area("추천 답글 3종", value=out, height=280)
+                else:
+                    st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
 # TAB 4. 🛒 로컬 공동구매

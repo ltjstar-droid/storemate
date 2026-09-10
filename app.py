@@ -128,7 +128,7 @@ st.markdown("""
         background-color: #FFFFFF !important; 
     }
 
-    /* 상단 대형 탭 가독성 개선 (텍스트 번짐·파란 사각형 제거) */
+    /* 상단 대형 탭 가독성 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         gap: 20px !important;
@@ -159,13 +159,45 @@ st.markdown("""
         color: #2563EB !important;
     }
 
-    /* 카드 래퍼 */
     .clean-box {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 16px;
+    }
+
+    /* 통일된 4열/3열 카드 그리드 */
+    .unified-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 14px;
+        margin-top: 10px;
+    }
+    .unified-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+    }
+
+    /* 홈 대시보드 음악 슬림 바 */
+    .music-widget-bar {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-left: 4px solid #0F172A;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
     /* 버튼 스타일 통일 */
@@ -180,7 +212,6 @@ st.markdown("""
     }
     .stButton>button:hover { background: #1D4ED8 !important; }
 
-    /* 링크 버튼 */
     .stLinkButton > a, div[data-testid="stLinkButton"] > a {
         background: #F8FAFC !important;
         border: 1px solid #CBD5E1 !important;
@@ -370,7 +401,7 @@ with col_h2:
 st.markdown("<hr style='margin:12px 0 16px 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
 
 # ==========================================
-# 🌟 가독성 중심 4대 메인 탭 (가독성 완전 복원)
+# 메인 4대 탭
 # ==========================================
 tab_home, tab_mkt, tab_deals, tab_biz = st.tabs([
     "홈 대시보드", "마케팅 스튜디오", "로컬 공동구매", "경영 & 행정지원"
@@ -386,6 +417,40 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
+    # 1. 홈 상단: 세련된 앰비언트 음악 퀵 플레이어
+    cur_hour = datetime.now().hour
+    if cur_hour < 11:
+        auto_mood = "오전 오픈 준비 (경쾌하고 맑은 분위기)"
+        auto_query = "재즈 보사노바 오전 매장 음악 연속재생"
+    elif cur_hour < 14:
+        auto_mood = "점심 피크타임 (활기차고 경쾌한 팝)"
+        auto_query = "어쿠스틱 팝 피크타임 매장 음악 연속재생"
+    elif cur_hour < 18:
+        auto_mood = "오후 나른한 시간 (감성 힐링 칠아웃)"
+        auto_query = "2000년대 감성 발라드 피아노 연주곡 연속재생"
+    else:
+        auto_mood = "저녁 골든타임 & 마감 (아늑한 라운지 재즈)"
+        auto_query = "세련된 카페 라운지 재즈 음악 연속재생"
+
+    home_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(auto_query)}"
+
+    st.markdown(f"""
+    <div class="music-widget-bar">
+        <div>
+            <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase;">STORE AMBIENT SOUND</div>
+            <div style="font-size:0.95rem; font-weight:700; color:#0F172A; margin-top:2px;">
+                현재 매장 추천 큐레이션: <b>{auto_mood}</b>
+            </div>
+        </div>
+        <a href="{home_music_url}" target="_blank" style="text-decoration:none;">
+            <button style="height:36px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; padding:0 16px; cursor:pointer;">
+                유튜브 즉시 재생
+            </button>
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 2. 오늘의 특가 카드
     st.markdown(f"""
     <div class="clean-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -431,6 +496,7 @@ with tab_home:
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # 3. 진행 중인 공동구매
     st.markdown("""
     <div class="clean-box" style="margin-top:14px;">
         <div style="font-weight:800; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">현재 진행 중인 주요 공동구매</div>
@@ -535,7 +601,7 @@ with tab_mkt:
                 st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 3. 🛒 로컬 공동구매 (버그 완전 해결)
+# TAB 3. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["진행 프로젝트 목록", "소모품 도매 발주", "신규 공구 제안"])
@@ -568,7 +634,6 @@ with tab_deals:
             dday = get_dday(deal["deadline"])
             is_closed = (dday == "마감")
 
-            # 깨끗한 카드 레이아웃
             st.markdown(f"""
             <div class="clean-box" style="margin-bottom:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -582,7 +647,6 @@ with tab_deals:
             """, unsafe_allow_html=True)
             st.progress(min(tot_qty / deal["target"], 1.0))
 
-            # 액션 제어 버튼 (오류 발생하던 expander 전면 제거)
             c_btn_a, c_btn_b, c_btn_c = st.columns([1.2, 1.2, 1])
             with c_btn_a:
                 if len(deal["participants"]) > 0:
@@ -608,7 +672,6 @@ with tab_deals:
                     if st.button("프로젝트 삭제", key=f"del_{deal['id']}", use_container_width=True):
                         deals_to_del.append(deal["id"])
 
-            # 폼이 열렸을 때만 인라인으로 표시 (_arrow_right 오류 완전 차단)
             if st.session_state.active_join_deal_id == deal["id"]:
                 st.markdown(f"""
                 <div class="clean-box" style="margin-top:8px; border-left:4px solid #2563EB;">
@@ -673,55 +736,120 @@ with tab_biz:
         "4대 행정서류 발급처", "2026 정책금융 진단", "알바 급여 & 영업 결산", "매장 시간대별 음악"
     ])
 
+    # 4대 행정서류: 정책금융과 동일한 카드 그리드 스타일로 전면 개편
     with biz_sub1:
+        st.markdown("##### 정책자금 및 금융 필수 4대 증빙 서류 발급처")
         st.markdown("""
-        | 서류명 | 주 발급처 | 신청 대상 및 용도 | 법정 수수료 | 평균 소요시간 |
-        | :--- | :--- | :--- | :--- | :--- |
-        | **소상공인확인서** | 중소기업현황정보시스템 | 정부 지원사업, 국비 지원금 신청 시 소상공인 증빙 | 무료 | 즉시 (온라인) |
-        | **부가가치세 과세표준증명** | 국세청 홈택스 / 손택스 | 대출 심사, 보증 심사 시 사업장 매출 규모 증빙 | 무료 | 즉시 (온라인) |
-        | **국세 완납증명서 (납세증명)** | 국세청 홈택스 | 세금 체납 여부 확인 (미납 시 정책 지원 전면 제한) | 무료 | 즉시 (온라인) |
-        | **지방세 완납증명서** | 정부24 / 주민센터 | 지방세(재산세, 주민세 등) 체납 여부 확인 | 무료 | 즉시 (온라인) |
-        """)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        col_g1, col_g2 = st.columns(2)
-        with col_g1:
-            st.link_button("중소기업현황정보시스템 (소상공인확인서)", "https://sminfo.mss.go.kr", use_container_width=True)
-            st.link_button("국세청 홈택스 (부가세/국세완납)", "https://www.hometax.go.kr", use_container_width=True)
-        with col_g2:
-            st.link_button("정부24 (지방세 완납증명)", "https://www.gov.kr", use_container_width=True)
-            st.link_button("소상공인정책자금 포털", "https://ols.semas.or.kr", use_container_width=True)
-
-    with biz_sub2:
-        st.markdown("""
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:14px;">
-            <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
-                <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">비용 절감</span>
-                <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
-                <div style="font-size:0.85rem; color:#475569;">사업장당 최대 20~25만 원 전기료 감면</div>
-                <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
+        <div class="unified-grid">
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">소상공인 증빙</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인확인서</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 발급처: 중소기업현황정보시스템<br>
+                        • 용도: 국비 지원금 및 보증 신청 필수<br>
+                        • 수수료: 무료 (온라인 즉시 발급)
+                    </div>
+                </div>
+                <a href="https://sminfo.mss.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">발급 사이트 바로가기</button>
                 </a>
             </div>
-            <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
-                <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">이자 경감</span>
-                <div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
-                <div style="font-size:0.85rem; color:#475569;">7% 이상 고금리 대출을 4%대로 전환</div>
-                <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매출 규모 증빙</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">부가가치세 과세표준증명</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 발급처: 국세청 홈택스 / 손택스<br>
+                        • 용도: 대출 및 신용보증 심사 시 매출 확인<br>
+                        • 수수료: 무료 (온라인 즉시 발급)
+                    </div>
+                </div>
+                <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">홈택스 발급 바로가기</button>
                 </a>
             </div>
-            <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
-                <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">매장 인프라</span>
-                <div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
-                <div style="font-size:0.85rem; color:#475569;">키오스크/테이블오더 최대 70% 보조</div>
-                <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
-                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">국세 체납 확인</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">국세 완납증명서 (납세증명)</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 발급처: 국세청 홈택스<br>
+                        • 용도: 세금 체납 여부 확인 (정책자금 필수)<br>
+                        • 수수료: 무료 (유효기간 30일)
+                    </div>
+                </div>
+                <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">납세증명 메뉴 바로가기</button>
+                </a>
+            </div>
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">지방세 체납 확인</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">지방세 납세증명서</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 발급처: 정부24 / 주민센터<br>
+                        • 용도: 지방세(재산세 등) 완납 여부 증빙<br>
+                        • 수수료: 무료 (온라인 즉시 발급)
+                    </div>
+                </div>
+                <a href="https://www.gov.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">정부24 발급 바로가기</button>
                 </a>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
+    with biz_sub2:
+        st.markdown("##### 2026 소상공인 정책금융 및 국비 지원사업 분석")
+        st.markdown("""
+        <div class="unified-grid">
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">비용 절감</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 지원 규모: 사업장당 최대 20~25만 원 감면<br>
+                        • 자격: 연 매출 6천만 원 이하 영세 소상공인<br>
+                        • 접수: 전용 신청 사이트 온라인 접수
+                    </div>
+                </div>
+                <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
+                </a>
+            </div>
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">이자 경감</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 지원 혜택: 7% 이상 대출을 4%대로 전환<br>
+                        • 보증 한도: 사업자당 최대 5,000만 원<br>
+                        • 접수: 신용보증재단 및 정책자금 포털
+                    </div>
+                </div>
+                <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
+                </a>
+            </div>
+            <div class="unified-card">
+                <div>
+                    <span style="font-size:0.75rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">매장 인프라</span>
+                    <div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
+                    <div style="font-size:0.85rem; color:#475569; line-height:1.5;">
+                        • 지원 혜택: 키오스크/테이블오더 70% 국비 지원<br>
+                        • 지원 한도: 일반형 500만 원 / 미래형 1,000만 원<br>
+                        • 접수: 소상공인스마트상점 공식 포털
+                    </div>
+                </div>
+                <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:12px;">
+                    <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.82rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
+                </a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
         col_pol1, col_pol2 = st.columns(2)
         with col_pol1:
             rev_s = st.selectbox("사업장 연매출 규모", ["3천만 원 미만 (영세)", "3천만 원 ~ 1억 원", "1억 원 ~ 3억 원", "3억 원 초과"], key="b_rev_s")
@@ -733,10 +861,10 @@ with tab_biz:
                 if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
     with biz_sub3:
-        st.markdown("##### 파트타이머 주휴수당 및 실수령액 산출")
+        st.markdown("##### 💰 파트타이머 주휴수당 및 실수령액 산출")
         w1, w2 = st.columns(2)
         with w1:
-            wage = st.number_input("시급 (원)", value=10030, step=100, key="b_wage")
+            wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="b_wage")
             hrs = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="b_hrs")
         with w2:
             tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="b_tax")
@@ -752,7 +880,7 @@ with tab_biz:
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("##### 일일 영업 결산 리포트")
+        st.markdown("##### 🌙 일일 영업 결산 리포트")
         cl_col1, cl_col2 = st.columns(2)
         with cl_col1:
             c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
@@ -766,7 +894,7 @@ with tab_biz:
                 if out: st.markdown(f"<div class='clean-box' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
     with biz_sub4:
-        st.markdown("##### 매장 시간대·상황별 음악 큐레이션")
+        st.markdown("##### 🎧 매장 시간대·상황별 음악 큐레이션")
         col_m1, col_m2 = st.columns(2)
         with col_m1:
             m_time = st.selectbox("영업 시간대", ["오전 오픈 준비 (경쾌한 무드)", "점심/오후 피크 (활기 유지)", "나른한 오후 3~5시 (편안한 칠아웃)", "저녁 골든타임 (아늑한 라운지/재즈)", "마감 정리 (차분한 피아노)"], key="b_m_time")

@@ -205,36 +205,33 @@ st.markdown("""
         padding: 20px;
         margin-bottom: 14px;
     }
-    .guide-banner {
-        background: #F1F5F9;
-        border-left: 3px solid #2563EB;
-        padding: 12px 14px;
-        border-radius: 6px;
-        font-size: 0.88rem;
-        color: #334155;
-        margin-bottom: 14px;
-        font-weight: 500;
-    }
-
-    /* 정책지원 & 행정 서식 전용 구조화 카드 */
-    .policy-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 14px;
-        margin-top: 10px;
-    }
-    .policy-box {
+    .pro-builder-box {
         background: #FFFFFF;
-        border: 1px solid #E2E8F0;
+        border: 1px solid #CBD5E1;
+        border-top: 3px solid #2563EB;
         border-radius: 10px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        padding: 18px 20px;
+        margin-bottom: 16px;
     }
-    .policy-box-title { font-size: 0.98rem; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
-    .policy-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; width: fit-content; }
-    .policy-detail { font-size: 0.85rem; color: #475569; line-height: 1.5; margin-bottom: 12px; }
+    .pro-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #1D4ED8;
+        background: #EFF6FF;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    .pro-lock-banner {
+        background: #FEF2F2;
+        border: 1px solid #FECACA;
+        border-left: 4px solid #EF4444;
+        padding: 18px;
+        border-radius: 10px;
+        color: #991B1B;
+        margin-bottom: 16px;
+    }
 
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
@@ -339,7 +336,7 @@ if not st.session_state.logged_in_user:
                             "store_name": new_store,
                             "industry": new_ind,
                             "location": new_loc,
-                            "feature": "전문 상담 및 정밀 서비스",
+                            "feature": "전문 검안 및 맞춤 가공",
                             "map_address": new_loc,
                             "map_perk": "용친 회원 방문 시 특별 혜택 제공",
                             "pw": new_pw,
@@ -365,7 +362,7 @@ with st.sidebar:
     st.markdown("### 매장 계정 정보")
     st.markdown(f"**{store_name}**")
     if is_pro_user:
-        st.caption("플랜: PRO 비즈니스 파트너")
+        st.caption("플랜: PRO 엔터프라이즈 파트너")
     else:
         st.caption("플랜: 스탠다드 회원")
         if st.button("PRO 권한 신청", use_container_width=True):
@@ -422,8 +419,8 @@ st.markdown(f"""
         <div class="metric-number">용인친구들</div>
     </div>
     <div class="metric-item">
-        <div class="metric-title">빌드 상태</div>
-        <div class="metric-number">최신 패치 완료</div>
+        <div class="metric-title">마케팅 엔진</div>
+        <div class="metric-number">PRO Suite v3.6</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -443,8 +440,9 @@ client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
-너는 소상공인 실무 정책 및 세무 행정 분야의 20년 경력 수석 컨설턴트다.
-모호한 미사여구는 배제하고, 정확한 신청 자격, 구체적인 제출 단계, 절세 전략을 표준 공문서 및 전문 컨설팅 리포트 형식으로 전달한다.
+너는 국내 최상위 로컬 브랜드 마케팅 대행사 수석 디렉터다.
+유료 기업 고객을 위한 실전 집행용 원고를 작성하며, 진부한 미사여구나 불필요한 이모티콘은 배제하고,
+실제 구매/방문 전환율을 극대화하는 정교하고 완성도 높은 콘텐츠 아키텍처를 제공한다.
 """
 
 def generate_safe_content(prompt):
@@ -458,7 +456,7 @@ def generate_safe_content(prompt):
             if attempt < max_retries - 1:
                 time.sleep(2)
                 continue
-            st.error("데이터 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.")
+            st.error("원고 엔진 응답이 지연되고 있습니다. 잠시 후 다시 실행해 주세요.")
             return None
 
 tab_titles = [
@@ -484,13 +482,13 @@ with tabs[0]:
             "차분하고 편안한 힐링 (전문상담, 뷰티, 안경원)",
             "활기차고 경쾌한 무드 (일반음식점, 주점, 펍)",
             "푸근한 레트로 (노포, 한식, 단골 중심)"
-        ], key="v4_mood")
+        ], key="v5_mood")
         sel_genre = st.selectbox("장르 선택", [
             "피아노 힐링 연주곡 메들리",
             "2000년대 감성 명곡 발라드",
             "90-2000 국민 애창 댄스곡",
             "트로트 베스트 모음"
-        ], key="v4_genre")
+        ], key="v5_genre")
         target_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(sel_genre + ' 연속재생')}"
     with col_m2:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -526,50 +524,245 @@ with tabs[2]:
         </div>
         """, unsafe_allow_html=True)
 
-# 3. 블로그원고
+# ==========================================
+# 3. 블로그원고 (PRO SEO 엔진 전면 고도화)
+# ==========================================
 with tabs[3]:
-    if not is_pro_user: st.info("PRO 파트너 전용 기능입니다.")
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-banner">
+            <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">네이버 상위노출 알고리즘 엔진 (PRO 회원 전용)</div>
+            <div style="font-size:0.88rem;">C-Rank 및 스마트블록 기준에 맞춘 검색엔진 최적화(SEO) 원고를 설계합니다. 사이드바에서 PRO 권한을 승인받으세요.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        n_name = st.text_input("상호명 및 지역", value=f"{store_name} ({sel_loc})", key="v4_bl_name")
-        n_item = st.text_input("매장 핵심 강점", value=sel_feature, key="v4_bl_item")
-        if st.button("원고 작성 실행", key="v4_bl_btn"):
-            out = generate_safe_content(f"상호: {n_name}\n강점: {n_item}\n네이버 플레이스 리뷰 유도형 블로그 원고 작성.")
-            if out: st.text_area("작성된 원고", value=out, height=300)
+        st.markdown("""
+        <div class="pro-builder-box">
+            <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
+            <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">네이버 로컬 스마트블록 전문 포스팅 아키텍트</div>
+            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">검색 유입과 플레이스 예약 전환율을 동시에 노리는 상업용 전문 포스팅을 기획합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# 4. 당근소식
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            bl_target_keyword = st.text_input("메인 공략 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", placeholder="예: 처인구 안경원, 이동읍 맛집", key="pro_bl_kw")
+            bl_sub_keyword = st.text_input("서브 연관 검색어 (쉼표 구분)", value=f"{sel_loc.split()[1] if len(sel_loc.split())>1 else ''} 추천, 단골", key="pro_bl_sub")
+            bl_photo_count = st.slider("포스팅 사진 첨부 예정 장수", min_value=5, max_value=20, value=8, step=1, key="pro_bl_photo")
+        with col_b2:
+            bl_tone = st.selectbox("원고 스타일 톤앤매너", [
+                "전문가 심층 분석형 (신뢰성, 공학적/기술적 검증, 정밀함 강조)",
+                "동네 단골 솔직 방문기형 (자연스러운 체감 후기, 상세 공간 묘사)",
+                "스마트 소비 가이드형 (가성비, 할인 혜택, 실속 비교 중심)"
+            ], key="pro_bl_tone")
+            bl_core_point = st.text_area("매장 핵심 차별점 (시그니처/장비/서비스)", value=sel_feature, height=85, key="pro_bl_core")
+
+        if st.button("네이버 상위노출 최적화 전문 원고 생성", key="pro_bl_submit"):
+            with st.spinner("알고리즘 적합성 및 검색 키워드 가중치 분석 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장명: {store_name}
+                위치: {sel_loc}
+                메인 타깃 키워드: {bl_target_keyword}
+                서브 키워드: {bl_sub_keyword}
+                사진 첨부 예정 장수: {bl_photo_count}장
+                톤앤매너: {bl_tone}
+                매장 차별점: {bl_core_point}
+
+                당신은 네이버 C-Rank 및 DIA+ 검색 로직에 정통한 상위 1% 전문 마케팅 기획자입니다.
+                다음 4가지 구성 요소를 포함하여 블로그 포스팅 원고를 전문적으로 작성하십시오.
+                모든 항목에서 불필요한 이모티콘은 배제하고 정갈한 비즈니스 문체로 서술하십시오.
+
+                [1] 클릭률을 극대화하는 네이버 최적화 제목 3종 추천 (메인 키워드 전진 배치형, 궁금증 유발형, 후기형)
+                [2] 사진 촬영 및 배치 가이드라인 ({bl_photo_count}장의 사진이 각각 어떤 앵글과 피사체를 담아야 하는지 본문 중간중간 [사진 가이드 1: ...] 형식으로 명시)
+                [3] 본문 본론 (공간 도입부 - 전문 서비스/시그니처 심층 검증 - 실제 혜택 안내 - 플레이스 네이버 예약 및 찾아오는 길 유도 CTA)
+                [4] 연관 태그 10종 추천 (공백 없는 형태)
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("생성된 SEO 전문 원고", value=out, height=450)
+
+# ==========================================
+# 4. 당근소식 (PRO 로컬 바이럴 엔진)
+# ==========================================
 with tabs[4]:
-    if not is_pro_user: st.info("PRO 파트너 전용 기능입니다.")
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-banner">
+            <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">당근마켓 동네생활 바이럴 엔진 (PRO 회원 전용)</div>
+            <div style="font-size:0.88rem;">광고 티를 내지 않고 동네 주민들의 폭발적 댓글과 단골 맺기를 이끌어내는 전문 소식 작성기입니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        d_topic = st.selectbox("소식 주제", ["첫 방문 고객 혜택", "신규 상품 입고", "단기 프로모션"], key="v4_dg_topic")
-        if st.button("소식 원고 작성", key="v4_dg_btn"):
-            out = generate_safe_content(f"가게: {store_name}\n업종: {sel_industry}\n주제: {d_topic}\n당근마켓 동네생활 톤앤매너로 작성.")
-            if out: st.text_area("당근 소식", value=out, height=260)
+        st.markdown("""
+        <div class="pro-builder-box">
+            <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
+            <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">당근마켓 반경 3km 타깃 로컬 소식 솔루션</div>
+            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">노골적인 전단지형 광고가 아닌, 이웃의 호기심과 공감을 자극하는 바이럴 포스팅을 생성합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# 5. 인스타그램
+        col_d1, col_d2 = st.columns(2)
+        with col_d1:
+            dg_target_audience = st.selectbox("타깃 고객군", ["3040 자녀 양육 주부층", "인근 거주 2030 직장인 및 1인가구", "동네 터줏대감 5060 중장년층", "전 지역 주민 전체"], key="pro_dg_target")
+            dg_promo_type = st.selectbox("제공 혜택 유형", ["방문 시 무상 정밀 점검/체험 제공", "용인친구들 단독 할인 쿠폰 지급", "선착순 사은품 추가 증정", "새 시즌 한정 신상품 소개"], key="pro_dg_promo")
+        with col_d2:
+            dg_hook = st.text_input("동네 이슈/상황 연결", placeholder="예: 봄 환절기 미세먼지, 새 학기 준비, 동네 산책길", key="pro_dg_hook")
+            dg_call = st.text_input("유도 액션 (CTA)", value="당근 단골 맺기 누르고 캡처본 보여주시면 적용", key="pro_dg_cta")
+
+        if st.button("당근마켓 맞춤형 바이럴 소식 생성", key="pro_dg_submit"):
+            with st.spinner("로컬 반경 커뮤니티 데이터 분석 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장명: {store_name}
+                위치: {sel_loc}
+                주 타깃: {dg_target_audience}
+                프로모션 유형: {dg_promo_type}
+                상황적 훅: {dg_hook}
+                유도 액션: {dg_call}
+                매장 강점: {sel_feature}
+
+                당근마켓 동네생활 탭에서 '좋아요'와 '단골 추가'를 최대로 유도할 수 있는 게시글을 작성하라.
+                노골적인 전단지 말투는 철저히 배제하고, 동네 이웃 사장님이 진솔하게 정보와 혜택을 나누는 신뢰도 높은 어투를 사용할 것.
+                이모티콘을 도배하지 말고, 텍스트 자체의 진정성과 명확한 혜택으로 어필할 것.
+
+                [구성]
+                1. 피드 노출용 타이틀 2종 (피드 스크롤을 멈추게 만드는 질문형/호기심형)
+                2. 본문 (이웃 안부 - 매장 상황/전문 지식 팁 공유 - 특별 혜택 안내 - 단골 맺기 유도)
+                3. 댓글 반응 유도용 질문 (주민들이 댓글을 남기게 만드는 자연스러운 마무리 문구)
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("생성된 당근마켓 소식 원고", value=out, height=380)
+
+# ==========================================
+# 5. 인스타그램 (PRO 비주얼 피드 & 릴스 엔진)
+# ==========================================
 with tabs[5]:
-    if not is_pro_user: st.info("PRO 파트너 전용 기능입니다.")
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-banner">
+            <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">인스타그램 비주얼 브랜딩 스튜디오 (PRO 회원 전용)</div>
+            <div style="font-size:0.88rem;">촬영 연출 디렉팅, 3초 스크롤 스톱 훅, 타깃별 최적화 해시태그 패키지를 완성형으로 제공합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        if st.button("인스타그램 피드 생성", key="v4_ig_btn"):
-            out = generate_safe_content(f"가게: {store_name}\n업종: {sel_industry}\n감성적인 카피와 해시태그 8개 작성.")
-            if out: st.text_area("인스타그램 피드", value=out, height=240)
+        st.markdown("""
+        <div class="pro-builder-box">
+            <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
+            <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">인스타그램 하이엔드 피드 & 스토리보드 디렉터</div>
+            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">단순 텍스트 생성이 아닌, 비주얼 연출 지침과 해시태그 분류 체계를 갖춘 완성형 포스팅을 설계합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# 6. 고객문자
+        col_i1, col_i2 = st.columns(2)
+        with col_i1:
+            ig_format = st.selectbox("콘텐츠 포맷", ["단일 피드 (감성 스냅 1컷)", "카드뉴스형 (정보 전달 4~6슬라이드)", "릴스 숏폼 (15초 텍스트 영상 스크립트)"], key="pro_ig_format")
+            ig_vibe = st.selectbox("비주얼 무드", ["미니멀 모던 (단정하고 세련된 분위기)", "따뜻한 아날로그 (정감 있고 아늑한 톤)", "전문 랩/클리닉 (정밀함과 위생, 하이테크 강조)"], key="pro_ig_vibe")
+        with col_i2:
+            ig_topic = st.text_input("포스팅 핵심 주제", placeholder="예: 얼굴형에 맞는 맞춤 안경 피팅 가이드, 신상품 입고", key="pro_ig_topic")
+            ig_perk = st.text_input("프로모션/혜택", value=curr_user.get("map_perk", "용친 회원 현장 추가 혜택"), key="pro_ig_perk")
+
+        if st.button("인스타그램 비주얼 피드 & 태그 패키지 생성", key="pro_ig_submit"):
+            with st.spinner("비주얼 레이아웃 및 트렌드 태그 매칭 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장명: {store_name}
+                위치: {sel_loc}
+                포맷: {ig_format}
+                비주얼 무드: {ig_vibe}
+                주제: {ig_topic}
+                혜택: {ig_perk}
+                매장 강점: {sel_feature}
+
+                인스타그램 전문 브랜드 에이전시의 톤앤매너로 고품격 포스팅 패키지를 완성하라.
+                유치한 이모티콘 나열을 배제하고, 여백과 문장 리듬감이 살아있는 텍스트를 구성할 것.
+
+                [출력 구성]
+                1. 사진/영상 촬영 디렉팅 (어떤 구도, 조명, 소품, 모델 손 동작으로 찍어야 비주얼 무드에 부합하는지 2~3줄 구체적 가이드)
+                2. 피드 첫 줄 훅 멘트 (더보기를 누르지 않고는 못 배기는 세련된 카피)
+                3. 피드 본문 (문단 구분이 깔끔하며 줄바꿈이 최적화된 본문, 프로모션 혜택 자연스러운 녹이기)
+                4. 해시태그 3단 분류 패키지 (복사용):
+                   - 지역/상권 태그 5종
+                   - 업종/핵심 아이템 태그 5종
+                   - 라이프스타일/서브 타깃 태그 5종
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("생성된 인스타그램 브랜드 패키지", value=out, height=420)
+
+# ==========================================
+# 6. 고객문자 (PRO CRM 리텐션 엔진)
+# ==========================================
 with tabs[6]:
-    if not is_pro_user: st.info("PRO 파트너 전용 기능입니다.")
+    if not is_pro_user:
+        st.markdown("""
+        <div class="pro-lock-banner">
+            <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">고객 리텐션 CRM 메시지 솔루션 (PRO 회원 전용)</div>
+            <div style="font-size:0.88rem;">스팸으로 분류되지 않는 SMS 규격, 스토리형 LMS, 카카오 알림톡 버튼 규격 3종을 즉시 출력합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        m_target = st.selectbox("발송 목적", ["재방문 감사 쿠폰", "계절 안부 및 프로모션 안내"], key="v4_sms_target")
-        if st.button("메시지 템플릿 생성", key="v4_sms_btn"):
-            out = generate_safe_content(f"가게: {store_name}\n목적: {m_target}\n단문 SMS 및 장문 LMS 규격으로 작성.")
-            if out: st.text_area("문자 템플릿", value=out, height=240)
+        st.markdown("""
+        <div class="pro-builder-box">
+            <span class="pro-badge">PRO ENTERPRISE ENGINE</span>
+            <div style="font-weight:700; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">재방문율 극대화 CRM 메시지 스위트</div>
+            <div style="font-size:0.85rem; color:#64748B; margin-bottom:14px;">발송 비용 대비 재방문 매출 전환율을 정밀 계산하여 SMS(단문), LMS(장문), 카카오 알림톡 3종을 동시 설계합니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            crm_target = st.selectbox("발송 대상 고객 세그먼트", [
+                "첫 방문 후 재방문 유도 (방문 후 1~2주 경과 고객)",
+                "이탈 위험 단골 고객 (최근 60일 이상 미방문 고객)",
+                "정기 점검/관리 주기 도래 고객 (전문 검안/클리닝 권장)",
+                "특정 시즌/명절 감사 프로모션 타깃 전체"
+            ], key="pro_crm_target")
+            crm_coupon = st.text_input("제공 바우처 / 혜택", value="방문 시 무상 정밀 점검 및 10% 추가 할인 쿠폰", key="pro_crm_coupon")
+        with col_s2:
+            crm_urgency = st.selectbox("기한 및 긴급성 설정", ["이번 주말(일요일)까지 한정", "본 문자 수신 후 14일 이내 방문 시", "선착순 30명 한정 적용"], key="pro_crm_urgency")
+            crm_info = st.text_input("매장 예약 문의처", value=f"{store_name} (031-000-0000 / 문자 회신 가능)", key="pro_crm_info")
+
+        if st.button("SMS / LMS / 카카오 알림톡 3종 동시 출력", key="pro_crm_submit"):
+            with st.spinner("통신사 규격 및 스팸 필터링 회피 문안 설계 중..."):
+                prompt = f"""
+                매장명: {store_name}
+                업종: {sel_industry}
+                소재지: {sel_loc}
+                대상 세그먼트: {crm_target}
+                제공 혜택: {crm_coupon}
+                기한: {crm_urgency}
+                문의처: {crm_info}
+
+                전문 CRM 컨설턴트 관점에서 고객이 '광고 스팸'으로 느끼지 않고 'VIP 케어 메시지'로 인식하도록 3가지 규격의 메시지를 완성하라.
+                불필요한 이모티콘을 배제하고 단정하고 신뢰감 있는 비즈니스 문안을 적용할 것.
+
+                [1] 단문 SMS (한글 45자 / 90 Byte 내외 엄수):
+                   - 핵심 요점, 명확한 혜택, 유효기간만 군더더기 없이 압축
+
+                [2] 장문 LMS (스토리텔링형 / 최대 2,000 Byte 규격):
+                   - 고객을 향한 정중한 감사 안부
+                   - 매장의 전문적인 케어/관리 필요성 환기
+                   - 제공 혜택 및 예약 방법 안내
+                   - 무료수신거부 문구 포함 표준 포맷
+
+                [3] 카카오 알림톡 / 브랜드톡 권장 템플릿:
+                   - 알림톡 승인 기준에 부합하는 정형화된 알림 안내문
+                   - 하단 연동 버튼명 가이드 (예: [예약하기], [길찾기])
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("생성된 CRM 메시지 3종 세트", value=out, height=420)
 
 # 7. 급여계산
 with tabs[7]:
     w1, w2 = st.columns(2)
     with w1:
-        wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="v4_w")
-        hours = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="v4_h")
+        wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="v5_w")
+        hours = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="v5_h")
     with w2:
-        tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="v4_t")
+        tax_opt = st.selectbox("공제 기준", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 미적용"], key="v5_t")
     
     base = wage * hours * 4.345
     holiday = ((hours / 40.0) * 8.0 * wage * 4.345) if hours >= 15 else 0
@@ -584,15 +777,12 @@ with tabs[7]:
     </div>
     """, unsafe_allow_html=True)
 
-# ==========================================
-# 8. 행정서류 (완전 고도화: 표, 경로, 원클릭 포털 연동)
-# ==========================================
+# 8. 행정서류
 with tabs[8]:
     st.markdown("#### 정책자금 및 금융 필수 행정 서식 가이드")
     st.markdown("""
     소상공인 정책자금, 신용보증재단 보증서 발급, 금융권 대환대출 신청 시 요구되는 **4대 필수 증빙 서류**의 공식 발급 절차입니다.
     """)
-
     st.markdown("""
     | 서류명 | 주 발급처 | 신청 대상 및 용도 | 법정 수수료 | 평균 소요시간 |
     | :--- | :--- | :--- | :--- | :--- |
@@ -602,186 +792,38 @@ with tabs[8]:
     | **지방세 완납증명서** | 정부24 / 주민센터 | 지방세(재산세, 주민세 등) 체납 여부 확인 | 무료 | 즉시 (온라인) |
     """)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("##### 서류별 상세 발급 경로 및 유의사항")
-
-    c_doc1, c_doc2 = st.columns(2)
-    with c_doc1:
-        st.markdown("""
-        <div class="clean-card">
-            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">1. 소상공인확인서 (중소기업확인서)</div>
-            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
-                • <b>공식 포털:</b> 중소기업현황정보시스템 (sminfo.mss.go.kr)<br>
-                • <b>발급 단계:</b> 회원가입 및 로그인 ➡️ [확인서 발급신청] ➡️ 사업자 정보 입력 ➡️ 온라인 자료제출(홈택스 자료 연동) ➡️ 확인서 출력<br>
-                • <b>주의사항:</b> 직전 연도 소득세 신고가 완료되어야 정상 발급되며, 매년 갱신이 필요합니다.
-            </p>
-            <a href="https://sminfo.mss.go.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    중소기업현황정보시스템 바로가기
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="clean-card">
-            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">2. 부가가치세 과세표준증명원</div>
-            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
-                • <b>공식 포털:</b> 국세청 홈택스 (hometax.go.kr)<br>
-                • <b>발급 단계:</b> 공동/금융인증서 로그인 ➡️ [국세증명·사업자등록 세금관련 신청/신고] ➡️ [부가가치세 과세표준증명] ➡️ 과세기간 선택 후 발급<br>
-                • <b>주의사항:</b> 간이과세자는 [부가가치세 면세사업자 수입금액증명] 또는 해당 간이과세 증명으로 대체될 수 있습니다.
-            </p>
-            <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    국세청 홈택스 바로가기
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c_doc2:
-        st.markdown("""
-        <div class="clean-card">
-            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">3. 국세 완납증명서 (납세증명서)</div>
-            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
-                • <b>공식 포털:</b> 국세청 홈택스 (hometax.go.kr)<br>
-                • <b>발급 단계:</b> 홈택스 로그인 ➡️ [국세증명·사업자등록] ➡️ [납세증명서(국세완납증명)] ➡️ 수령방법 및 제출처 선택 ➡️ 신청<br>
-                • <b>주의사항:</b> 유효기간이 통상 30일로 짧으므로 보증재단이나 은행 제출 직전에 발급받는 것이 권장됩니다.
-            </p>
-            <a href="https://www.hometax.go.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    국세청 납세증명 메뉴 바로가기
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="clean-card">
-            <div style="font-weight:700; color:#0F172A; font-size:0.95rem; margin-bottom:6px;">4. 지방세 납세증명서 (지방세 완납)</div>
-            <p style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
-                • <b>공식 포털:</b> 정부24 (gov.kr)<br>
-                • <b>발급 단계:</b> 정부24 간편인증 로그인 ➡️ 검색창에 '지방세 납세증명' 입력 ➡️ 신청하기 ➡️ 사업자등록번호 입력 후 PDF 발급<br>
-                • <b>주의사항:</b> 개인사업자의 경우 개인 명의와 법인/상호 명의 체납 내역이 모두 조회되니 유의해야 합니다.
-            </p>
-            <a href="https://www.gov.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#F1F5F9; color:#0F172A; border:1px solid #CBD5E1; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    정부24 바로가기
-                </button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-
-# ==========================================
-# 9. 정책지원 (완전 고도화: 3대 핵심사업 카드 + 맞춤형 AI 진단기)
-# ==========================================
+# 9. 정책지원
 with tabs[9]:
     st.markdown("#### 2026 소상공인 정책금융 및 국비 지원사업 분석")
     st.markdown("""
     소상공인시장진흥공단 및 중소벤처기업부에서 주관하는 주요 지원 정책 핵심 내용입니다.
     """)
+    col_p1, col_p2 = st.columns(2)
+    with col_p1:
+        p_rev = st.selectbox("사업장 연 매출 규모", ["3,000만 원 미만 (영세 소상공인)", "3,000만 원 ~ 1억 원 미만", "1억 원 ~ 3억 원 미만", "3억 원 초과"], key="p_rev_5")
+    with col_p2:
+        p_purpose = st.selectbox("가장 시급한 지원 분야", ["고금리 대출 이자 부담 완화", "매장 설비/디지털 인프라(키오스크 등) 구축", "운영자금 및 고정비(임대료·전기세) 보조", "사업장 간판·인테리어 개선"], key="p_purpose_5")
 
-    st.markdown("""
-    <div class="policy-grid">
-        <div class="policy-box">
-            <div>
-                <span class="policy-tag">비용 절감</span>
-                <div class="policy-box-title">소상공인 전기요금 특별지원</div>
-                <div class="policy-detail">
-                    • <b>지원 한도:</b> 사업장당 최대 20만 원~25만 원 전기요금 감면<br>
-                    • <b>신청 자격:</b> 연 매출 6천만 원 이하 소상공인 (일반용·산업용 전력 사용자)<br>
-                    • <b>접수 기관:</b> 소상공인전기요금특별지원.kr (온라인 신청)
+    if st.button("사업장 맞춤형 정책지원 AI 진단서 확인", key="btn_p_ai_5"):
+        with st.spinner("전문 정책지원 데이터를 분석하고 있습니다..."):
+            prompt = f"업종: {sel_industry}\n소재지: {sel_loc}\n연매출: {p_rev}\n목적: {p_purpose}\n가장 유리한 정책자금 2종과 구체적 신청 요건을 공문서 리포트 양식으로 간결하게 제시."
+            out = generate_safe_content(prompt)
+            if out:
+                st.markdown(f"""
+                <div class="clean-card" style="border-left: 4px solid #2563EB; margin-top:14px;">
+                    <div style="font-weight:700; color:#0F172A; font-size:1.05rem; margin-bottom:10px;">사업장 맞춤 정책지원 분석 리포트</div>
+                    <div style="color:#334155; font-size:0.92rem; line-height:1.7;">{out}</div>
                 </div>
-            </div>
-            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    전기요금 지원 신청처
-                </button>
-            </a>
-        </div>
-        <div class="policy-box">
-            <div>
-                <span class="policy-tag">금융 비용 경감</span>
-                <div class="policy-box-title">고금리 소상공인 저금리 대환보증</div>
-                <div class="policy-detail">
-                    • <b>지원 혜택:</b> 제2금융권 7% 이상 고금리 대출을 4%대 정책 대출로 전환<br>
-                    • <b>보증 한도:</b> 사업자당 최대 5,000만 원 한도 (보증비율 90% 이상)<br>
-                    • <b>접수 기관:</b> 신용보증기금 및 각 시·도 지역신용보증재단
-                </div>
-            </div>
-            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    소상공인정책자금 안내
-                </button>
-            </a>
-        </div>
-        <div class="policy-box">
-            <div>
-                <span class="policy-tag">매장 인프라 국비 지원</span>
-                <div class="policy-box-title">스마트상점 기술보급 국비 지원사업</div>
-                <div class="policy-detail">
-                    • <b>지원 혜택:</b> 테이블오더, 무인 키오스크, 서빙로봇 도입 비용 최대 70% 국비 보조<br>
-                    • <b>지원 한도:</b> 일반형 최대 500만 원, 미래형 최대 1,000만 원 국비 지원<br>
-                    • <b>접수 기관:</b> 소상공인스마트상점 (sbiz.or.kr/smst/index.do)
-                </div>
-            </div>
-            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none;">
-                <button style="width:100%; height:36px; background:#2563EB; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.82rem; cursor:pointer;">
-                    스마트상점 공고 보기
-                </button>
-            </a>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("##### 사업장 조건별 맞춤형 정책지원 AI 진단")
-
-    with st.container():
-        st.markdown("""
-        <div class="clean-card">
-            <p style="font-size:0.9rem; color:#475569; margin-bottom:12px;">
-                현재 매장의 매출 규모와 자금 필요 목적을 선택하시면 적합한 정책자금 항목과 신청 로드맵을 AI가 브리핑합니다.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            p_rev = st.selectbox("사업장 연 매출 규모", ["3,000만 원 미만 (영세 소상공인)", "3,000만 원 ~ 1억 원 미만", "1억 원 ~ 3억 원 미만", "3억 원 초과"], key="p_rev")
-        with col_p2:
-            p_purpose = st.selectbox("가장 시급한 지원 분야", ["고금리 대출 이자 부담 완화", "매장 설비/디지털 인프라(키오스크 등) 구축", "운영자금 및 고정비(임대료·전기세) 보조", "사업장 간판·인테리어 개선"], key="p_purpose")
-
-        if st.button("내 맞춤형 지원사업 진단서 확인", key="btn_p_ai"):
-            with st.spinner("전문 정책지원 데이터를 분석하고 있습니다..."):
-                prompt = f"""
-                업종: {sel_industry}
-                소재지: {sel_loc}
-                연매출: {p_rev}
-                목적: {p_purpose}
-
-                위 사업장에 가장 유리한 정책자금 및 정부지원사업을 2가지 추천하고,
-                1) 구체적 지원 내용
-                2) 신청 요건 및 필수 구비 서류
-                3) 신청 시 탈락을 방지하는 실무 팁
-                을 표준 비즈니스 컨설팅 리포트 양식으로 간결하고 전문적으로 제시하라.
-                """
-                out = generate_safe_content(prompt)
-                if out:
-                    st.markdown(f"""
-                    <div class="clean-card" style="border-left: 4px solid #2563EB; margin-top:14px;">
-                        <div style="font-weight:700; color:#0F172A; font-size:1.05rem; margin-bottom:10px;">사업장 맞춤 정책지원 분석 리포트</div>
-                        <div style="color:#334155; font-size:0.92rem; line-height:1.7;">{out}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
 # 10. 영업마감
 with tabs[10]:
-    if st.button("마감 브리핑 작성 실행", key="v4_close_btn"):
+    if st.button("마감 브리핑 작성 실행", key="v5_close_btn"):
         out = generate_safe_content(f"가게: {store_name} ({sel_industry})\n전문적인 일일 영업 마감 분석과 익일 매출 증대 전략 제언.")
         if out:
             st.markdown(f"""
             <div class="clean-card" style="border-left: 3px solid #2563EB;">
-                <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">일일 영업 마감 분석 리포트</div>
+                <div style="font-weight:700; color:#0F172A; margin-bottom:8px;">일일 영업 마감 리포트</div>
                 <div style="color:#334155; font-size:0.92rem; line-height:1.6;">{out}</div>
             </div>
             """, unsafe_allow_html=True)

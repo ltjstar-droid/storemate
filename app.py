@@ -112,7 +112,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🎨 [순백색 화이트 & 프리미엄 B2B 테마 CSS]
+# 🎨 [순백색 바탕 & 선명한 버튼 & 층간 입체감 CSS]
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -124,22 +124,111 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
     
-    /* 1. 바탕 화면을 완벽한 순백색으로 통일 */
+    /* 1. 순백색 메인 배경 */
     .stApp, html, body { 
-        background-color: #FFFFFF !important; 
+        background-color: #F8FAFC !important; 
     }
 
-    /* 2. 모든 입력창 화이트 및 가독성 최적화 */
+    /* 2. 입력창 가독성 최적화 */
     input, textarea, select, 
     div[data-baseweb="select"] > div, 
     div[data-baseweb="base-input"] > input,
     input:focus, textarea:focus, select:focus {
         color: #0F172A !important;
         background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
+        border: 1px solid #CBD5E1 !important;
         border-radius: 8px !important;
         -webkit-text-fill-color: #0F172A !important;
         font-size: 0.92rem !important;
+    }
+
+    /* 3. 층(Floor) 분리형 구조화 카드 */
+    .floor-container {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+        position: relative;
+    }
+    .floor-badge {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #2563EB;
+        background: #EFF6FF;
+        padding: 3px 8px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 8px;
+        letter-spacing: 0.05em;
+    }
+    .floor-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0F172A;
+        margin-bottom: 4px;
+    }
+    .floor-sub {
+        font-size: 0.88rem;
+        color: #64748B;
+        margin-bottom: 18px;
+    }
+
+    /* 4. 클릭창 시인성 개선 (보이는 버튼 스타일링) */
+    .stLinkButton > a, div[data-testid="stLinkButton"] > a {
+        background: #F1F5F9 !important;
+        border: 1px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+        color: #1E293B !important;
+        font-weight: 700 !important;
+        font-size: 0.92rem !important;
+        padding: 10px 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+        transition: all 0.15s ease !important;
+    }
+    .stLinkButton > a:hover, div[data-testid="stLinkButton"] > a:hover {
+        background: #E2E8F0 !important;
+        border-color: #94A3B8 !important;
+        color: #0F172A !important;
+    }
+    .stLinkButton > a * {
+        color: #1E293B !important;
+        font-weight: 700 !important;
+    }
+
+    /* 공통 액션 버튼 */
+    .stButton>button {
+        height: 2.9rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        background: #2563EB !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2) !important;
+    }
+    .stButton>button:hover { background: #1D4ED8 !important; }
+
+    /* 보조 기능 버튼 (회색빛 뚜렷한 버튼) */
+    .btn-secondary-action {
+        background: #F8FAFC;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        display: inline-block;
+        width: 100%;
+    }
+    .btn-secondary-action:hover {
+        background: #E2E8F0;
     }
 
     /* 상단 앱 헤더 */
@@ -170,120 +259,33 @@ st.markdown("""
         border-radius: 6px;
     }
 
-    /* 상단 브리핑 배너 */
-    .alert-banner {
-        background: #0F172A;
-        color: #FFFFFF;
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 16px;
-    }
-    .alert-banner * { color: #FFFFFF !important; }
-
-    /* 소셜 채널 도크 */
-    .sns-channel-bar {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 10px 16px;
-        margin-bottom: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    .btn-channel {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-decoration: none !important;
-    }
-    .btn-fb { background: #1877F2; color: #FFFFFF !important; }
-    .btn-insta { background: #E1306C; color: #FFFFFF !important; }
-    .btn-threads { background: #111827; color: #FFFFFF !important; }
-
-    /* 모든 카드 컨테이너 화이트 통일 */
-    .feed-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 22px;
-        margin-bottom: 18px;
-    }
-    .feed-title {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: #0F172A;
-        margin-bottom: 4px;
-    }
-    .feed-subtitle {
-        font-size: 0.86rem;
-        color: #64748B;
-        margin-bottom: 16px;
-    }
-
-    /* 정책지원 카드 (화이트톤 적용) */
-    .policy-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 12px;
-        margin-top: 10px;
-    }
-    .policy-box {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
     /* 탭 스타일 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         gap: 6px !important;
-        background: #F8FAFC !important;
-        padding: 6px !important;
-        border-radius: 10px !important;
-        border: 1px solid #E2E8F0 !important;
+        background: #F1F5F9 !important;
+        padding: 5px !important;
+        border-radius: 8px !important;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 38px !important;
+        height: 36px !important;
         border-radius: 6px !important;
-        font-size: 0.86rem !important;
+        font-size: 0.85rem !important;
         font-weight: 600 !important;
-        color: #475569 !important;
+        color: #64748B !important;
         background-color: transparent !important;
         border: none !important;
         padding: 0 14px !important;
         white-space: nowrap !important;
-        flex-shrink: 0 !important;
     }
     .stTabs [aria-selected="true"] {
         background-color: #FFFFFF !important;
         color: #2563EB !important;
         font-weight: 700 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
     }
-
-    /* 버튼 스타일 */
-    .stButton>button {
-        height: 3rem !important;
-        font-size: 0.95rem !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        background: #2563EB !important;
-        color: #FFFFFF !important;
-        border: none !important;
-    }
-    .stButton>button:hover { background: #1D4ED8 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -437,7 +439,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 1. 상단 헤더 & 브리핑
+# 1. 상단 헤더 & 브리핑 (최상단)
 # ==========================================
 st.markdown(f"""
 <div class="store-header">
@@ -451,27 +453,27 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="alert-banner">
+<div style="background: #0F172A; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; color: #FFFFFF;">
     <div style="font-size:0.75rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">TODAY'S BUSINESS BRIEFING</div>
     <div style="font-size:1rem; font-weight:700; margin-top:3px;">
-        매장 방문 고객 유입을 위한 오늘의 번개 특가와 맞춤형 로컬 마케팅이 준비되어 있습니다.
+        오늘 방문 고객을 위한 번개 특가와 대규모 공동구매 프로젝트가 가동 중입니다.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="sns-channel-bar">
+<div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 16px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
     <div style="font-size:0.86rem; font-weight:700; color:#334155;">용인친구들 공식 채널 바로가기</div>
-    <div>
-        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" class="btn-channel btn-fb">페이스북 그룹</a>
-        <a href="https://www.instagram.com/" target="_blank" class="btn-channel btn-insta">인스타그램</a>
-        <a href="https://www.threads.net/" target="_blank" class="btn-channel btn-threads">스레드</a>
+    <div style="display:flex; gap:8px;">
+        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">페이스북 그룹</a>
+        <a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">인스타그램</a>
+        <a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:700; text-decoration:none;">스레드</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 상생아지트 & 번개 특가 (버그 해결 완료)
+# [FLOOR 1] 상생아지트 & 번개 특가 (독립 층)
 # ==========================================
 my_saved_addr = curr_user.get("map_address", sel_loc)
 my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
@@ -480,35 +482,32 @@ my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-
 naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
 st.markdown(f"""
-<div class="feed-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="feed-title">오늘의 상생아지트 & 번개 특가</div>
-        <span style="font-size:0.78rem; color:#64748B;">최근 갱신: {my_deal_updated}</span>
-    </div>
-    <div class="feed-subtitle">{my_saved_addr}</div>
-    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+<div class="floor-container">
+    <span class="floor-badge">SECTION 01</span>
+    <div class="floor-title">오늘의 상생아지트 & 번개 특가</div>
+    <div class="floor-sub">{my_saved_addr} (최근 갱신: {my_deal_updated})</div>
+    <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-left:4px solid #2563EB; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
         <div style="font-size:0.75rem; font-weight:700; color:#2563EB; text-transform:uppercase;">TODAY'S SPECIAL</div>
         <div style="font-size:1.05rem; font-weight:800; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
     </div>
     <div style="font-size:0.9rem; color:#475569; margin-bottom:14px;"><b>상시 회원 혜택:</b> {my_perk}</div>
     <a href="{naver_url}" target="_blank" style="text-decoration:none;">
-        <button style="width:100%; height:40px; background:#03C75A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; cursor:pointer;">
-            네이버 플레이스 지도 연동 확인
+        <button style="width:100%; height:42px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+            네이버 플레이스 길찾기 및 지도 연동 확인
         </button>
     </a>
 </div>
 """, unsafe_allow_html=True)
 
-# 오류 발생하던 expander를 깔끔한 토글 버튼과 카드 폼으로 전면 교체
-c_btn1, c_btn2 = st.columns([1, 4])
-with c_btn1:
-    if st.button("특가/혜택 편집", use_container_width=True):
+col_f1_a, col_f1_b = st.columns([1, 4])
+with col_f1_a:
+    if st.button("특가/혜택 편집", key="btn_f1_edit", use_container_width=True):
         st.session_state.show_deal_edit = not st.session_state.show_deal_edit
 
 if st.session_state.show_deal_edit:
     st.markdown("""
-    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:16px;">
-        <div style="font-size:0.9rem; font-weight:700; color:#0F172A; margin-bottom:10px;">오늘의 특가 및 상시 혜택 수정</div>
+    <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:18px; margin-bottom:24px;">
+        <div style="font-size:0.9rem; font-weight:700; color:#0F172A; margin-bottom:10px;">오늘의 번개 특가 및 상시 혜택 실시간 변경</div>
     """, unsafe_allow_html=True)
     col_ed1, col_ed2 = st.columns(2)
     with col_ed1:
@@ -526,15 +525,16 @@ if st.session_state.show_deal_edit:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 3. 실시간 공동구매 센터
+# [FLOOR 2] 대규모 공동구매 아키텍처 (독립 층)
 # ==========================================
 st.markdown("""
-<div class="feed-card">
-    <div class="feed-title">실시간 로컬 공동구매 센터</div>
-    <div class="feed-subtitle">소상공인 상생 핫딜 및 매장 소모품 도매 공동 발주</div>
+<div class="floor-container">
+    <span class="floor-badge">SECTION 02</span>
+    <div class="floor-title">실시간 로컬 공동구매 센터</div>
+    <div class="floor-sub">소상공인 대량 발주 및 지역 단독 핫딜 (확장형 필터 탑재)</div>
 """, unsafe_allow_html=True)
 
-deal_tab1, deal_tab2, deal_tab3 = st.tabs(["진행 중인 핫딜", "소모품 도매 발주", "신규 공구 제안"])
+deal_tab1, deal_tab2, deal_tab3 = st.tabs(["진행 중인 핫딜 목록", "소모품 도매 발주", "신규 공구 제안"])
 
 def get_dday(deadline_str):
     try:
@@ -545,56 +545,83 @@ def get_dday(deadline_str):
         return "진행 중"
 
 with deal_tab1:
+    # 대량 공구 대비 상태 필터
+    col_flt1, col_flt2 = st.columns([1.5, 3])
+    with col_flt1:
+        deal_filter = st.selectbox("공구 상태 필터링", ["전체 프로젝트 보기", "진행중인 공구만", "마감된 공구만"], key="deal_filter_sel")
+
     deals_to_del = []
-    for d_idx, deal in enumerate(deals_db["deals"]):
-        tot_qty = sum([p["qty"] for p in deal["participants"]])
-        dday = get_dday(deal["deadline"])
-        is_closed = (dday == "마감")
-        
-        st.markdown(f"""
-        <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:12px;">
-            <span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday}</span>
-            <h4 style="margin:8px 0; color:#0F172A;">{deal['title']}</h4>
-            <div style="font-size:1.05rem; font-weight:800; color:#2563EB;">{deal['price']}</div>
-            <div style="font-size:0.85rem; color:#64748B; margin-top:4px;">신청: {len(deal['participants'])}명 ({tot_qty}개 누적)</div>
-        </div>
-        """, unsafe_allow_html=True)
-        st.progress(min(tot_qty / deal["target"], 1.0))
-        
-        c_act1, c_act2 = st.columns(2)
-        with c_act1:
-            if len(deal["participants"]) > 0:
-                df_parts = pd.DataFrame(deal["participants"])
-                df_parts.columns = ["성함/상호", "연락처", "신청수량", "신청일시"]
-                csv_file = df_parts.to_csv(index=False, encoding="utf-8-sig")
-                st.download_button(
-                    label=f"📥 참여자 명단 엑셀(CSV) 다운로드",
-                    data=csv_file,
-                    file_name=f"공구명단_{deal['id']}.csv",
-                    mime="text/csv",
-                    key=f"csv_dl_{deal['id']}",
-                    use_container_width=True
-                )
-        with c_act2:
-            if user_key == "admin" or is_closed:
-                if st.button("공구 프로젝트 영구 삭제", key=f"del_d_{deal['id']}", use_container_width=True):
-                    deals_to_del.append(deal["id"])
+    filtered_deals = []
+    for d in deals_db["deals"]:
+        d_state = get_dday(d["deadline"])
+        if deal_filter == "진행중인 공구만" and d_state == "마감":
+            continue
+        if deal_filter == "마감된 공구만" and d_state != "마감":
+            continue
+        filtered_deals.append(d)
+
+    if not filtered_deals:
+        st.info("해당 조건에 부합하는 공동구매 프로젝트가 없습니다.")
+    else:
+        # 공구가 많아져도 깔끔한 2열 카드 그리드 배치
+        for i in range(0, len(filtered_deals), 2):
+            cols = st.columns(2)
+            for j in range(2):
+                if i + j < len(filtered_deals):
+                    deal = filtered_deals[i + j]
+                    tot_qty = sum([p["qty"] for p in deal["participants"]])
+                    dday = get_dday(deal["deadline"])
+                    is_closed = (dday == "마감")
                     
-        with st.form(key=f"join_form_{deal['id']}"):
-            st.markdown("###### 참여 신청")
-            p_n = st.text_input("성함 또는 상호", key=f"p_n_{deal['id']}")
-            p_p = st.text_input("연락처", key=f"p_p_{deal['id']}")
-            p_q = st.number_input("수량", min_value=1, max_value=100, value=1, step=1, key=f"p_q_{deal['id']}")
-            if st.form_submit_button("참여 확정하기", use_container_width=True):
-                if p_n and p_p:
-                    deal["participants"].append({"name": p_n, "phone": p_p, "qty": int(p_q), "time": datetime.now().strftime("%Y-%m-%d %H:%M")})
-                    save_deals(deals_db)
-                    st.success("신청되었습니다.")
-                    st.rerun()
-                else:
-                    st.warning("정보를 입력하세요.")
-        st.markdown("<hr>", unsafe_allow_html=True)
-        
+                    with cols[j]:
+                        st.markdown(f"""
+                        <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:12px; padding:18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:4px;">{dday}</span>
+                                <span style="font-size:0.8rem; color:#64748B;">목표 {deal['target']}개</span>
+                            </div>
+                            <h4 style="margin:10px 0 6px 0; color:#0F172A; font-size:1.02rem;">{deal['title']}</h4>
+                            <div style="font-size:1.1rem; font-weight:800; color:#2563EB;">{deal['price']}</div>
+                            <div style="font-size:0.85rem; color:#475569; margin:6px 0 10px 0;">신청: <b>{len(deal['participants'])}명</b> 참여 (총 {tot_qty}개 달성)</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.progress(min(tot_qty / deal["target"], 1.0))
+
+                        # CSV 다운로드 및 삭제 제어
+                        c_act1, c_act2 = st.columns(2)
+                        with c_act1:
+                            if len(deal["participants"]) > 0:
+                                df_parts = pd.DataFrame(deal["participants"])
+                                df_parts.columns = ["성함/상호", "연락처", "신청수량", "신청일시"]
+                                csv_file = df_parts.to_csv(index=False, encoding="utf-8-sig")
+                                st.download_button(
+                                    label=f"명단 CSV 저장",
+                                    data=csv_file,
+                                    file_name=f"공구명단_{deal['id']}.csv",
+                                    mime="text/csv",
+                                    key=f"csv_dl_{deal['id']}",
+                                    use_container_width=True
+                                )
+                        with c_act2:
+                            if user_key == "admin" or is_closed:
+                                if st.button("공구 삭제", key=f"del_d_{deal['id']}", use_container_width=True):
+                                    deals_to_del.append(deal["id"])
+
+                        # 간결한 참여 아코디언 폼
+                        with st.expander(f"공구 참여하기 ({deal['title'][:12]}...)", expanded=False):
+                            with st.form(key=f"join_form_{deal['id']}"):
+                                p_n = st.text_input("성함 또는 상호", key=f"p_n_{deal['id']}")
+                                p_p = st.text_input("연락처", key=f"p_p_{deal['id']}")
+                                p_q = st.number_input("수량", min_value=1, max_value=100, value=1, step=1, key=f"p_q_{deal['id']}")
+                                if st.form_submit_button("신청 확정", use_container_width=True):
+                                    if p_n and p_p:
+                                        deal["participants"].append({"name": p_n, "phone": p_p, "qty": int(p_q), "time": datetime.now().strftime("%Y-%m-%d %H:%M")})
+                                        save_deals(deals_db)
+                                        st.success("참여 완료!")
+                                        st.rerun()
+                                    else:
+                                        st.warning("정보를 입력하세요.")
+
     if deals_to_del:
         deals_db["deals"] = [d for d in deals_db["deals"] if d["id"] not in deals_to_del]
         save_deals(deals_db)
@@ -602,7 +629,7 @@ with deal_tab1:
 
 with deal_tab2:
     st.markdown("""
-    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px;">
+    <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:18px;">
         <h4 style="margin:0; color:#0F172A;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
         <p style="color:#475569; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
     </div>
@@ -632,12 +659,13 @@ with deal_tab3:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 4. 엔터프라이즈 PRO 마케팅 스튜디오 (대폭 강화)
+# [FLOOR 3] 엔터프라이즈 PRO 마케팅 스튜디오 (독립 층)
 # ==========================================
 st.markdown("""
-<div class="feed-card">
-    <div class="feed-title">엔터프라이즈 마케팅 스튜디오 & AI 리뷰 허브</div>
-    <div class="feed-subtitle">네이버 알고리즘 대응 SEO 원고, 바이럴 소식, 감성 피드 및 전문 리뷰 답글 솔루션</div>
+<div class="floor-container">
+    <span class="floor-badge">SECTION 03</span>
+    <div class="floor-title">엔터프라이즈 마케팅 스튜디오 & AI 리뷰 허브</div>
+    <div class="floor-sub">네이버 알고리즘 대응 SEO 원고, 바이럴 소식, 감성 피드 및 전문 리뷰 답글 솔루션</div>
 """, unsafe_allow_html=True)
 
 mkt_tab1, mkt_tab2, mkt_tab3, mkt_tab4, mkt_tab5 = st.tabs([
@@ -804,12 +832,13 @@ with mkt_tab5:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 5. 행정서류 및 2026 정책지원 (화이트톤 통일)
+# [FLOOR 4] 행정서류 & 2026 정책지원 분석 (독립 층)
 # ==========================================
 st.markdown("""
-<div class="feed-card">
-    <div class="feed-title">정책자금 필수 행정 서식 & 2026 국비 지원 분석</div>
-    <div class="feed-subtitle">소상공인확인서, 부가세증명 등 4대 필수 서류 및 맞춤형 정책 진단</div>
+<div class="floor-container">
+    <span class="floor-badge">SECTION 04</span>
+    <div class="floor-title">정책자금 필수 행정 서식 & 2026 국비 지원 분석</div>
+    <div class="floor-sub">소상공인확인서, 부가세증명 등 4대 필수 서류 및 맞춤형 정책 진단</div>
 """, unsafe_allow_html=True)
 
 gov_tab1, gov_tab2 = st.tabs(["4대 필수 서류 발급 가이드", "2026 정책금융 AI 진단"])
@@ -823,38 +852,43 @@ with gov_tab1:
     | **국세 완납증명서 (납세증명)** | 국세청 홈택스 | 세금 체납 여부 확인 (미납 시 정책 지원 전면 제한) | 무료 | 즉시 (온라인) |
     | **지방세 완납증명서** | 정부24 / 주민센터 | 지방세(재산세, 주민세 등) 체납 여부 확인 | 무료 | 즉시 (온라인) |
     """)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("##### 서류별 공식 발급 포털 원클릭 이동")
+    
+    # 클릭창 시인성 개선 완료 (보이는 버튼 스타일)
     col_g1, col_g2 = st.columns(2)
     with col_g1:
-        st.link_button("중소기업현황정보시스템 바로가기", "https://sminfo.mss.go.kr", use_container_width=True)
-        st.link_button("국세청 홈택스 바로가기", "https://www.hometax.go.kr", use_container_width=True)
+        st.link_button("중소기업현황정보시스템 (소상공인확인서)", "https://sminfo.mss.go.kr", use_container_width=True)
+        st.link_button("국세청 홈택스 (부가세/국세완납)", "https://www.hometax.go.kr", use_container_width=True)
     with col_g2:
-        st.link_button("정부24 바로가기", "https://www.gov.kr", use_container_width=True)
-        st.link_button("소상공인정책자금 포털 바로가기", "https://ols.semas.or.kr", use_container_width=True)
+        st.link_button("정부24 (지방세 완납증명)", "https://www.gov.kr", use_container_width=True)
+        st.link_button("소상공인정책자금 포털", "https://ols.semas.or.kr", use_container_width=True)
 
 with gov_tab2:
     st.markdown("""
-    <div class="policy-grid">
-        <div class="policy-box">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-top:10px;">
+        <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
             <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">비용 절감</span>
             <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
             <div style="font-size:0.85rem; color:#475569;">사업장당 최대 20~25만 원 전기료 감면</div>
-            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:10px;">
+            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
                 <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
             </a>
         </div>
-        <div class="policy-box">
+        <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
             <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">이자 경감</span>
             <div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
             <div style="font-size:0.85rem; color:#475569;">7% 이상 고금리 대출을 4%대로 전환</div>
-            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:10px;">
+            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
                 <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
             </a>
         </div>
-        <div class="policy-box">
+        <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:16px;">
             <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">매장 인프라</span>
             <div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
             <div style="font-size:0.85rem; color:#475569;">키오스크/테이블오더 최대 70% 보조</div>
-            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:10px;">
+            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:10px; display:inline-block; width:100%;">
                 <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
             </a>
         </div>
@@ -870,17 +904,18 @@ with gov_tab2:
     if st.button("내 매장 맞춤 정책자금 AI 진단 실행", key="feed_aid_btn", use_container_width=True):
         with st.spinner("정책 데이터 매칭 중..."):
             out = generate_safe_content(f"업종: {sel_industry}\n매출: {rev_scale}\n목적: {aid_purp}\n가장 적합한 정부 정책 2종과 구체적 신청 요건을 공문서 리포트로 작성.")
-            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
+            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 6. 급여 계산, 영업 마감, 매장 음악
+# [FLOOR 5] 급여 계산, 영업 마감, 매장 음악 (독립 층)
 # ==========================================
 st.markdown("""
-<div class="feed-card">
-    <div class="feed-title">경영 관리: 급여 산출, 영업 마감, 매장 음악</div>
-    <div class="feed-subtitle">아르바이트 주휴수당 자동 계산 및 일일 결산 플래너</div>
+<div class="floor-container">
+    <span class="floor-badge">SECTION 05</span>
+    <div class="floor-title">경영 관리: 급여 산출, 영업 마감, 매장 음악</div>
+    <div class="floor-sub">아르바이트 주휴수당 자동 계산 및 일일 결산 플래너</div>
 """, unsafe_allow_html=True)
 
 fin_tab1, fin_tab2, fin_tab3 = st.tabs(["알바 급여 계산기", "일일 영업 결산 리포트", "매장 시간대별 음악"])
@@ -898,7 +933,7 @@ with fin_tab1:
     ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
     net = tot - ded
     st.markdown(f"""
-    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:16px; margin-top:8px;">
+    <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:8px; padding:16px; margin-top:8px;">
         <div style="font-size:0.86rem; color:#64748B;">기본급: {int(base):,}원 | 주휴수당: {int(holiday):,}원 (원천공제: {int(ded):,}원)</div>
         <div style="font-size:1.25rem; font-weight:800; color:#0F172A; margin-top:2px;">예상 실지급액: {int(net):,}원</div>
     </div>
@@ -915,7 +950,7 @@ with fin_tab2:
     if st.button("일일 경영 결산 리포트 생성", key="feed_close_btn_box", use_container_width=True):
         with st.spinner("경영 데이터 종합 분석 중..."):
             out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3선, 퇴근길 멘탈 리셋 조언 작성.")
-            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
+            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #CBD5E1; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 with fin_tab3:
     col_m1, col_m2 = st.columns(2)

@@ -107,7 +107,7 @@ def save_deals(data):
         pass
 
 # ==========================================
-# 📊 [방문자 통계 엔진 - 관리자 전용]
+# 📊 방문자 통계 엔진
 # ==========================================
 def load_analytics():
     if os.path.exists(ANALYTICS_DB_FILE):
@@ -128,16 +128,12 @@ def save_analytics(data):
 def track_visitor():
     analytics = load_analytics()
     today_str = datetime.now().strftime("%Y-%m-%d")
-    
     if today_str not in analytics:
         analytics[today_str] = {"uv": 0, "pv": 0}
-        
     analytics[today_str]["pv"] += 1
-    
     if "has_visited_today" not in st.session_state:
         st.session_state.has_visited_today = True
         analytics[today_str]["uv"] += 1
-        
     save_analytics(analytics)
 
 track_visitor()
@@ -201,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 [모바일 퍼스트 반응형 CSS]
+# 📱 모바일 최적화 CSS
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -214,9 +210,7 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
     
-    .stApp, html, body { 
-        background-color: #FFFFFF !important; 
-    }
+    .stApp, html, body { background-color: #FFFFFF !important; }
 
     .block-container {
         padding-top: 1.2rem !important;
@@ -238,9 +232,7 @@ st.markdown("""
         border-bottom: 2px solid #F1F5F9 !important;
         scrollbar-width: none;
     }
-    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
-        display: none;
-    }
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar { display: none; }
     .stTabs [data-baseweb="tab"] {
         height: 42px !important;
         font-size: 0.95rem !important;
@@ -306,15 +298,12 @@ st.markdown("""
         justify-content: space-between;
     }
 
-    .sound-station-card {
-        background: #FFFFFF;
+    /* 🎧 음악 스튜디오 전용 모바일 믹서 카드 */
+    .audio-mixer-card {
+        background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-radius: 12px;
         padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
         margin-bottom: 12px;
     }
 
@@ -345,9 +334,7 @@ st.markdown("""
         width: 100% !important;
     }
 
-    input, textarea, select {
-        font-size: 16px !important;
-    }
+    input, textarea, select { font-size: 16px !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -455,32 +442,21 @@ with st.sidebar:
             save_users(users_db)
             st.rerun()
 
-    # 🔒 [관리자 전용 구역: 일일 방문자수 및 누적 지표 현황]
     if user_key == "admin":
         st.markdown("---")
-        st.markdown("##### 📊 관리자 전용: 방문자 통계")
+        st.markdown("##### 📊 관리자: 방문 통계")
         analytics_data = load_analytics()
         today_key = datetime.now().strftime("%Y-%m-%d")
         today_stat = analytics_data.get(today_key, {"uv": 0, "pv": 0})
-        
         total_uv = sum([v.get("uv", 0) for v in analytics_data.values()])
         total_pv = sum([v.get("pv", 0) for v in analytics_data.values()])
         
         col_m1, col_m2 = st.columns(2)
         with col_m1:
-            st.metric("오늘 방문자 (UV)", f"{today_stat['uv']}명")
+            st.metric("오늘 방문자", f"{today_stat['uv']}명")
         with col_m2:
-            st.metric("오늘 조회수 (PV)", f"{today_stat['pv']}회")
-            
+            st.metric("오늘 조회수", f"{today_stat['pv']}회")
         st.caption(f"누적 순방문: {total_uv}명 | 누적 페이지뷰: {total_pv}회")
-        
-        with st.expander("일자별 방문 기록 조회", expanded=False):
-            if analytics_data:
-                df_analytics = pd.DataFrame([
-                    {"날짜": k, "방문자수(UV)": v.get("uv", 0), "페이지뷰(PV)": v.get("pv", 0)}
-                    for k, v in sorted(analytics_data.items(), reverse=True)
-                ])
-                st.dataframe(df_analytics, use_container_width=True)
 
         st.markdown("---")
         st.markdown("##### 회원 권한 제어")
@@ -562,9 +538,8 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 1. ☀️ 실시간 날씨 카드
+    # 1. 실시간 날씨
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
-    
     weather_html = f"""<div class="weather-box">
 <div style="display:flex; align-items:center; gap:14px;">
 <div>{weather_info['icon']}</div>
@@ -613,7 +588,7 @@ with tab_home:
 
     st.link_button("네이버 플레이스 지도 연동 확인", naver_url, use_container_width=True)
 
-    # 3. 📢 이웃 매장 특가 공유 피드
+    # 3. 이웃 매장 실시간 특가 피드
     st.markdown("""<div style="margin:20px 0 8px 0;">
 <div style="font-size:1.1rem; font-weight:900; color:#0F172A;">용인친구들 실시간 상생 특가 피드</div>
 <div style="font-size:0.82rem; color:#64748B;">실제 특가를 진행 중인 이웃 제휴 매장의 혜택입니다.</div>
@@ -631,7 +606,6 @@ with tab_home:
         o_name = u_info.get("store_name", u_id)
         o_addr = u_info.get("map_address", u_info.get("location", ""))
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
-        o_upd = u_info.get("today_updated", "")
         o_nav_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(o_addr)}"
         
         feed_card_html = f"""<div class="simple-card">
@@ -653,7 +627,7 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
-    # 4. 진행 중인 공동구매 요약
+    # 4. 진행 중인 공동구매
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -855,7 +829,7 @@ with tab_deals:
                 with st.form(key=f"join_form_{deal['id']}"):
                     j_name = st.text_input("성함 또는 상호", key=f"j_n_{deal['id']}")
                     j_phone = st.text_input("연락처", key=f"j_p_{deal['id']}")
-                    j_qty = st.number_input("수량", min_value=1, max_value=100, value=1, step=1, key=f"j_q_{deal['id']}")
+                    j_qty = st.number_input("신청 수량", min_value=1, max_value=100, value=1, step=1, key=f"j_q_{deal['id']}")
                     if st.form_submit_button("참여 확정하기", use_container_width=True):
                         if j_name and j_phone:
                             deal["participants"].append({"name": j_name, "phone": j_phone, "qty": int(j_qty), "time": datetime.now().strftime("%Y-%m-%d %H:%M")})
@@ -902,35 +876,106 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 5. 🎧 음악 스튜디오
+# TAB 5. 🎧 음악 스튜디오 (전면 고도화: 인앱 플레이어 & 프리셋)
 # ------------------------------------------
 with tab_music:
     st.markdown("""<div class="simple-card">
-<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:2px;">매장 사운드 스테이션</div>
-<div style="font-size:0.82rem; color:#64748B;">원클릭 스트리밍 음악 큐레이션</div>
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:2px;">매장 전용 음악 큐레이션 스튜디오</div>
+<div style="font-size:0.82rem; color:#64748B;">영업 시간대와 업종 분위기에 맞춰 바로 재생할 수 있는 오디오 스테이션입니다.</div>
 </div>""", unsafe_allow_html=True)
 
+    # 1. 4대 실시간 시간대별 프리셋
     music_presets = [
-        {"slot": "오전 오픈 준비 (09:00~11:30)", "vibe": "경쾌한 보사노바", "query": "재즈 보사노바 오전 매장 음악 연속재생", "tag": "모닝"},
-        {"slot": "점심 / 피크 (11:30~14:00)", "vibe": "생동감 어쿠스틱 팝", "query": "어쿠스틱 팝 피크타임 매장 음악 연속재생", "tag": "피크"},
-        {"slot": "나른한 오후 (14:00~17:30)", "vibe": "편안한 감성 피아노", "query": "2000년대 감성 발라드 피아노 연주곡 연속재생", "tag": "힐링"},
-        {"slot": "저녁 & 마감 (17:30~21:00)", "vibe": "고급 라운지 재즈", "query": "세련된 카페 라운지 재즈 음악 연속재생", "tag": "마감"}
+        {
+            "slot": "오전 오픈 준비 (09:00~11:30)", 
+            "vibe": "경쾌한 모닝 보사노바 & 어쿠스틱", 
+            "query": "재즈 보사노바 오전 매장 음악 연속재생", 
+            "tag": "모닝 스타트",
+            "yt_embed": "https://www.youtube.com/embed/5qap5aO4i9A"
+        },
+        {
+            "slot": "점심 / 피크 (11:30~14:00)", 
+            "vibe": "생동감 넘치는 칠 팝 & 라운지", 
+            "query": "어쿠스틱 팝 피크타임 매장 음악 연속재생", 
+            "tag": "피크 활력",
+            "yt_embed": "https://www.youtube.com/embed/jfKfPfyJRdk"
+        },
+        {
+            "slot": "나른한 오후 (14:00~17:30)", 
+            "vibe": "편안한 감성 발라드 피아노 커버", 
+            "query": "2000년대 감성 발라드 피아노 연주곡 연속재생", 
+            "tag": "힐링 케어",
+            "yt_embed": "https://www.youtube.com/embed/DWcJFNfaw9c"
+        },
+        {
+            "slot": "저녁 & 마감 (17:30~21:00)", 
+            "vibe": "고급스럽고 아늑한 라운지 재즈", 
+            "query": "세련된 카페 라운지 재즈 음악 연속재생", 
+            "tag": "이브닝 마감",
+            "yt_embed": "https://www.youtube.com/embed/Dx5qFachd3A"
+        }
     ]
+
+    st.markdown("##### 1. 시간대별 원클릭 스테이션")
+    if "current_stream_embed" not in st.session_state:
+        st.session_state.current_stream_embed = music_presets[0]["yt_embed"]
+        st.session_state.current_stream_title = music_presets[0]["vibe"]
 
     for idx, preset in enumerate(music_presets):
         p_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(preset['query'])}"
-        st.markdown(f"""<div class="sound-station-card">
-<div style="display:flex; justify-content:space-between; align-items:center;">
-<span style="font-size:0.72rem; font-weight:700; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">{preset['tag']}</span>
-<span style="font-size:0.95rem; font-weight:800; color:#0F172A;">{preset['vibe']}</span>
+        
+        st.markdown(f"""<div class="audio-mixer-card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+<span style="font-size:0.75rem; font-weight:800; color:#2563EB; background:#EFF6FF; padding:2px 6px; border-radius:4px;">{preset['tag']}</span>
+<span style="font-size:0.8rem; color:#64748B;">{preset['slot']}</span>
 </div>
-<div style="font-size:0.8rem; color:#64748B; margin:4px 0 10px 0;">{preset['slot']}</div>
-<a href="{p_url}" target="_blank" style="text-decoration:none;">
-<button style="width:100%; height:42px; background:#0F172A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer;">
-유튜브 즉시 재생
-</button>
-</a>
+<div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-bottom:10px;">{preset['vibe']}</div>
 </div>""", unsafe_allow_html=True)
+        
+        col_m_btn1, col_m_btn2 = st.columns(2)
+        with col_m_btn1:
+            if st.button(f"앱 내 플레이어 연결", key=f"btn_embed_play_{idx}", use_container_width=True):
+                st.session_state.current_stream_embed = preset["yt_embed"]
+                st.session_state.current_stream_title = preset["vibe"]
+                st.toast(f"선택됨: {preset['vibe']}")
+        with col_m_btn2:
+            st.link_button("유튜브 앱으로 열기", p_url, use_container_width=True)
+
+    # 2. 앱 내 스트리밍 플레이어 콘솔
+    st.markdown("---")
+    st.markdown(f"##### 2. 실시간 매장 오디오 플레이어 : `{st.session_state.current_stream_title}`")
+    st.components.v1.iframe(st.session_state.current_stream_embed, height=220, scrolling=False)
+    st.caption("휴대폰 화면을 켜둔 채 백그라운드로 매장 블루투스 스피커에 연결해 사용하세요.")
+
+    # 3. 원하는 장르/무드 맞춤 검색 조율기
+    st.markdown("---")
+    st.markdown("##### 3. 장르 & 분위기 맞춤 검색 조율기")
+    with st.container():
+        st.markdown("""<div class="simple-card">
+<div style="font-size:0.88rem; color:#475569; margin-bottom:8px;">원하는 분위기를 선택하면 유튜브 스트리밍 채널을 즉시 찾아줍니다.</div>""", unsafe_allow_html=True)
+        m_time_custom = st.selectbox("원하는 분위기/상황", [
+            "오전 오픈 (경쾌하고 맑은 분위기)",
+            "피크타임 (활력 넘치는 템포)",
+            "오후 상담/시술 집중 (편안한 힐링)",
+            "비 오는 날 (센티멘털 감성 어쿠스틱)",
+            "저녁 감성 (우아한 라운지 재즈)",
+            "영업 마감 (차분한 피아노 연주)"
+        ], key="tab_m_time_cust")
+        m_style_custom = st.selectbox("선호 장르", [
+            "재즈 / 보사노바 (클래식 매장)",
+            "어쿠스틱 팝 & 인디 감성 보컬",
+            "2000년대 감성 발라드 피아노 커버",
+            "세련된 Lo-Fi 칠(Chill) 비트",
+            "90-2000 국민 애창 댄스 (식당/펍)",
+            "최신 트로트 명곡 메들리"
+        ], key="tab_m_style_cust")
+        
+        yt_custom_q = f"{m_style_custom.split('/')[0].strip()} {m_time_custom.split('(')[0].strip()} 플레이리스트 연속재생"
+        custom_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_custom_q)}"
+        
+        st.markdown(f"<div style='font-size:0.82rem; color:#64748B; margin:6px 0 10px 0;'>선택된 큐레이션: <b>{yt_custom_q}</b></div>", unsafe_allow_html=True)
+        st.link_button(f"유튜브 '{m_style_custom.split('/')[0].strip()}' 스트리밍 열기", custom_music_url, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
 # TAB 6. 🌙 영업 마감

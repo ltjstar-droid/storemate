@@ -33,7 +33,6 @@ BACKEND_GEMINI_API_KEY = get_secret_key()
 
 USER_DB_FILE = "users_db.json"
 DEALS_DB_FILE = "deals_db.json"
-CUSTOMERS_DB_FILE = "customers_db.json"
 
 def load_users():
     if os.path.exists(USER_DB_FILE):
@@ -105,34 +104,15 @@ def save_deals(data):
     except Exception:
         pass
 
-def load_customers():
-    if os.path.exists(CUSTOMERS_DB_FILE):
-        try:
-            with open(CUSTOMERS_DB_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return [
-        {"phone_last": "1234", "name": "김민수", "visits": 3, "points": 3000, "memo": "변색렌즈 상담"},
-        {"phone_last": "5678", "name": "이지영", "visits": 5, "points": 5000, "memo": "아큐브 렌즈 정기고객"}
-    ]
-
-def save_customers(data):
-    try:
-        with open(CUSTOMERS_DB_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
-
 st.set_page_config(
-    page_title="STORE MATE | 캐시노트형 매장비서",
+    page_title="STORE MATE | 올인원 비즈니스 플랫폼",
     page_icon="M",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ==========================================
-# 🎨 [캐시노트 스타일 모바일 피드 CSS]
+# 🎨 [순백색 화이트 & 프리미엄 B2B 테마 CSS]
 # ==========================================
 st.markdown("""
 <meta name="color-scheme" content="only light">
@@ -141,29 +121,45 @@ st.markdown("""
     :root { color-scheme: light only !important; }
     html, body, [class*="css"], .stMarkdown, .stText, p, span, label, input, button, a {
         font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
-        letter-spacing: -0.025em;
+        letter-spacing: -0.02em;
     }
-    .stApp { background-color: #F3F4F6 !important; }
+    
+    /* 1. 바탕 화면을 완벽한 순백색으로 통일 */
+    .stApp, html, body { 
+        background-color: #FFFFFF !important; 
+    }
 
-    /* 캐시노트 상단 앱 헤더 */
-    .cashnote-header {
+    /* 2. 모든 입력창 화이트 및 가독성 최적화 */
+    input, textarea, select, 
+    div[data-baseweb="select"] > div, 
+    div[data-baseweb="base-input"] > input,
+    input:focus, textarea:focus, select:focus {
+        color: #0F172A !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        -webkit-text-fill-color: #0F172A !important;
+        font-size: 0.92rem !important;
+    }
+
+    /* 상단 앱 헤더 */
+    .store-header {
         background: #FFFFFF;
         padding: 16px 20px;
-        border-radius: 16px;
+        border-radius: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 12px;
-        border: 1px solid #E5E7EB;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid #E2E8F0;
     }
     .store-brand-title {
         font-size: 1.25rem;
         font-weight: 800;
-        color: #111827;
+        color: #0F172A;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
     }
     .store-plan-pill {
         font-size: 0.72rem;
@@ -171,69 +167,26 @@ st.markdown("""
         background: #EFF6FF;
         color: #2563EB;
         padding: 3px 8px;
-        border-radius: 12px;
+        border-radius: 6px;
     }
 
-    /* 알림 배너 */
+    /* 상단 브리핑 배너 */
     .alert-banner {
-        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        background: #0F172A;
         color: #FFFFFF;
-        border-radius: 14px;
-        padding: 14px 18px;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
     }
     .alert-banner * { color: #FFFFFF !important; }
 
-    /* 캐시노트 5대 퀵 액션 그리드 */
-    .quick-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-    .quick-btn {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 12px 6px;
-        text-align: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #374151;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-    }
-
-    /* 캐시노트 피드 카드 */
-    .feed-card {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .feed-title {
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: #111827;
-        margin-bottom: 4px;
-    }
-    .feed-subtitle {
-        font-size: 0.85rem;
-        color: #6B7280;
-        margin-bottom: 14px;
-    }
-
-    /* SNS 채널 도크 바 */
+    /* 소셜 채널 도크 */
     .sns-channel-bar {
         background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 10px 14px;
-        margin-bottom: 16px;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 10px 16px;
+        margin-bottom: 18px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -245,7 +198,7 @@ st.markdown("""
         align-items: center;
         padding: 6px 12px;
         border-radius: 6px;
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-decoration: none !important;
     }
@@ -253,7 +206,27 @@ st.markdown("""
     .btn-insta { background: #E1306C; color: #FFFFFF !important; }
     .btn-threads { background: #111827; color: #FFFFFF !important; }
 
-    /* 정책지원 카드 */
+    /* 모든 카드 컨테이너 화이트 통일 */
+    .feed-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 18px;
+    }
+    .feed-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #0F172A;
+        margin-bottom: 4px;
+    }
+    .feed-subtitle {
+        font-size: 0.86rem;
+        color: #64748B;
+        margin-bottom: 16px;
+    }
+
+    /* 정책지원 카드 (화이트톤 적용) */
     .policy-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -261,25 +234,56 @@ st.markdown("""
         margin-top: 10px;
     }
     .policy-box {
-        background: #F9FAFB;
-        border: 1px solid #E5E7EB;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
         border-radius: 10px;
-        padding: 14px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
-    /* 공통 버튼 */
+    /* 탭 스타일 */
+    .stTabs [data-baseweb="tab-list"] {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 6px !important;
+        background: #F8FAFC !important;
+        padding: 6px !important;
+        border-radius: 10px !important;
+        border: 1px solid #E2E8F0 !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 38px !important;
+        border-radius: 6px !important;
+        font-size: 0.86rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 14px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #FFFFFF !important;
+        color: #2563EB !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    /* 버튼 스타일 */
     .stButton>button {
-        height: 2.8rem !important;
-        font-size: 0.92rem !important;
+        height: 3rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
         border-radius: 8px !important;
         background: #2563EB !important;
         color: #FFFFFF !important;
         border: none !important;
     }
+    .stButton>button:hover { background: #1D4ED8 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -300,19 +304,21 @@ INDUSTRY_LIST = [
 
 users_db = load_users()
 deals_db = load_deals()
-customers_db = load_customers()
 
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
+
+if "show_deal_edit" not in st.session_state:
+    st.session_state.show_deal_edit = False
 
 # ==========================================
 # 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""
-    <div style="max-width: 420px; margin: 50px auto 20px auto; text-align: center;">
-        <h2 style="font-size: 1.7rem; font-weight: 900; color: #111827; margin: 0 0 6px 0;">STORE MATE</h2>
-        <p style="font-size: 0.92rem; color: #6B7280;">캐시노트형 소상공인 올인원 경영 솔루션</p>
+    <div style="max-width: 420px; margin: 60px auto 20px auto; text-align: center;">
+        <h2 style="font-size: 1.75rem; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">STORE MATE</h2>
+        <p style="font-size: 0.92rem; color: #64748B;">소상공인을 위한 프리미엄 매장 운영 솔루션</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -412,8 +418,8 @@ client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
-너는 국내 최상위 소상공인 경영 및 로컬 마케팅 수석 디렉터다.
-이모티콘 남발은 철저히 배제하고, 캐시노트나 토스처럼 정갈하고 전문적인 비즈니스 포맷으로 실무 원고와 데이터를 제공한다.
+너는 상위 1% 로컬 비즈니스 경영 및 엔터프라이즈 마케팅 수석 디렉터다.
+이모티콘을 배제하고, 전문 컨설턴트처럼 정갈하고 구조화된 데이터와 전략 중심의 실무 완성본을 제공한다.
 """
 
 def generate_safe_content(prompt):
@@ -431,37 +437,33 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 1. 캐시노트 스타일 앱 상단 헤더 & 알림
+# 1. 상단 헤더 & 브리핑
 # ==========================================
 st.markdown(f"""
-<div class="cashnote-header">
+<div class="store-header">
     <div class="store-brand-title">
-        {store_name} ▾ <span class="store-plan-pill">{'PRO' if is_pro_user else 'FREE'}</span>
+        {store_name} <span class="store-plan-pill">{'PRO 파트너' if is_pro_user else '스탠다드'}</span>
     </div>
-    <div style="font-size: 0.85rem; color: #4B5563; font-weight: 600;">
-        {sel_loc.split()[1] if len(sel_loc.split())>1 else '용인'}
+    <div style="font-size: 0.88rem; color: #475569; font-weight: 600;">
+        {sel_loc}
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# 💡 [신규 기능 1] 출근길 1분 날씨 & 요일 마케팅 알림 브리핑
-st.markdown(f"""
+st.markdown("""
 <div class="alert-banner">
-    <div>
-        <div style="font-size:0.75rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">TODAY's BRIEFING</div>
-        <div style="font-size:0.95rem; font-weight:700; margin-top:2px;">
-            오늘 목요일, 기온 변화에 맞춰 단골 안부 문자와 번개 특가를 활성화하세요.
-        </div>
+    <div style="font-size:0.75rem; color:#94A3B8; font-weight:700; text-transform:uppercase;">TODAY'S BUSINESS BRIEFING</div>
+    <div style="font-size:1rem; font-weight:700; margin-top:3px;">
+        매장 방문 고객 유입을 위한 오늘의 번개 특가와 맞춤형 로컬 마케팅이 준비되어 있습니다.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# 소셜 미디어 도크 바
 st.markdown("""
 <div class="sns-channel-bar">
-    <div style="font-size:0.85rem; font-weight:700; color:#374151;">용인친구들 공식 채널</div>
+    <div style="font-size:0.86rem; font-weight:700; color:#334155;">용인친구들 공식 채널 바로가기</div>
     <div>
-        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" class="btn-channel btn-fb">페이스북</a>
+        <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" class="btn-channel btn-fb">페이스북 그룹</a>
         <a href="https://www.instagram.com/" target="_blank" class="btn-channel btn-insta">인스타그램</a>
         <a href="https://www.threads.net/" target="_blank" class="btn-channel btn-threads">스레드</a>
     </div>
@@ -469,7 +471,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 메인 피드 섹션 1: 상생아지트 & 데일리 특가 카드
+# 2. 상생아지트 & 번개 특가 (버그 해결 완료)
 # ==========================================
 my_saved_addr = curr_user.get("map_address", sel_loc)
 my_perk = curr_user.get("map_perk", "용친 회원 방문 시 특별 혜택 제공")
@@ -481,44 +483,55 @@ st.markdown(f"""
 <div class="feed-card">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <div class="feed-title">오늘의 상생아지트 & 번개 특가</div>
-        <span style="font-size:0.75rem; color:#6B7280;">갱신: {my_deal_updated}</span>
+        <span style="font-size:0.78rem; color:#64748B;">최근 갱신: {my_deal_updated}</span>
     </div>
     <div class="feed-subtitle">{my_saved_addr}</div>
-    <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:10px; padding:12px 14px; margin-bottom:12px;">
-        <div style="font-size:0.75rem; font-weight:700; color:#B45309; text-transform:uppercase;">TODAY'S SPECIAL</div>
-        <div style="font-size:1.05rem; font-weight:800; color:#92400E; margin-top:2px;">{my_today_deal}</div>
+    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+        <div style="font-size:0.75rem; font-weight:700; color:#2563EB; text-transform:uppercase;">TODAY'S SPECIAL</div>
+        <div style="font-size:1.05rem; font-weight:800; color:#0F172A; margin-top:2px;">{my_today_deal}</div>
     </div>
-    <div style="font-size:0.88rem; color:#4B5563; margin-bottom:12px;"><b>상시 제휴 혜택:</b> {my_perk}</div>
+    <div style="font-size:0.9rem; color:#475569; margin-bottom:14px;"><b>상시 회원 혜택:</b> {my_perk}</div>
     <a href="{naver_url}" target="_blank" style="text-decoration:none;">
-        <button style="width:100%; height:38px; background:#03C75A; color:#FFFFFF; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+        <button style="width:100%; height:40px; background:#03C75A; color:#FFFFFF; border:none; border-radius:6px; font-weight:700; cursor:pointer;">
             네이버 플레이스 지도 연동 확인
         </button>
     </a>
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("오늘의 번개 특가 / 혜택 직접 변경하기", expanded=False):
+# 오류 발생하던 expander를 깔끔한 토글 버튼과 카드 폼으로 전면 교체
+c_btn1, c_btn2 = st.columns([1, 4])
+with c_btn1:
+    if st.button("특가/혜택 편집", use_container_width=True):
+        st.session_state.show_deal_edit = not st.session_state.show_deal_edit
+
+if st.session_state.show_deal_edit:
+    st.markdown("""
+    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:16px;">
+        <div style="font-size:0.9rem; font-weight:700; color:#0F172A; margin-bottom:10px;">오늘의 특가 및 상시 혜택 수정</div>
+    """, unsafe_allow_html=True)
     col_ed1, col_ed2 = st.columns(2)
     with col_ed1:
-        new_today_deal = st.text_input("오늘의 특가 품목", value=my_today_deal, key="feed_td_deal")
+        new_today_deal = st.text_input("오늘의 특가 품목", value=my_today_deal, key="edit_td_deal_box")
     with col_ed2:
-        new_perk = st.text_input("기본 상시 혜택", value=my_perk, key="feed_td_perk")
-    if st.button("특가 및 혜택 즉시 반영", key="btn_feed_save_deal", use_container_width=True):
+        new_perk = st.text_input("기본 상시 혜택", value=my_perk, key="edit_td_perk_box")
+    if st.button("수정 내용 즉시 저장", key="btn_save_deal_box", use_container_width=True):
         users_db[user_key]["today_deal"] = new_today_deal
         users_db[user_key]["map_perk"] = new_perk
         users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
         save_users(users_db)
-        st.success("실시간 매장 혜택이 업데이트되었습니다.")
+        st.session_state.show_deal_edit = False
+        st.success("매장 혜택 정보가 업데이트되었습니다.")
         st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 3. 메인 피드 섹션 2: 실시간 로컬 공동구매 허브
+# 3. 실시간 공동구매 센터
 # ==========================================
 st.markdown("""
 <div class="feed-card">
     <div class="feed-title">실시간 로컬 공동구매 센터</div>
-    <div class="feed-subtitle">소상공인 핫딜 및 사업장 소모품 도매 공동 발주</div>
-</div>
+    <div class="feed-subtitle">소상공인 상생 핫딜 및 매장 소모품 도매 공동 발주</div>
 """, unsafe_allow_html=True)
 
 deal_tab1, deal_tab2, deal_tab3 = st.tabs(["진행 중인 핫딜", "소모품 도매 발주", "신규 공구 제안"])
@@ -539,11 +552,11 @@ with deal_tab1:
         is_closed = (dday == "마감")
         
         st.markdown(f"""
-        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:12px; padding:16px; margin-bottom:12px;">
-            <span style="background:{'#6B7280' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday}</span>
-            <h4 style="margin:8px 0; color:#111827;">{deal['title']}</h4>
-            <div style="font-size:1rem; font-weight:800; color:#2563EB;">{deal['price']}</div>
-            <div style="font-size:0.85rem; color:#6B7280; margin-top:4px;">참여: {len(deal['participants'])}명 (누적 {tot_qty}개 / 목표 {deal['target']}개)</div>
+        <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px; margin-bottom:12px;">
+            <span style="background:{'#64748B' if is_closed else '#EF4444'}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px;">{dday}</span>
+            <h4 style="margin:8px 0; color:#0F172A;">{deal['title']}</h4>
+            <div style="font-size:1.05rem; font-weight:800; color:#2563EB;">{deal['price']}</div>
+            <div style="font-size:0.85rem; color:#64748B; margin-top:4px;">신청: {len(deal['participants'])}명 ({tot_qty}개 누적)</div>
         </div>
         """, unsafe_allow_html=True)
         st.progress(min(tot_qty / deal["target"], 1.0))
@@ -589,9 +602,9 @@ with deal_tab1:
 
 with deal_tab2:
     st.markdown("""
-    <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:12px; padding:16px;">
-        <h4 style="margin:0;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
-        <p style="color:#4B5563; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
+    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:16px;">
+        <h4 style="margin:0; color:#0F172A;">카드단말기 영수증 롤페이퍼 (50롤 1박스)</h4>
+        <p style="color:#475569; font-size:0.9rem; margin-top:6px;">시중가 38,000원 ➡️ <b>공구가 23,500원 (무료배송)</b></p>
     </div>
     """, unsafe_allow_html=True)
     if st.button("소모품 공동발주 접수", key="feed_b2b_btn", use_container_width=True):
@@ -616,107 +629,187 @@ with deal_tab3:
             st.success("공동구매 프로젝트가 개설되었습니다.")
             st.rerun()
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 # ==========================================
-# 4. 메인 피드 섹션 3: 단골 관리 간이 장부 (신규 기능 2)
+# 4. 엔터프라이즈 PRO 마케팅 스튜디오 (대폭 강화)
 # ==========================================
 st.markdown("""
 <div class="feed-card">
-    <div class="feed-title">방문 고객 포인트 & 스탬프 간이 장부</div>
-    <div class="feed-subtitle">전화번호 뒷자리 4자리로 관리하는 심플 고객 리텐션 데이터</div>
-</div>
-""", unsafe_allow_html=True)
-
-col_cust1, col_cust2 = st.columns([1.2, 1])
-with col_cust1:
-    st.dataframe(pd.DataFrame(customers_db), use_container_width=True)
-with col_cust2:
-    with st.form("add_customer_form"):
-        st.markdown("###### 신규 방문 등록 / 적립")
-        c_last = st.text_input("전화번호 뒷자리", max_chars=4, placeholder="예: 6054")
-        c_name = st.text_input("고객 성함/별칭", placeholder="예: 단골 이대표님")
-        c_memo = st.text_input("방문 메모", placeholder="예: 누진다초점 상담 완료")
-        if st.form_submit_button("방문 기록 저장", use_container_width=True):
-            if c_last:
-                found = False
-                for cust in customers_db:
-                    if cust["phone_last"] == c_last:
-                        cust["visits"] += 1
-                        cust["points"] += 1000
-                        cust["memo"] = c_memo if c_memo else cust["memo"]
-                        found = True
-                        break
-                if not found:
-                    customers_db.append({"phone_last": c_last, "name": c_name if c_name else "고객", "visits": 1, "points": 1000, "memo": c_memo})
-                save_customers(customers_db)
-                st.success(f"{c_last} 고객님 적립 완료!")
-                st.rerun()
-
-# ==========================================
-# 5. 메인 피드 섹션 4: PRO 마케팅 스튜디오 & AI 리뷰 답글기 (신규 기능 3)
-# ==========================================
-st.markdown("""
-<div class="feed-card">
-    <div class="feed-title">AI 마케팅 스튜디오 & 고객 소통 허브</div>
-    <div class="feed-subtitle">블로그, 당근마켓, 인스타, CRM 문자 및 리뷰 자동 답글 솔루션</div>
-</div>
+    <div class="feed-title">엔터프라이즈 마케팅 스튜디오 & AI 리뷰 허브</div>
+    <div class="feed-subtitle">네이버 알고리즘 대응 SEO 원고, 바이럴 소식, 감성 피드 및 전문 리뷰 답글 솔루션</div>
 """, unsafe_allow_html=True)
 
 mkt_tab1, mkt_tab2, mkt_tab3, mkt_tab4, mkt_tab5 = st.tabs([
-    "네이버 블로그", "당근마켓 소식", "인스타그램 피드", "단골 CRM 문자", "리뷰 자동 답글기"
+    "네이버 블로그 SEO", "당근마켓 바이럴", "인스타그램 스튜디오", "CRM 리텐션 문자", "AI 리뷰 대응 센터"
 ])
 
 with mkt_tab1:
-    if not is_pro_user: st.info("블로그 SEO 알고리즘 원고는 PRO 회원 전용 기능입니다.")
+    if not is_pro_user:
+        st.markdown("""
+        <div style="background:#FFFFFF; border:1px solid #FECACA; border-left:4px solid #EF4444; padding:16px; border-radius:8px;">
+            <div style="font-weight:700; color:#991B1B;">네이버 상위노출 C-Rank 알고리즘 엔진 (PRO 파트너 전용)</div>
+            <div style="font-size:0.86rem; color:#7F1D1D; margin-top:4px;">스마트블록 상위 점유를 위한 4단계 구조화 원고 설계 기능입니다.</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        bl_kw = st.text_input("메인 공략 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", key="cp_bl_kw")
-        bl_sub = st.text_input("서브 연관 검색어", value="처인구 안경, 송전리 안경점", key="cp_bl_sub")
-        if st.button("블로그 최적화 원고 생성", key="cp_bl_btn", use_container_width=True):
-            out = generate_safe_content(f"상호: {store_name}\n키워드: {bl_kw}, {bl_sub}\n강점: {sel_feature}\n네이버 플레이스 연동 블로그 원고 작성.")
-            if out: st.text_area("작성된 원고", value=out, height=320)
+        col_bl1, col_bl2 = st.columns(2)
+        with col_bl1:
+            bl_kw = st.text_input("메인 타깃 키워드", value=f"용인 {sel_industry.split('/')[0].strip()}", key="adv_bl_kw")
+            bl_sub = st.text_input("서브 연관 검색어 (쉼표 구분)", value=f"{sel_loc.split()[1] if len(sel_loc.split())>1 else ''} 안경 추천, 정밀 시력검사", key="adv_bl_sub")
+            bl_photos = st.slider("촬영 예정 사진 장수", 5, 20, 8, key="adv_bl_photo")
+        with col_bl2:
+            bl_intent = st.selectbox("공략 검색 의도", ["실제 내돈내산 단골 방문기 (체감 후기 강조)", "전문 검안 기술/장비 심층 분석 (신뢰도 중심)", "가격 대비 성능/할인 혜택 중심 가이드"], key="adv_bl_intent")
+            bl_core = st.text_area("매장 핵심 강점", value=sel_feature, height=75, key="adv_bl_core")
+
+        if st.button("네이버 상위노출 전문 원고 설계 실행", key="adv_bl_btn", use_container_width=True):
+            with st.spinner("알고리즘 가중치 분석 및 구조화 원고 생성 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장명: {store_name}
+                위치: {sel_loc}
+                메인 키워드: {bl_kw}
+                서브 키워드: {bl_sub}
+                사진 장수: {bl_photos}장
+                검색 의도: {bl_intent}
+                핵심 강점: {bl_core}
+
+                당신은 대한민국 0.1% 로컬 블로그 SEO 대행사 총괄 디렉터다.
+                이모티콘은 배제하고, 실제 네이버 스마트블록 상위에 꽂히는 정교한 구조로 작성하라.
+
+                [1] 클릭률을 장악하는 제목 3종 (검색량 최적화형, 궁금증 유발형, 솔직 후기형)
+                [2] 사진 {bl_photos}장 배치 및 앵글 지침 (본문 흐름에 맞춘 구체적 가이드)
+                [3] 본문 (공간 도입 - 전문 장비/기술 검증 - 실제 고객 혜택 - 플레이스 길찾기/예약 유도 CTA)
+                [4] 스마트블록 노출용 연관 태그 10종
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("생성된 SEO 전문 원고", value=out, height=400)
 
 with mkt_tab2:
-    if not is_pro_user: st.info("당근마켓 동네생활 바이럴은 PRO 회원 전용 기능입니다.")
+    if not is_pro_user:
+        st.info("당근마켓 동네생활 바이럴 엔진은 PRO 파트너 전용 기능입니다.")
     else:
-        dg_top = st.selectbox("소식 주제", ["첫 방문 혜택 안내", "신상품 입고", "단기 프로모션"], key="cp_dg_top")
-        if st.button("당근마켓 소식글 생성", key="cp_dg_btn", use_container_width=True):
-            out = generate_safe_content(f"상호: {store_name}\n업종: {sel_industry}\n주제: {dg_top}\n당근마켓 신뢰감 있는 동네생활 소식글 작성.")
-            if out: st.text_area("당근 소식", value=out, height=280)
+        col_dg1, col_dg2 = st.columns(2)
+        with col_dg1:
+            dg_target = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="adv_dg_target")
+            dg_promo = st.selectbox("제공 혜택", ["무상 정밀 점검 및 세척 서비스", "단독 추가 할인 바우처", "선착순 사은품 증정"], key="adv_dg_promo")
+        with col_dg2:
+            dg_context = st.text_input("상황적 훅 (계절, 날씨, 동네 이슈)", value="봄맞이 시력 점검 및 미세먼지 케어", key="adv_dg_ctx")
+            dg_cta = st.text_input("행동 유도 (CTA)", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="adv_dg_cta")
+
+        if st.button("당근마켓 바이럴 소식 생성", key="adv_dg_btn", use_container_width=True):
+            with st.spinner("로컬 이웃 공감 알고리즘 반영 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장: {store_name}
+                위치: {sel_loc}
+                타깃: {dg_target}
+                혜택: {dg_promo}
+                상황: {dg_context}
+                CTA: {dg_cta}
+
+                전단지형 광고 말투를 완전히 배제하고, 동네 이웃 사장님이 진솔하게 건네는 신뢰도 높은 어투로 작성하라.
+                1. 스크롤 멈춤 피드 타이틀 2종
+                2. 본문 (이웃 안부 - 전문 팁 공유 - 혜택 안내 - 단골 유도)
+                3. 댓글 참여 유도용 마무리 질문
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("당근마켓 바이럴 원고", value=out, height=360)
 
 with mkt_tab3:
-    if not is_pro_user: st.info("인스타그램 비주얼 피드는 PRO 회원 전용 기능입니다.")
+    if not is_pro_user:
+        st.info("인스타그램 스튜디오는 PRO 파트너 전용 기능입니다.")
     else:
-        ig_fmt = st.selectbox("포맷", ["단일 피드", "카드뉴스형", "릴스 스크립트"], key="cp_ig_fmt")
-        if st.button("인스타그램 피드 & 태그 생성", key="cp_ig_btn", use_container_width=True):
-            out = generate_safe_content(f"상호: {store_name}\n포맷: {ig_fmt}\n강점: {sel_feature}\n인스타 피드 및 태그 15개 작성.")
-            if out: st.text_area("인스타 피드", value=out, height=280)
+        col_ig1, col_ig2 = st.columns(2)
+        with col_ig1:
+            ig_type = st.selectbox("콘텐츠 형식", ["단일 감성 스냅 (1컷)", "정보 전달형 카드뉴스 (5컷)", "릴스 15초 숏폼 스크립트"], key="adv_ig_type")
+            ig_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="adv_ig_mood")
+        with col_ig2:
+            ig_subject = st.text_input("포스팅 주제", value="얼굴형에 딱 맞는 인생 안경 피팅 노하우", key="adv_ig_subj")
+            ig_perk_tag = st.text_input("연계 프로모션", value=my_perk, key="adv_ig_perk")
+
+        if st.button("인스타그램 피드 & 태그 패키지 생성", key="adv_ig_btn", use_container_width=True):
+            with st.spinner("비주얼 디렉팅 구성 중..."):
+                prompt = f"""
+                업종: {sel_industry}
+                매장: {store_name}
+                형식: {ig_type}
+                무드: {ig_mood}
+                주제: {ig_subject}
+                혜택: {ig_perk_tag}
+
+                인스타그램 전문 브랜드 에이전시의 세련된 톤앤매너로 작성하라.
+                1. 사진/영상 촬영 디렉팅 (구도, 조명, 소품 앵글 지침)
+                2. 3초 스크롤 스톱 첫 줄 카피
+                3. 본문 (리듬감 있는 줄바꿈)
+                4. 복사용 해시태그 15종 (지역 5, 업종 5, 타깃 5)
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("인스타그램 브랜드 패키지", value=out, height=360)
 
 with mkt_tab4:
-    if not is_pro_user: st.info("고객 리텐션 CRM 메시지는 PRO 회원 전용 기능입니다.")
+    if not is_pro_user:
+        st.info("CRM 리텐션 문자는 PRO 파트너 전용 기능입니다.")
     else:
-        crm_tgt = st.selectbox("발송 대상", ["첫 방문 후 재방문 유도", "60일 이상 미방문 고객", "정기 검안 점검 안내"], key="cp_crm_tgt")
-        if st.button("SMS / LMS / 알림톡 3종 생성", key="cp_crm_btn", use_container_width=True):
-            out = generate_safe_content(f"상호: {store_name}\n대상: {crm_tgt}\n혜택: {my_perk}\nSMS 및 LMS, 알림톡 3종 규격 작성.")
-            if out: st.text_area("CRM 메시지", value=out, height=300)
+        col_crm1, col_crm2 = st.columns(2)
+        with col_crm1:
+            crm_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 검안/렌즈 관리 주기 고객"], key="adv_crm_seg")
+            crm_offer = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인 및 김서림 방지 클리너", key="adv_crm_offer")
+        with col_crm2:
+            crm_limit = st.selectbox("기한 설정", ["이번 주 일요일까지 한정", "수신 후 14일 이내 방문 시", "선착순 30명 한정"], key="adv_crm_limit")
+            crm_tel = st.text_input("문의/예약처", value=f"{store_name} (문자 회신 가능)", key="adv_crm_tel")
+
+        if st.button("SMS / LMS / 알림톡 3종 생성", key="adv_crm_btn", use_container_width=True):
+            with st.spinner("스팸 필터링 회피 및 규격별 문안 작성 중..."):
+                prompt = f"""
+                매장: {store_name}
+                업종: {sel_industry}
+                대상: {crm_seg}
+                혜택: {crm_offer}
+                기한: {crm_limit}
+                연락처: {crm_tel}
+
+                고객이 스팸이 아닌 VIP 케어로 인식하도록 3종 규격으로 작성하라.
+                [1] 단문 SMS (90 Byte 이내 엄수)
+                [2] 장문 LMS (스토리텔링형)
+                [3] 카카오 알림톡 권장 포맷
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("CRM 메시지 3종 세트", value=out, height=360)
 
 with mkt_tab5:
-    st.markdown("###### 💬 네이버 영수증 & 배민/당근 고객 리뷰 답글기")
-    cust_review = st.text_area("고객이 남긴 리뷰 본문 붙여넣기", placeholder="예: 시력검사도 꼼꼼하게 해주시고 안경테도 잘 골라주셔서 너무 만족해요!")
-    rev_tone = st.selectbox("답글 스타일", ["감사하고 따뜻한 정중형", "센스 있고 친근한 이웃형", "전문 지식이 돋보이는 프로형"], key="rev_tone_sel")
-    if st.button("맞춤형 전문 답글 3종 생성", key="cp_rev_btn", use_container_width=True):
+    st.markdown("###### 네이버 플레이스 & 배달/당근 리뷰 자동 답글기")
+    cust_review = st.text_area("고객 리뷰 본문 붙여넣기", placeholder="예: 시력검사 꼼꼼하게 해주시고 제 얼굴에 어울리는 테도 잘 골라주셨어요. 다음에도 또 올게요!")
+    rev_style = st.selectbox("답글 톤앤매너", ["품격 있고 정중한 전문 감사형", "친근하고 다정한 동네 이웃형", "매장의 핵심 차별점을 자연스럽게 강조하는 마케팅형"], key="adv_rev_style")
+    if st.button("전문 답글 3종 생성", key="adv_rev_btn", use_container_width=True):
         if cust_review:
-            out = generate_safe_content(f"상호: {store_name}\n고객리뷰: '{cust_review}'\n스타일: {rev_tone}\n네이버 영수증/플레이스 전용 감동적인 답글 3종 작성.")
-            if out: st.text_area("추천 답글 3종", value=out, height=260)
+            with st.spinner("고객 감동 답글 분석 및 작성 중..."):
+                prompt = f"""
+                매장: {store_name} ({sel_industry})
+                고객리뷰: "{cust_review}"
+                스타일: {rev_style}
+
+                플레이스 검색 고객들이 이 답글을 보고 매장에 신뢰를 가질 수 있도록 전문적이고 따뜻한 답글 3종을 작성하라.
+                """
+                out = generate_safe_content(prompt)
+                if out:
+                    st.text_area("추천 답글 3종", value=out, height=280)
         else:
             st.warning("고객 리뷰 본문을 입력해 주세요.")
 
+st.markdown("</div>", unsafe_allow_html=True)
+
 # ==========================================
-# 6. 메인 피드 섹션 5: 행정서류 & 2026 정책지원 분석
+# 5. 행정서류 및 2026 정책지원 (화이트톤 통일)
 # ==========================================
 st.markdown("""
 <div class="feed-card">
     <div class="feed-title">정책자금 필수 행정 서식 & 2026 국비 지원 분석</div>
-    <div class="feed-subtitle">소상공인확인서, 부가세증명 등 4대 서류 원스톱 및 맞춤형 정책 진단</div>
-</div>
+    <div class="feed-subtitle">소상공인확인서, 부가세증명 등 4대 필수 서류 및 맞춤형 정책 진단</div>
 """, unsafe_allow_html=True)
 
 gov_tab1, gov_tab2 = st.tabs(["4대 필수 서류 발급 가이드", "2026 정책금융 AI 진단"])
@@ -732,37 +825,37 @@ with gov_tab1:
     """)
     col_g1, col_g2 = st.columns(2)
     with col_g1:
-        st.link_button("중소기업현황정보시스템 (소상공인확인서)", "https://sminfo.mss.go.kr", use_container_width=True)
-        st.link_button("국세청 홈택스 (부가세/국세완납)", "https://www.hometax.go.kr", use_container_width=True)
+        st.link_button("중소기업현황정보시스템 바로가기", "https://sminfo.mss.go.kr", use_container_width=True)
+        st.link_button("국세청 홈택스 바로가기", "https://www.hometax.go.kr", use_container_width=True)
     with col_g2:
-        st.link_button("정부24 (지방세 완납증명)", "https://www.gov.kr", use_container_width=True)
-        st.link_button("소상공인정책자금 포털", "https://ols.semas.or.kr", use_container_width=True)
+        st.link_button("정부24 바로가기", "https://www.gov.kr", use_container_width=True)
+        st.link_button("소상공인정책자금 포털 바로가기", "https://ols.semas.or.kr", use_container_width=True)
 
 with gov_tab2:
     st.markdown("""
     <div class="policy-grid">
         <div class="policy-box">
             <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">비용 절감</span>
-            <div style="font-weight:700; margin:4px 0;">전기요금 특별지원</div>
-            <div style="font-size:0.85rem; color:#4B5563;">최대 20~25만 원 전기료 감면</div>
-            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:8px;">
-                <button style="width:100%; height:32px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">신청처 바로가기</button>
+            <div style="font-weight:700; color:#0F172A; margin:6px 0;">소상공인 전기요금 특별지원</div>
+            <div style="font-size:0.85rem; color:#475569;">사업장당 최대 20~25만 원 전기료 감면</div>
+            <a href="https://www.소상공인전기요금특별지원.kr" target="_blank" style="text-decoration:none; margin-top:10px;">
+                <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">신청 사이트 열기</button>
             </a>
         </div>
         <div class="policy-box">
-            <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">금융 이자 경감</span>
-            <div style="font-weight:700; margin:4px 0;">고금리 저금리 대환보증</div>
-            <div style="font-size:0.85rem; color:#4B5563;">7% 이상 대출을 4%대로 전환</div>
-            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:8px;">
-                <button style="width:100%; height:32px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
+            <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">이자 경감</span>
+            <div style="font-weight:700; color:#0F172A; margin:6px 0;">고금리 저금리 대환보증</div>
+            <div style="font-size:0.85rem; color:#475569;">7% 이상 고금리 대출을 4%대로 전환</div>
+            <a href="https://www.semas.or.kr" target="_blank" style="text-decoration:none; margin-top:10px;">
+                <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
             </a>
         </div>
         <div class="policy-box">
             <span style="font-size:0.75rem; font-weight:700; color:#2563EB;">매장 인프라</span>
-            <div style="font-weight:700; margin:4px 0;">스마트상점 국비 지원</div>
-            <div style="font-size:0.85rem; color:#4B5563;">키오스크/테이블오더 70% 보조</div>
-            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:8px;">
-                <button style="width:100%; height:32px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">공고 확인하기</button>
+            <div style="font-weight:700; color:#0F172A; margin:6px 0;">스마트상점 기술보급 국비 지원</div>
+            <div style="font-size:0.85rem; color:#475569;">키오스크/테이블오더 최대 70% 보조</div>
+            <a href="https://www.sbiz.or.kr/smst/index.do" target="_blank" style="text-decoration:none; margin-top:10px;">
+                <button style="width:100%; height:34px; background:#2563EB; color:#fff; border:none; border-radius:6px; font-size:0.8rem; font-weight:700; cursor:pointer;">사업 공고 열기</button>
             </a>
         </div>
     </div>
@@ -771,21 +864,23 @@ with gov_tab2:
     st.markdown("<br>", unsafe_allow_html=True)
     col_pol1, col_pol2 = st.columns(2)
     with col_pol1:
-        rev_scale = st.selectbox("사업장 연매출 규모", ["3천만 원 미만 (영세)", "3천만 원 ~ 1억 원", "1억 원 ~ 3억 원", "3억 원 초과"], key="cp_rev_scale")
+        rev_scale = st.selectbox("사업장 연매출 규모", ["3천만 원 미만 (영세)", "3천만 원 ~ 1억 원", "1억 원 ~ 3억 원", "3억 원 초과"], key="feed_rev_scale")
     with col_pol2:
-        aid_purp = st.selectbox("가장 시급한 지원", ["고금리 대출 이자 완화", "매장 설비/키오스크 보조", "운영 고정비 지원"], key="cp_aid_purp")
-    if st.button("내 매장 맞춤 정책자금 AI 진단서 확인", key="cp_aid_btn", use_container_width=True):
-        out = generate_safe_content(f"업종: {sel_industry}\n매출: {rev_scale}\n목적: {aid_purp}\n가장 유리한 정부 정책 2종과 신청 요건을 공문서 리포트로 작성.")
-        if out: st.markdown(f"<div style='background:#F8FAFC; border-left:3px solid #2563EB; padding:14px; border-radius:8px;'>{out}</div>", unsafe_allow_html=True)
+        aid_purp = st.selectbox("가장 시급한 지원", ["고금리 대출 이자 완화", "매장 설비/키오스크 보조", "운영 고정비(전기세 등) 지원"], key="feed_aid_purp")
+    if st.button("내 매장 맞춤 정책자금 AI 진단 실행", key="feed_aid_btn", use_container_width=True):
+        with st.spinner("정책 데이터 매칭 중..."):
+            out = generate_safe_content(f"업종: {sel_industry}\n매출: {rev_scale}\n목적: {aid_purp}\n가장 적합한 정부 정책 2종과 구체적 신청 요건을 공문서 리포트로 작성.")
+            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 7. 메인 피드 섹션 6: 알바 급여 계산 & 영업 마감 플래너
+# 6. 급여 계산, 영업 마감, 매장 음악
 # ==========================================
 st.markdown("""
 <div class="feed-card">
-    <div class="feed-title">경영 지원: 파트타이머 급여 & 일일 결산 플래너</div>
-    <div class="feed-subtitle">주휴수당 자동 계산 및 당일 운영 분석·내일 실행 과제 리포트</div>
-</div>
+    <div class="feed-title">경영 관리: 급여 산출, 영업 마감, 매장 음악</div>
+    <div class="feed-subtitle">아르바이트 주휴수당 자동 계산 및 일일 결산 플래너</div>
 """, unsafe_allow_html=True)
 
 fin_tab1, fin_tab2, fin_tab3 = st.tabs(["알바 급여 계산기", "일일 영업 결산 리포트", "매장 시간대별 음악"])
@@ -793,36 +888,42 @@ fin_tab1, fin_tab2, fin_tab3 = st.tabs(["알바 급여 계산기", "일일 영�
 with fin_tab1:
     w1, w2 = st.columns(2)
     with w1:
-        wage = st.number_input("시급 (원)", value=10030, step=100, key="feed_wage")
-        hrs = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="feed_hrs")
+        wage = st.number_input("기본 시급 (원)", value=10030, step=100, key="feed_wage_box")
+        hrs = st.number_input("주당 소정근로시간", value=16.0, step=0.5, key="feed_hrs_box")
     with w2:
-        tax_opt = st.selectbox("공제 방식", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 없음"], key="feed_tax")
+        tax_opt = st.selectbox("공제 방식", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 없음"], key="feed_tax_box")
     base = wage * hrs * 4.345
     holiday = ((hrs / 40.0) * 8.0 * wage * 4.345) if hrs >= 15 else 0
     tot = base + holiday
     ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
     net = tot - ded
     st.markdown(f"""
-    <div style="background:#F9FAFB; border:1px solid #E5E7EB; border-radius:10px; padding:14px; margin-top:8px;">
-        <div style="font-size:0.85rem; color:#6B7280;">기본급 {int(base):,}원 + 주휴수당 {int(holiday):,}원 (공제 {int(ded):,}원)</div>
-        <div style="font-size:1.25rem; font-weight:800; color:#111827; margin-top:2px;">예상 실수령액: {int(net):,}원</div>
+    <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:16px; margin-top:8px;">
+        <div style="font-size:0.86rem; color:#64748B;">기본급: {int(base):,}원 | 주휴수당: {int(holiday):,}원 (원천공제: {int(ded):,}원)</div>
+        <div style="font-size:1.25rem; font-weight:800; color:#0F172A; margin-top:2px;">예상 실지급액: {int(net):,}원</div>
     </div>
     """, unsafe_allow_html=True)
 
 with fin_tab2:
     cl_col1, cl_col2 = st.columns(2)
     with cl_col1:
-        c_sales = st.text_input("오늘 매출액 (선택)", placeholder="예: 850,000원", key="feed_close_sales")
-        c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석"], key="feed_close_flow")
+        c_sales = st.text_input("오늘 대략적인 매출액 (선택)", placeholder="예: 850,000원", key="feed_close_sales_box")
+        c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석"], key="feed_close_flow_box")
     with cl_col2:
-        c_memo = st.text_input("특이사항/이슈", placeholder="예: 특정 제품 품절", key="feed_close_memo")
-        c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="feed_close_sat")
-    if st.button("일일 영업 결산 & 내일 액션플랜 생성", key="feed_close_btn", use_container_width=True):
-        out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3가지, 퇴근길 멘탈 리셋 한마디 작성.")
-        if out: st.markdown(f"<div style='background:#F8FAFC; border-left:3px solid #2563EB; padding:14px; border-radius:8px;'>{out}</div>", unsafe_allow_html=True)
+        c_memo = st.text_input("특이사항/재고 이슈", placeholder="예: 특정 렌즈 재고 소진", key="feed_close_memo_box")
+        c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="feed_close_sat_box")
+    if st.button("일일 경영 결산 리포트 생성", key="feed_close_btn_box", use_container_width=True):
+        with st.spinner("경영 데이터 종합 분석 중..."):
+            out = generate_safe_content(f"가게: {store_name}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n일일 경영 총평, 내일 실행과제 3선, 퇴근길 멘탈 리셋 조언 작성.")
+            if out: st.markdown(f"<div style='background:#FFFFFF; border:1px solid #E2E8F0; border-left:4px solid #2563EB; padding:16px; border-radius:8px; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 with fin_tab3:
-    m_time = st.selectbox("시간대", ["오전 오픈", "점심/오후 피크", "나른한 오후 3~5시", "저녁 골든타임", "마감 정리"], key="feed_m_time")
-    m_style = st.selectbox("장르", ["재즈/보사노바", "어쿠스틱 팝", "2000년대 감성 발라드 피아노", "9000 댄스"], key="feed_m_style")
-    yt_q = f"{m_style.split('/')[0]} {m_time} 플레이리스트 연속재생"
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        m_time = st.selectbox("영업 시간대", ["오전 오픈 준비 (경쾌한 무드)", "점심/오후 피크 (활기 유지)", "나른한 오후 3~5시 (편안한 칠아웃)", "저녁 골든타임 (아늑한 라운지/재즈)", "마감 정리 (차분한 피아노)"], key="feed_m_time_box")
+    with col_m2:
+        m_style = st.selectbox("장르 스타일", ["재즈/보사노바", "어쿠스틱 팝", "2000년대 감성 발라드 피아노", "90-2000 가요 댄스"], key="feed_m_style_box")
+    yt_q = f"{m_style.split('/')[0]} {m_time.split('(')[0].strip()} 플레이리스트 연속재생"
     st.link_button(f"유튜브 '{yt_q}' 스트리밍 재생", f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_q)}", use_container_width=True)
+
+st.markdown("</div>", unsafe_allow_html=True)

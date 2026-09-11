@@ -563,10 +563,10 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 7대 메인 탭
+# 메인 8대 독립 탭 (리뷰 대응 무료 탭 별도 분리!)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
-tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
+tab_home, tab_my_deal, tab_mkt, tab_review, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
 
 # ------------------------------------------
 # TAB 1. 🏠 홈 대시보드
@@ -742,7 +742,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (실시간 주소 검색 적용)
+# TAB 2. ⚙️ 내 특가 관리
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -784,28 +784,23 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오
+# TAB 3. 📢 마케팅 스튜디오 (PRO 유료 전용 4대 기능)
 # ------------------------------------------
 with tab_mkt:
-    # 💡 [PRO 유료 기능 명시 명확화]
     if not is_pro_user:
         st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
 <div style="font-weight: 800; font-size: 1.05rem; color: #991B1B; margin-bottom: 6px;">🔒 [PRO 유료 전용 기능] 마케팅 스튜디오</div>
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
-현재 7일 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>으로 전환되었습니다.<br>
-네이버 블로그 SEO 원고 생성, 당근마켓 바이럴, 인스타그램 피드, 단골 CRM 문자 및 AI 리뷰 답글 기능은 <b>PRO 유료 파트너 전용 기능</b>입니다.<br><br>
-계속 이용하시려면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요!
+현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
+네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
+이용을 원하시면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요! (※ 리뷰 대응은 무료 제공됩니다.)
 </div>
 </div>""", unsafe_allow_html=True)
     else:
-        st.markdown(f"""<div class="simple-card" style="background: #EFF6FF; border-left: 4px solid #2563EB;">
-<div style="font-weight: 800; font-size: 0.95rem; color: #1E40AF;">✨ {pro_label} 이용 중인 전문 마케팅 공간입니다.</div>
-</div>""", unsafe_allow_html=True)
-
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
-        mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
-            "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자", "리뷰 대응"
+        mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4 = st.tabs([
+            "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자"
         ])
 
         with mkt_sub1:
@@ -857,28 +852,38 @@ with tab_mkt:
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
-        with mkt_sub5:
-            cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객이 남긴 별점 리뷰를 입력하세요.")
-            rev_stl = st.selectbox("답글 스타일", [
-                "1. 정중하고 품격 있는 VIP 감사형",
-                "2. 다정하고 센스 있는 동네 이웃형",
-                "3. 매장 특장점 & 장비 전문성 각인형",
-                "4. 재방문 유도 & 단골 혜택 안내형",
-                "5. 위트 있고 유쾌한 에너지형",
-                "6. 불만/아쉬움 리뷰 케어 및 사과형"
-            ], key="m_r_stl")
-            
-            if st.button("전문 답글 3종 생성", key="m_r_btn", use_container_width=True):
-                if cust_rev:
-                    with st.spinner("답글 생성 중..."):
-                        prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 완성도 높은 답글 3종 작성."
-                        out = generate_safe_content(prompt)
-                        if out: st.text_area("추천 답글 3종", value=out, height=280)
-                else:
-                    st.warning("리뷰를 입력해 주세요.")
+# ------------------------------------------
+# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
+# ------------------------------------------
+with tab_review:
+    st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
+<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 [무료 체험 오픈] AI 리뷰 전문 답글 생성기</div>
+<div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
+스탠다드 및 무료 회원분들께도 플레이스 리뷰 답글 작성 기능을 무료로 제공합니다. 고객 리뷰를 넣고 센스 있는 답글을 생성해 보세요!
+</div>
+</div>""", unsafe_allow_html=True)
+
+    cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객이 남긴 별점 리뷰 내용을 입력하세요.", key="free_rev_box")
+    rev_stl = st.selectbox("답글 스타일", [
+        "1. 정중하고 품격 있는 VIP 감사형",
+        "2. 다정하고 센스 있는 동네 이웃형",
+        "3. 매장 특장점 & 장비 전문성 각인형",
+        "4. 재방문 유도 & 단골 혜택 안내형",
+        "5. 위트 있고 유쾌한 에너지형",
+        "6. 불만/아쉬움 리뷰 케어 및 사과형"
+    ], key="free_r_stl")
+    
+    if st.button("무료 AI 답글 3종 생성", key="free_r_btn", use_container_width=True):
+        if cust_rev:
+            with st.spinner("답글 생성 중..."):
+                prompt = f"매장명: {store_name}\n업종: {sel_industry}\n소재지: {st.session_state.current_region_name}\n고객 리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 완성도 높은 답글 3종 작성."
+                out = generate_safe_content(prompt)
+                if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
+        else:
+            st.warning("리뷰 내용을 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 4. 🛒 로컬 공동구매
+# TAB 5. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["공구 목록", "소모품 발주", "공구 제안"])
@@ -996,7 +1001,7 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 5. 🎧 음악 스튜디오
+# TAB 6. 🎧 음악 스튜디오
 # ------------------------------------------
 with tab_music:
     st.markdown("""<div class="simple-card">
@@ -1057,7 +1062,7 @@ with tab_music:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 6. 🌙 영업 마감
+# TAB 7. 🌙 영업 마감
 # ------------------------------------------
 with tab_close:
     st.markdown("""<div class="simple-card">
@@ -1078,7 +1083,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 7. 💼 경영·행정지원 (4대 금융계산기)
+# TAB 8. 💼 경영·행정지원 (4대 금융계산기)
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([

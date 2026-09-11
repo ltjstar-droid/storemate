@@ -377,6 +377,9 @@ if "logged_in_user" not in st.session_state:
 if "saved_login_id" not in st.session_state:
     st.session_state.saved_login_id = ""
 
+if "active_join_deal_id" not in st.session_state:
+    st.session_state.active_join_deal_id = None
+
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -816,15 +819,8 @@ with tab_mkt:
             ]
             sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
             
-            if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic:
-                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천"
-                b_core_default = sel_feature
-            else:
-                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
-                try:
-                    b_core_default = f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
-                except Exception:
-                    b_core_default = sel_feature
+            b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천" if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
+            b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
 
             b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
             b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
@@ -885,7 +881,7 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응 (무료)
+# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -915,7 +911,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (무료)
+# TAB 5. 💌 경조사·안부 문자 (모든 회원 무료 개방!)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">

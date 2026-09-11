@@ -207,7 +207,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 퍼스트 최적화 CSS (모바일 타이틀 줄바꿈 및 깔끔한 가독성 보정)
+# 📱 모바일 퍼스트 최적화 CSS
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -259,7 +259,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar { display: none; }
     .stTabs [data-baseweb="tab"] {
         height: 42px !important;
-        font-size: 0.88rem !important;
+        font-size: 0.85rem !important;
         font-weight: 700 !important;
         color: #64748B !important;
         background: transparent !important;
@@ -353,7 +353,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 💡 [철물점 업종 추가 반영]
 INDUSTRY_LIST = [
     "철물점 / 건재 / 공구·설비",
     "미용실 / 바버샵 / 네일 / 뷰티샵",
@@ -408,30 +407,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구"
 
 # ==========================================
-# 실시간 주소 검색 API
-# ==========================================
-def search_address(keyword):
-    if not keyword or len(keyword.strip()) < 2:
-        return []
-    try:
-        url = f"https://nominatim.openstreetmap.org/search?format=json&q={urllib.parse.quote(keyword + ' 대한민국')}&countrycodes=kr&limit=5"
-        headers = {"User-Agent": "StoreMate-AddressSearch/2.0"}
-        res = requests.get(url, headers=headers, timeout=3)
-        if res.status_code == 200:
-            results = res.json()
-            addresses = []
-            for item in results:
-                display_name = item.get("display_name", "")
-                parts = [p.strip() for p in display_name.split(",") if "대한민국" not in p and "South Korea" not in p]
-                clean_addr = " ".join(reversed(parts)) if parts else display_name
-                addresses.append(clean_addr)
-            return addresses
-    except Exception:
-        pass
-    return []
-
-# ==========================================
-# 로그인 화면
+# 로그인 화면 (초간단 주소 입력 시스템 적용)
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -472,11 +448,9 @@ if not st.session_state.logged_in_user:
             new_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             
-            st.markdown("**📍 매장 주소 실시간 검색**")
-            s_query = st.text_input("도로명 또는 지역명 입력", placeholder="예: 경기동로 또는 이동읍 송전리", key="signup_addr_query")
-            searched_addrs = search_address(s_query) if s_query else []
-            new_loc = st.selectbox("검색된 주소 선택", ["주소를 선택해 주세요"] + searched_addrs if searched_addrs else ["검색 결과가 없습니다"], key="signup_addr_select")
-            new_loc_direct = st.text_input("상세 주소 (층/호수 등)", placeholder="예: 1층 101호")
+            st.markdown("**📍 매장 주소 간편 입력**")
+            s_region = st.text_input("시·군·구 (지역)", placeholder="예: 용인시 처인구 이동읍")
+            s_detail = st.text_input("상세 주소 (도로명/번지 및 호수)", placeholder="예: 경기동로 725, 1층")
 
             if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
                 if not new_id or not new_pw or not new_store:
@@ -486,7 +460,7 @@ if not st.session_state.logged_in_user:
                 elif new_id in users_db:
                     st.error("이미 등록된 아이디(연락처)입니다.")
                 else:
-                    final_address = f"{new_loc if new_loc != '주소를 선택해 주세요' and '검색 결과가 없습니다' not in new_loc else s_query} {new_loc_direct}".strip()
+                    final_address = f"{s_region} {s_detail}".strip()
                     now = datetime.now()
                     trial_end_date = (now + timedelta(days=7)).strftime("%Y-%m-%d")
                     users_db[new_id] = {
@@ -571,7 +545,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -589,12 +563,12 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭 ((무료) 문구 제거 및 PRO 색상 강조)
+# 독립된 10대 메인 탭 (HTML 태그 오류 수정 완료)
 # ==========================================
 main_tabs = [
     "홈 대시보드", 
     "내 특가 관리", 
-    "마케팅 스튜디오 <span style='color:#DC2626; font-size:0.75rem; font-weight:900;'>PRO</span>", 
+    "마케팅 스튜디오 (PRO)", 
     "💬 AI 리뷰 대응", 
     "💌 경조사·안부 문자", 
     "로컬 공동구매", 
@@ -779,7 +753,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리
+# TAB 2. ⚙️ 내 특가 관리 (간편 주소 입력 적용)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -796,11 +770,8 @@ with tab_my_deal:
         st.markdown("**1. 매장 대표 전화번호**")
         inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="031-323-1215", label_visibility="collapsed")
         
-        st.markdown("**2. 매장 위치 주소 실시간 검색**")
-        inp_addr_q = st.text_input("도로명 또는 지역명 입력", value="", placeholder="예: 경기동로 또는 이동읍 송전리", key="edit_addr_query")
-        
-        edit_searched = search_address(inp_addr_q) if inp_addr_q else []
-        inp_addr_sel = st.selectbox("검색된 주소 선택", [current_addr_val] + edit_searched if edit_searched else [current_addr_val], key="edit_addr_select")
+        st.markdown("**2. 매장 위치 주소 간편 입력**")
+        inp_addr_region = st.text_input("시·군·구 (지역)", value=current_addr_val, placeholder="예: 용인시 처인구 이동읍")
         
         st.markdown("**3. 오늘의 번개 특가 품목**")
         inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌 30% 게릴라 할인 (선착순 5명)", label_visibility="collapsed")
@@ -812,7 +783,7 @@ with tab_my_deal:
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
             users_db[user_key]["phone"] = inp_phone.strip()
-            users_db[user_key]["map_address"] = inp_addr_sel
+            users_db[user_key]["map_address"] = inp_addr_region.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
             users_db[user_key]["today_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -915,7 +886,7 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
+# TAB 4. 💬 AI 리뷰 대응
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -945,7 +916,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (모든 회원 무료 개방!)
+# TAB 5. 💌 경조사·안부 문자
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">

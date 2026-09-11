@@ -530,7 +530,7 @@ TARGET_MODEL = "gemini-3.6-flash"
 
 SYSTEM_DIRECTIVE = """
 너는 로컬 비즈니스 경영 및 마케팅 수석 디렉터다.
-이모티콘 남발은 철저히 배제하고, 전문 컨설턴트처럼 정갈하고 구조화된 데이터와 전략 중심의 실무 원고를 제공한다.
+이모티콘 남발은 철저히 배제하고, 프리미엄 컨설턴트처럼 정갈하고 구조화된 고품격 마케팅 데이터와 실무 전략 원고를 제공한다.
 """
 
 def generate_safe_content(prompt):
@@ -548,7 +548,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (용친 인스타, 용친 스레드 반영)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -559,16 +559,16 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
-<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 인스타</a>
-<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 스레드</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 인스타</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 스레드</a>
 </div>
 <hr style="margin: 8px 0 14px 0; border: none; border-top: 1px solid #E2E8F0;">
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭
+# 독립된 9대 메인 탭
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부 문자 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응", "💌 경조사·안부 문자", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
@@ -681,7 +681,7 @@ with tab_home:
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # 홈 대시보드 하단 계정 관리 및 '유료버전 가입' 문구 적용
+    # 홈 대시보드 하단 계정 관리 및 유료버전 가입
     st.markdown("""<div class="simple-card" style="background:#F8FAFC; margin-top:24px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:8px;">⚙️ 계정 및 세션 관리</div>""", unsafe_allow_html=True)
     
@@ -694,7 +694,7 @@ with tab_home:
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status") == "대기중":
+        elif curr_user.get("pro_status"] == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -787,7 +787,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 전용)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 - 압도적 프리미엄 퀄리티)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -795,11 +795,18 @@ with tab_mkt:
 <div style="font-weight: 800; font-size: 1.05rem; color: #991B1B; margin-bottom: 6px;">🔒 [PRO 유료 전용 기능] 마케팅 스튜디오</div>
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
 현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
-네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
+네이버 블로그 SEO 상위노출 마스터, 당근마켓 바이럴, 인스타그램 릴스/피드, 단골 CRM 자동화 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
 유료버전 가입을 원하시면 <b>[홈 대시보드] 하단</b>에서 신청해 주세요!
 </div>
 </div>""", unsafe_allow_html=True)
     else:
+        st.markdown("""<div class="simple-card" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border: 1px solid #BFDBFE;">
+<div style="font-weight: 900; font-size: 1.05rem; color: #1E40AF; margin-bottom: 4px;">👑 PRO 파트너 전용 하이엔드 마케팅 스튜디오</div>
+<div style="font-size: 0.84rem; color: #1E3A8A; line-height: 1.4;">
+상위 1% 자영업자들의 매출 폭발 비법인 <b>네이버 SEO 로직 최적화, 당근마켓 심리 자극 카피라이팅, 인스타그램 트렌드 스크립트</b>를 터치 몇 번으로 완성하세요.
+</div>
+</div>""", unsafe_allow_html=True)
+
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
         mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4 = st.tabs([
@@ -807,78 +814,84 @@ with tab_mkt:
         ])
 
         with mkt_sub1:
-            st.markdown("##### ✍️ AI 블로그 SEO 원고 생성기")
-            st.caption("어르신들도 편하게 버튼과 선택지만 눌러 완성하세요.")
+            st.markdown("##### ✍️ 네이버 블로그 SEO 상위노출 마스터")
+            st.caption("스마트블록 알고리즘을 완벽 저격하는 고품격 마케팅 원고를 설계합니다.")
             
             preset_blog_topics = [
                 "직접 입력하기 (아래 칸에 직접 적기)",
-                "🌟 [추천1] 우리 동네 신규 방문 고객 환영 및 할인 이벤트",
-                "💡 [추천2] 전문가가 알려주는 맞춤 관리 노하우 및 제품 소개",
-                "🏆 [추천3] 단골 고객들이 극찬하는 우리 매장만의 특별한 차별점",
-                "🌿 [추천4] 계절 맞춤형 단골 고객 케어 후기"
+                "🌟 [추천1] 우리 동네 신규 방문 고객 환영 및 파격 할인 이벤트",
+                "💡 [추천2] 전문가가 짚어주는 맞춤 관리 노하우 및 핵심 기술 분석",
+                "🏆 [추천3] 단골 고객들이 극찬하는 우리 매장만의 독보적인 차별점",
+                "🌿 [추천4] 계절 변화 맞춤형 단골 고객 스페셜 케어 후기"
             ]
             sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
             
             b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천" if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
-            b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
+            b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 차별화된 맞춤 케어 서비스 제공"
 
             b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
             b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
-            b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
-            b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
-            b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
+            b_photos = st.slider("추천 첨부 사진 장수", 5, 20, 10, key="m_b_photo")
+            b_intent = st.selectbox("검색 의도 타기팅", ["실제 단골 내돈내산 찐후기", "전문 기술 및 정밀 설비 하이테크 분석", "가성비 및 파격 제휴 혜택 비교"], key="m_b_intent")
+            b_core = st.text_area("매장 핵심 강점 및 특화 장비", value=b_core_default, height=70, key="m_b_core")
 
-            if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
-                with st.spinner("원고 작성 중..."):
-                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 사진 배치 가이드, 본문, 연관 태그 10종 작성."
+            if st.button("🚀 상위노출 SEO 원고 완제품 생성하기", key="m_b_btn", use_container_width=True):
+                with st.spinner("전문 컨설턴트급 SEO 원고 및 가이드 작성 중..."):
+                    prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}, {b_sub}\n사진: {b_photos}장\n의도: {b_intent}\n강점: {b_core}\n네이버 스마트블록 상위노출을 위한 1) 클릭을 부르는 황금 제목 3종 2) 사진 컷 수별 상세 배치 가이드 3) 이탈률을 낮추는 서론-본론-결론 완벽한 본문 원고 4) 검색 유입 최적화 태그 15종을 프로페셔널한 리포트 형식으로 작성해 주세요."
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("작성된 원고 (복사용)", value=out, height=300)
+                    if out: st.text_area("완성된 프리미엄 블로그 원고 (복사용)", value=out, height=350)
 
         with mkt_sub2:
-            st.markdown("##### 🥕 당근마켓 이웃 소식 작성기")
+            st.markdown("##### 🥕 당근마켓 이웃 소식 바이럴 봇")
+            st.caption("지역 주민과 이웃들의 채팅 문의를 폭발시키는 심리 자극 카피라이팅.")
+            
             preset_carrot = [
-                "당근 이웃 전용 무료 체험 및 점검 이벤트 안내",
+                "당근 이웃 전용 무료 체험 및 정밀 점검 이벤트 안내",
                 "이웃 주민 한정 게릴라 추가 할인 혜택",
                 "단골 이웃분들께 드리는 감사의 특별 사은품 증정"
             ]
             sel_c_topic = st.selectbox("당근 소식 주제 선택", preset_carrot, key="sel_car_top")
             
-            d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
+            d_tgt = st.selectbox("타깃 주민층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
             d_prm = st.text_input("제공 혜택", value=f"{sel_c_topic} 및 친절한 맞춤 상담", key="m_d_prm")
-            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
-            d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
+            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 동네 이웃분들을 위한 특별 케어", key="m_d_ctx")
+            d_cta = st.text_input("행동 유도 버튼 문구", value="당근 단골 맺기 누르고 매장 방문 시 즉시 적용", key="m_d_cta")
 
-            if st.button("당근 소식 생성하기", key="m_d_btn", use_container_width=True):
-                with st.spinner("소식 작성 중..."):
-                    prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 제목 2종, 본문, 댓글 유도 질문 작성."
+            if st.button("🥕 당근 바이럴 소식 완성하기", key="m_d_btn", use_container_width=True):
+                with st.spinner("당근 맞춤형 바이럴 원고 작성 중..."):
+                    prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n업종: {sel_industry}\n타깃: {d_tgt}\n혜택: {d_prm}\n상황: {d_ctx}\nCTA: {d_cta}\n당근마켓 이웃 사장님 톤으로 이웃들의 댓글과 채팅 문의를 폭발시키는 1) 시선 강탈 제목 2종 2) 본문 3) 당근마켓 전용 댓글 유도 질문 작성."
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("당근 소식 (복사용)", value=out, height=280)
+                    if out: st.text_area("당근 바이럴 소식 (복사용)", value=out, height=300)
 
         with mkt_sub3:
-            st.markdown("##### 📸 인스타그램 피드 생성기")
-            i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
-            i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
+            st.markdown("##### 📸 인스타그램 릴스 & 피드 크리에이터")
+            st.caption("시각적 몰입도를 높이는 트렌디한 카드뉴스 기획안과 릴스 스크립트.")
+            
+            i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 숏폼 스크립트"], key="m_i_type")
+            i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그 감성", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
             i_subj = st.text_input("주제", value="오늘 방문 고객님 맞춤 스타일링 및 케어 완성 컷", key="m_i_subj")
             i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk")
 
-            if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
-                with st.spinner("피드 생성 중..."):
-                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n형식: {i_type}\n무드: {i_mood}\n주제: {i_subj}\n혜택: {i_perk}\n촬영 가이드, 첫 줄 카피, 줄바꿈 본문, 해시태그 15종 작성."
+            if st.button("📸 인스타그램 콘텐츠 생성하기", key="m_i_btn", use_container_width=True):
+                with st.spinner("인스타 감성 기획안 작성 중..."):
+                    prompt = f"매장: {store_name}\n업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n형식: {i_type}\n무드: {i_mood}\n주제: {i_subj}\n혜택: {i_perk}\n인스타그램에서 도달률을 극대화할 수 있는 1) 촬영 가이드 2) 첫 줄 후킹 캡션 3) 줄바꿈 본문 4) 인기 해시태그 15종 작성."
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("인스타그램 피드 (복사용)", value=out, height=280)
+                    if out: st.text_area("인스타그램 콘텐츠 기획안 (복사용)", value=out, height=300)
 
         with mkt_sub4:
-            st.markdown("##### ✉️ 단골 CRM 문자 작성기")
-            c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 고객"], key="m_c_seg")
+            st.markdown("##### ✉️ 단골 CRM 자동화 문자 마스터")
+            st.caption("휴면 고객을 깨우고 재방문율을 극대화하는 맞춤형 문자 솔루션.")
+            
+            c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 도래 고객"], key="m_c_seg")
             c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off")
             c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
             c_tel = st.text_input("문의처", value=f"{store_name} (문자 회신 가능)", key="m_c_tel")
 
-            if st.button("CRM 문자 3종 생성", key="m_c_btn", use_container_width=True):
-                with st.spinner("문안 작성 중..."):
-                    prompt = f"매장: {store_name}\n대상: {c_seg}\n혜택: {c_off}\n기한: {c_lim}\n문의: {c_tel}\n단문 SMS, 장문 LMS, 카카오 알림톡 포맷 작성."
+            if st.button("✉️ CRM 타겟 문자 세트 생성하기", key="m_c_btn", use_container_width=True):
+                with st.spinner("고객 감동 문자 작성 중..."):
+                    prompt = f"매장: {store_name}\n대상: {c_seg}\n혜택: {c_off}\n기한: {c_lim}\n문의: {c_tel}\n단문 SMS, 장문 LMS, 카카오 알림톡 포맷으로 고객의 마음을 사로잡는 문자 3종 작성."
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
+                    if out: st.text_area("CRM 타겟 메시지 (복사용)", value=out, height=300)
 
 # ------------------------------------------
 # TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)

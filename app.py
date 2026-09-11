@@ -149,7 +149,7 @@ def track_visitor():
 track_visitor()
 
 # ==========================================
-# ☀️ 스마트폰 GPS 실시간 위치 및 날씨 연동
+# ☀️ 날씨 및 지오코딩
 # ==========================================
 def reverse_geocode(lat, lon):
     try:
@@ -545,7 +545,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (용친 인스타, 용친 스레드 수정 반영)
+# 모바일 상단 바 (용친 인스타, 용친 스레드 반영)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -563,13 +563,13 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 9대 메인 탭
+# 독립된 10대 메인 탭 (경조사·안부 문자 탭 무료 추가)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
-tab_home, tab_my_deal, tab_mkt, tab_review, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부 문자 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드 (실시간 위치 자동 날씨 연동)
+# TAB 1. 🏠 홈 대시보드
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
@@ -578,7 +578,6 @@ with tab_home:
     my_deal_updated = curr_user.get("today_updated", datetime.now().strftime("%Y-%m-%d"))
     naver_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(my_saved_addr)}"
 
-    # 💡 [스마트폰 GPS 기반 실시간 날씨 자동 연동]
     weather_info = get_live_weather(st.session_state.current_lat, st.session_state.current_lon)
     weather_html = f"""<div class="weather-box">
 <div style="display:flex; align-items:center; gap:14px;">
@@ -686,13 +685,13 @@ with tab_home:
     col_acc1, col_acc2 = st.columns(2)
     with col_acc1:
         if not is_approved_permanent and curr_user.get("pro_status") != "대기중":
-            if st.button("유료버전 가입 신청", key="btn_home_req_pro", use_container_width=True):
+            if st.button("유료버전 가입", key="btn_home_req_pro", use_container_width=True):
                 curr_user["pro_status"] = "대기중"
                 users_db[user_key] = curr_user
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status") == "대기중":
+        elif curr_user.get("pro_status"] == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -785,31 +784,46 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 + 사장님 열광 신기능 2가지 추가)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
         st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
 <div style="font-weight: 800; font-size: 1.05rem; color: #991B1B; margin-bottom: 6px;">🔒 [PRO 유료 전용 기능] 마케팅 스튜디오</div>
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
-무료 체험 기간이 만료되어 스탠다드 등급입니다.<br>
-블로그 SEO, 당근 바이럴, 인스타그램, 단골 문자 및 <b>경조사 안부 문자 생성기, 예약 노쇼 방지 봇</b>은 PRO 유료 파트너 전용입니다.<br>
-유료버전 가입을 원하시면 홈 대시보드 하단에서 신청해 주세요!
+현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
+네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
+유료버전 가입을 원하시면 <b>[홈 대시보드] 하단</b>에서 신청해 주세요!
 </div>
 </div>""", unsafe_allow_html=True)
     else:
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
-        mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5, mkt_sub6 = st.tabs([
-            "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자", "💌 경조사·명절 문자", "🤖 노쇼 방지 & 재방문 봇"
+        mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4 = st.tabs([
+            "블로그 SEO", "당근 바이럴", "인스타그램", "단골 문자"
         ])
 
         with mkt_sub1:
-            b_kw = st.text_input("메인 키워드", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
-            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 추천", key="m_b_sub")
+            st.markdown("##### ✍️ AI 블로그 SEO 원고 생성기")
+            st.caption("어르신들도 편하게 버튼과 선택지만 눌러 완성하세요.")
+            
+            preset_blog_topics = [
+                "직접 입력하기 (아래 칸에 직접 적기)",
+                "🌟 [추천1] 우리 동네 신규 방문 고객 환영 및 할인 이벤트",
+                "💡 [추천2] 전문가가 알려주는 맞춤 관리 노하우 및 제품 소개",
+                "🏆 [추천3] 단골 고객들이 극찬하는 우리 매장만의 특별한 차별점",
+                "🌿 [추천4] 계절 맞춤형 단골 고객 케어 후기"
+            ]
+            sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
+            
+            b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천" if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
+            b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
+
+            b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
+            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
             b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
-            b_core = st.text_area("매장 핵심 강점", value=sel_feature, height=70, key="m_b_core")
+            b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
@@ -818,8 +832,16 @@ with tab_mkt:
                     if out: st.text_area("작성된 원고 (복사용)", value=out, height=300)
 
         with mkt_sub2:
+            st.markdown("##### 🥕 당근마켓 이웃 소식 작성기")
+            preset_carrot = [
+                "당근 이웃 전용 무료 체험 및 점검 이벤트 안내",
+                "이웃 주민 한정 게릴라 추가 할인 혜택",
+                "단골 이웃분들께 드리는 감사의 특별 사은품 증정"
+            ]
+            sel_c_topic = st.selectbox("당근 소식 주제 선택", preset_carrot, key="sel_car_top")
+            
             d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
-            d_prm = st.selectbox("제공 혜택", ["무상 체험 및 정밀 점검", "단독 추가 할인 쿠폰", "선착순 사은품 증정"], key="m_d_prm")
+            d_prm = st.text_input("제공 혜택", value=f"{sel_c_topic} 및 친절한 맞춤 상담", key="m_d_prm")
             d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
             d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
 
@@ -830,9 +852,10 @@ with tab_mkt:
                     if out: st.text_area("당근 소식 (복사용)", value=out, height=280)
 
         with mkt_sub3:
+            st.markdown("##### 📸 인스타그램 피드 생성기")
             i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
             i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
-            i_subj = st.text_input("주제", value="나에게 딱 맞는 인생 스타일링 가이드", key="m_i_subj")
+            i_subj = st.text_input("주제", value="오늘 방문 고객님 맞춤 스타일링 및 케어 완성 컷", key="m_i_subj")
             i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk")
 
             if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
@@ -842,6 +865,7 @@ with tab_mkt:
                     if out: st.text_area("인스타그램 피드 (복사용)", value=out, height=280)
 
         with mkt_sub4:
+            st.markdown("##### ✉️ 단골 CRM 문자 작성기")
             c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 고객"], key="m_c_seg")
             c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off")
             c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
@@ -852,31 +876,6 @@ with tab_mkt:
                     prompt = f"매장: {store_name}\n대상: {c_seg}\n혜택: {c_off}\n기한: {c_lim}\n문의: {c_tel}\n단문 SMS, 장문 LMS, 카카오 알림톡 포맷 작성."
                     out = generate_safe_content(prompt)
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
-
-        # 💌 [신규 기능 1] 경조사 & 명절 안부 문자 생성기
-        with mkt_sub5:
-            st.markdown("##### 💌 센스 있는 경조사 & 명절 안부 문자 3초 생성기")
-            st.caption("거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다.")
-            event_type = st.selectbox("상황 선택", ["설날 / 추석 명절 인사", "거래처 사장님 개업/축하", "결혼식 / 부고 등 경조사", "지인 센스 있는 안부 인사"], key="m_ev_type")
-            event_tone = st.selectbox("문자 어조", ["정중하고 품격 있게", "위트 있고 친근하게", "따뜻하고 다정하게"], key="m_ev_tone")
-            
-            if st.button("안부 문자 문안 생성하기", key="m_ev_btn", use_container_width=True):
-                with st.spinner("문자 작성 중..."):
-                    prompt = f"보내는 이 매장: {store_name}\n상황: {event_type}\n어조: {event_tone}\n카카오톡이나 문자로 바로 복사해서 보낼 수 있는 센스 있는 안부 문자 3가지 버전 작성."
-                    out = generate_safe_content(prompt)
-                    if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
-
-        # 🤖 [신규 기능 2] 예약 노쇼 방지 & 재방문 자동 리마인더 봇
-        with mkt_sub6:
-            st.markdown("##### 🤖 알바 노쇼 방지 및 재방문 자동 리마인더 봇")
-            st.caption("예약 펑크(노쇼)를 막고 적절한 시기에 단골을 다시 오게 만드는 자동 메시지 봇입니다.")
-            bot_goal = st.selectbox("목적 선택", ["예약 시간 2시간 전 노쇼 방지 리마인더", "시술/방문 후 정확히 3주 뒤 재방문 케어 봇", "연락이 뜸해진 단골 고객 소환 봇"], key="m_bot_goal")
-            
-            if st.button("자동 리마인더 봇 메시지 생성", key="m_bot_btn", use_container_width=True):
-                with st.spinner("메시지 설계 중..."):
-                    prompt = f"매장명: {store_name}\n업종: {sel_industry}\n목적: {bot_goal}\n고객에게 감동을 주면서도 노쇼와 이탈을 확실히 막아주는 안내 문자 템플릿 2종 작성."
-                    out = generate_safe_content(prompt)
-                    if out: st.text_area("리마인더 봇 템플릿 (복사용)", value=out, height=280)
 
 # ------------------------------------------
 # TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
@@ -906,10 +905,30 @@ with tab_review:
                 out = generate_safe_content(prompt)
                 if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
         else:
-            st.warning("리뷰 내용을 입력해 주세요.")
+            st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 🛒 로컬 공동구매
+# TAB 5. 💌 경조사·안부 문자 (무료 제공 탭)
+# ------------------------------------------
+with tab_event:
+    st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
+<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">💌 센스 있는 경조사 & 명절 안부 문자 3초 생성기</div>
+<div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
+거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다. (모든 회원 무료 이용)
+</div>
+</div>""", unsafe_allow_html=True)
+
+    event_type = st.selectbox("상황 선택", ["설날 / 추석 명절 인사", "거래처 사장님 개업/축하", "결혼식 / 부고 등 경조사", "지인 센스 있는 안부 인사"], key="m_ev_type")
+    event_tone = st.selectbox("문자 어조", ["정중하고 품격 있게", "위트 있고 친근하게", "따뜻하고 다정하게"], key="m_ev_tone")
+    
+    if st.button("안부 문자 문안 생성하기", key="m_ev_btn", use_container_width=True):
+        with st.spinner("문자 작성 중..."):
+            prompt = f"보내는 이 매장: {store_name}\n상황: {event_type}\n어조: {event_tone}\n카카오톡이나 문자로 바로 복사해서 보낼 수 있는 센스 있는 안부 문자 3가지 버전 작성."
+            out = generate_safe_content(prompt)
+            if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
+
+# ------------------------------------------
+# TAB 6. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["공구 목록", "소모품 발주", "공구 제안"])
@@ -1027,7 +1046,7 @@ with tab_deals:
                 st.rerun()
 
 # ------------------------------------------
-# TAB 6. 🎧 음악 스튜디오
+# TAB 7. 🎧 음악 스튜디오
 # ------------------------------------------
 with tab_music:
     st.markdown("""<div class="simple-card">
@@ -1088,7 +1107,7 @@ with tab_music:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 7. 🌙 영업 마감
+# TAB 8. 🌙 영업 마감
 # ------------------------------------------
 with tab_close:
     st.markdown("""<div class="simple-card">
@@ -1109,7 +1128,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 8. 💼 경영·행정지원 (부가세·종소세 간편 계산기 탑재)
+# TAB 9. 💼 경영·행정지원 (부가세·종소세 계산기 추가 완료)
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
@@ -1234,22 +1253,20 @@ with tab_biz:
 <div style="font-size:1.25rem; font-weight:900; color:#0F172A; margin-top:2px;">실입금액: {int(settle_amt):,}원</div>
 </div>""", unsafe_allow_html=True)
 
-        # 💡 [신규 추가] 예상 부가가치세 및 종합소득세 간편 시뮬레이터
         with calc_tab5:
             st.markdown("##### 🏛️ 예상 부가가치세 및 종소세 간편 계산기")
             est_sales = st.number_input("반기 총 매출액 (원)", value=50000000, step=1000000, key="tax_sales")
             est_exp = st.number_input("반기 매입/경비 지출액 (원)", value=30000000, step=1000000, key="tax_exp")
             est_type = st.selectbox("사업자 유형", ["일반과세자 (부가세 10%)", "간이과세자 (업종별 부가세율 적용)", "면세사업자"], key="tax_type")
             
-            # 간이 계산식
             if "일반" in est_type:
                 est_vat = (est_sales * 0.1) - (est_exp * 0.1)
                 est_vat = max(est_vat, 0)
             else:
-                est_vat = est_sales * 0.02 # 간이 대략적 추정치
+                est_vat = est_sales * 0.02
                 
             est_net_profit = est_sales - est_exp
-            est_income_tax = max(est_net_profit * 0.06, 0) # 기본 소득세율 시뮬레이션
+            est_income_tax = max(est_net_profit * 0.06, 0)
             
             st.markdown(f"""<div class="calc-result-box">
 <div style="font-size:0.82rem; color:#64748B;">예상 납부 부가가치세: <b>{int(est_vat):,}원</b></div>
@@ -1259,7 +1276,7 @@ with tab_biz:
 </div>""", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 9. 🎁 정부 지원금 비서
+# TAB 10. 🎁 정부 지원금 비서
 # ------------------------------------------
 with tab_subsidy:
     st.markdown("""<div class="simple-card">

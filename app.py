@@ -207,7 +207,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 퍼스트 최적화 CSS
+# 📱 모바일 퍼스트 최적화 CSS (모바일 타이틀 줄바꿈 및 깔끔한 가독성 보정)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -238,8 +238,10 @@ st.markdown("""
     .store-meta-line {
         font-size: 0.8rem;
         color: #64748B;
-        margin-top: 3px;
-        line-height: 1.4;
+        margin-top: 2px;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .stTabs [data-baseweb="tab-list"] {
@@ -257,7 +259,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar { display: none; }
     .stTabs [data-baseweb="tab"] {
         height: 42px !important;
-        font-size: 0.92rem !important;
+        font-size: 0.88rem !important;
         font-weight: 700 !important;
         color: #64748B !important;
         background: transparent !important;
@@ -351,7 +353,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# 💡 [철물점 업종 추가 반영]
 INDUSTRY_LIST = [
+    "철물점 / 건재 / 공구·설비",
     "미용실 / 바버샵 / 네일 / 뷰티샵",
     "안경원 / 렌즈 / 광학",
     "식당 / 고깃집 / 일반음식점",
@@ -530,14 +534,14 @@ is_in_trial = (today_now <= trial_end_date)
 
 if is_approved_permanent:
     is_pro_user = True
-    pro_label = "PRO 정식 파트너"
+    pro_label = '<span style="color:#2563EB; font-weight:800;">PRO 정식 파트너</span>'
 elif is_in_trial:
     is_pro_user = True
     days_left = (trial_end_date - today_now).days
-    pro_label = f"무료체험 D-{days_left} ({trial_end_str} 종료)"
+    pro_label = f'무료체험 D-{days_left} <span style="color:#64748B; font-weight:600;">({trial_end_str} 종료)</span>'
 else:
     is_pro_user = False
-    pro_label = "스탠다드 (체험 만료)"
+    pro_label = '<span style="color:#DC2626; font-weight:800;">스탠다드 (체험 만료)</span>'
     if curr_user.get("is_pro", False) and not is_approved_permanent:
         curr_user["is_pro"] = False
         curr_user["pro_status"] = "체험만료"
@@ -567,13 +571,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (전화번호 아랫줄 배치 적용)
+# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
-<span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div class="store-meta-line">{sel_loc} · {sel_industry}<br>☎️ <b>{store_phone}</b></div>
+<span style="font-size: 0.72rem; font-weight: 700; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
+<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
@@ -585,9 +589,20 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭
+# 독립된 10대 메인 탭 ((무료) 문구 제거 및 PRO 색상 강조)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응", "💌 경조사·안부 문자", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+main_tabs = [
+    "홈 대시보드", 
+    "내 특가 관리", 
+    "마케팅 스튜디오 <span style='color:#DC2626; font-size:0.75rem; font-weight:900;'>PRO</span>", 
+    "💬 AI 리뷰 대응", 
+    "💌 경조사·안부 문자", 
+    "로컬 공동구매", 
+    "음악 스튜디오", 
+    "영업 마감", 
+    "경영·행정지원", 
+    "🎁 정부 지원금 비서"
+]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
@@ -900,7 +915,7 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응
+# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -930,7 +945,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자
+# TAB 5. 💌 경조사·안부 문자 (모든 회원 무료 개방!)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">

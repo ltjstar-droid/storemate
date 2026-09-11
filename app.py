@@ -563,9 +563,9 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭 (경조사·안부 문자 탭 무료 추가)
+# 독립된 10대 메인 탭 (경조사/노쇼 기능 무료 탭으로 분리)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부 문자 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부/노쇼봇 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
@@ -784,7 +784,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 전용)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 - 경조사/노쇼 제외됨)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -793,7 +793,7 @@ with tab_mkt:
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
 현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
 네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
-유료버전 가입을 원하시면 <b>[홈 대시보드] 하단</b>에서 신청해 주세요!
+유료버전 가입을 원하시면 <b>[홈 대시보드] 하단</b>에서 신청해 주세요! (※ 리뷰 대응 및 경조사 문자는 별도 무료 탭에서 이용 가능합니다.)
 </div>
 </div>""", unsafe_allow_html=True)
     else:
@@ -878,7 +878,7 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
+# TAB 4. 💬 AI 리뷰 대응 (무료 오픈)
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -908,24 +908,36 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (무료 제공 탭)
+# TAB 5. 💌 경조사·안부/노쇼봇 (무료 오픈)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
-<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">💌 센스 있는 경조사 & 명절 안부 문자 3초 생성기</div>
+<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 [무료 오픈] 경조사 문자 & 노쇼 방지 봇</div>
 <div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
-거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다. (모든 회원 무료 이용)
+거래처 안부 문자 및 예약 노쇼 방지 리마인더 봇을 무료로 이용하세요.
 </div>
 </div>""", unsafe_allow_html=True)
 
-    event_type = st.selectbox("상황 선택", ["설날 / 추석 명절 인사", "거래처 사장님 개업/축하", "결혼식 / 부고 등 경조사", "지인 센스 있는 안부 인사"], key="m_ev_type")
-    event_tone = st.selectbox("문자 어조", ["정중하고 품격 있게", "위트 있고 친근하게", "따뜻하고 다정하게"], key="m_ev_tone")
-    
-    if st.button("안부 문자 문안 생성하기", key="m_ev_btn", use_container_width=True):
-        with st.spinner("문자 작성 중..."):
-            prompt = f"보내는 이 매장: {store_name}\n상황: {event_type}\n어조: {event_tone}\n카카오톡이나 문자로 바로 복사해서 보낼 수 있는 센스 있는 안부 문자 3가지 버전 작성."
-            out = generate_safe_content(prompt)
-            if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
+    event_sub1, event_sub2 = st.tabs(["💌 경조사·명절 문자", "🤖 노쇼 방지 & 재방문 봇"])
+
+    with event_sub1:
+        event_type = st.selectbox("상황 선택", ["설날 / 추석 명절 인사", "거래처 사장님 개업/축하", "결혼식 / 부고 등 경조사", "지인 센스 있는 안부 인사"], key="m_ev_type")
+        event_tone = st.selectbox("문자 어조", ["정중하고 품격 있게", "위트 있고 친근하게", "따뜻하고 다정하게"], key="m_ev_tone")
+        
+        if st.button("안부 문자 문안 생성하기", key="m_ev_btn", use_container_width=True):
+            with st.spinner("문자 작성 중..."):
+                prompt = f"보내는 이 매장: {store_name}\n상황: {event_type}\n어조: {event_tone}\n카카오톡이나 문자로 바로 복사해서 보낼 수 있는 센스 있는 안부 문자 3가지 버전 작성."
+                out = generate_safe_content(prompt)
+                if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
+
+    with event_sub2:
+        bot_goal = st.selectbox("목적 선택", ["예약 시간 2시간 전 노쇼 방지 리마인더", "시술/방문 후 정확히 3주 뒤 재방문 케어 봇", "연락이 뜸해진 단골 고객 소환 봇"], key="m_bot_goal")
+        
+        if st.button("자동 리마인더 봇 메시지 생성", key="m_bot_btn", use_container_width=True):
+            with st.spinner("메시지 설계 중..."):
+                prompt = f"매장명: {store_name}\n업종: {sel_industry}\n목적: {bot_goal}\n고객에게 감동을 주면서도 노쇼와 이탈을 확실히 막아주는 안내 문자 템플릿 2종 작성."
+                out = generate_safe_content(prompt)
+                if out: st.text_area("리마인더 봇 템플릿 (복사용)", value=out, height=280)
 
 # ------------------------------------------
 # TAB 6. 🛒 로컬 공동구매
@@ -1128,7 +1140,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 9. 💼 경영·행정지원 (부가세·종소세 계산기 추가 완료)
+# TAB 9. 💼 경영·행정지원
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([

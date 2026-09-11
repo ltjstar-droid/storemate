@@ -563,10 +563,10 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 8대 메인 탭
+# 독립된 9대 메인 탭 (지원금 비서 추가)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
-tab_home, tab_my_deal, tab_mkt, tab_review, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+tab_home, tab_my_deal, tab_mkt, tab_review, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
 # TAB 1. 🏠 홈 대시보드
@@ -784,7 +784,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 + 어르신 원클릭 선택 프리셋)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -793,7 +793,7 @@ with tab_mkt:
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
 현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
 네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
-이용을 원하시면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요! (※ 리뷰 대응은 별도 무료 탭에서 이용 가능합니다.)
+이용을 원하시면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요!
 </div>
 </div>""", unsafe_allow_html=True)
     else:
@@ -816,17 +816,13 @@ with tab_mkt:
             ]
             sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
             
-            if "직접 입력하기" not in sel_b_topic and "[" in sel_b_topic:
-                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천"
-                b_core_default = f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
-            else:
-                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
-                b_core_default = sel_feature
+            b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천" if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
+            b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
 
             b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
             b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
-            b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교", "친절한 서비스 및 매장 분위기"], key="m_b_intent")
+            b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
             b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
@@ -909,7 +905,7 @@ with tab_review:
                 out = generate_safe_content(prompt)
                 if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
         else:
-            st.warning("리뷰를 입력해 주세요.")
+            st.warning("리뷰 내용을 입력해 주세요.")
 
 # ------------------------------------------
 # TAB 5. 🛒 로컬 공동구매
@@ -1112,7 +1108,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 8. 💼 경영·행정지원 (4대 금융계산기)
+# TAB 8. 💼 경영·행정지원
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
@@ -1236,3 +1232,22 @@ with tab_biz:
 <div style="font-size:0.82rem; color:#64748B;">차감 수수료: {int(calc_fee):,}원</div>
 <div style="font-size:1.25rem; font-weight:900; color:#0F172A; margin-top:2px;">실입금액: {int(settle_amt):,}원</div>
 </div>""", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 9. 🎁 정부 지원금 비서 (신규 제안 기능 추가)
+# ------------------------------------------
+with tab_subsidy:
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">🎁 맞춤형 정부 지원금 & 보조금 비서</div>
+<div style="font-size:0.82rem; color:#64748B;">지자체 및 정부에서 소상공인과 국민에게 지급하는 숨은 지원금을 진단합니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    sub_target = st.selectbox("진단 대상 선택", ["소상공인 / 자영업자", "일반 국민 / 직장인", "청년 / 예비창업자"], key="sub_tgt")
+    sub_region = st.text_input("거주/사업장 지역", value=f"{st.session_state.current_region_name}", key="sub_reg")
+    
+    if st.button("내 조건 맞춤 숨은 지원금 AI 진단", key="sub_btn", use_container_width=True):
+        with st.spinner("정부 지원금 데이터 분석 중..."):
+            prompt = f"대상: {sub_target}\n지역: {sub_region}\n업종: {sel_industry}\n현재 시점 기준으로 신청할 수 있는 알짜 정부 지원금, 보조금, 세제 혜택 3가지를 공문서 리포트 형식으로 상세히 안내해 주세요."
+            out = generate_safe_content(prompt)
+            if out:
+                st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)

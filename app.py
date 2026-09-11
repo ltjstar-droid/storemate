@@ -784,7 +784,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 + 어르신 친화적 원클릭 추천 선택 기능 탑재)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 + 어르신 원클릭 선택 프리셋)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -807,19 +807,18 @@ with tab_mkt:
             st.markdown("##### ✍️ AI 블로그 SEO 원고 생성기")
             st.caption("어르신들도 편하게 버튼과 선택지만 눌러 완성하세요.")
             
-            # 💡 [업종별 추천 키워드 및 주제 프리셋 제공]
             preset_blog_topics = [
                 "직접 입력하기 (아래 칸에 직접 적기)",
                 "🌟 [추천1] 우리 동네 신규 방문 고객 환영 및 할인 이벤트",
                 "💡 [추천2] 전문가가 알려주는 맞춤 관리 노하우 및 제품 소개",
                 "🏆 [추천3] 단골 고객들이 극찬하는 우리 매장만의 특별한 차별점",
-                "🌿 [추천4] 봄/여름/가을/겨울 계절 맞춤형 단골 케어 후기"
+                "🌿 [추천4] 계절 맞춤형 단골 고객 케어 후기"
             ]
             sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
             
-            if "직접 입력하기" not in sel_b_topic:
+            if "직접 입력하기" not in sel_b_topic and "[" in sel_b_topic:
                 b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천"
-                b_core_default = f"{sel_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
+                b_core_default = f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
             else:
                 b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
                 b_core_default = sel_feature
@@ -827,7 +826,7 @@ with tab_mkt:
             b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
             b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
-            b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
+            b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교", "친절한 서비스 및 매장 분위기"], key="m_b_intent")
             b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
@@ -910,7 +909,7 @@ with tab_review:
                 out = generate_safe_content(prompt)
                 if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
         else:
-            st.warning("리뷰 내용을 입력해 주세요.")
+            st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
 # TAB 5. 🛒 로컬 공동구매

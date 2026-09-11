@@ -149,31 +149,6 @@ def track_visitor():
 track_visitor()
 
 # ==========================================
-# 🔍 실시간 도로명 주소 검색 API 연동
-# ==========================================
-def search_address(keyword):
-    if not keyword or len(keyword.strip()) < 2:
-        return []
-    try:
-        # OpenStreetMap Nominatim 공공 API 활용 (별도 API 키 불필요, 실시간 정확도 최상)
-        url = f"https://nominatim.openstreetmap.org/search?format=json&q={urllib.parse.quote(keyword + ' 대한민국')}&countrycodes=kr&limit=5"
-        headers = {"User-Agent": "StoreMate-AddressSearch/2.0"}
-        res = requests.get(url, headers=headers, timeout=3)
-        if res.status_code == 200:
-            results = res.json()
-            addresses = []
-            for item in results:
-                display_name = item.get("display_name", "")
-                # 보기 좋게 주소 정제 (국가명 등 제거)
-                parts = [p.strip() for p in display_name.split(",") if "대한민국" not in p and "South Korea" not in p]
-                clean_addr = " ".join(reversed(parts)) if parts else display_name
-                addresses.append(clean_addr)
-            return addresses
-    except Exception:
-        pass
-    return []
-
-# ==========================================
 # ☀️ 날씨 및 지오코딩
 # ==========================================
 def reverse_geocode(lat, lon):
@@ -402,15 +377,6 @@ if "logged_in_user" not in st.session_state:
 if "saved_login_id" not in st.session_state:
     st.session_state.saved_login_id = ""
 
-if "signup_step" not in st.session_state:
-    st.session_state.signup_step = 1
-
-if "signup_temp_data" not in st.session_state:
-    st.session_state.signup_temp_data = {}
-
-if "my_deal_step" not in st.session_state:
-    st.session_state.my_deal_step = 1
-
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -419,7 +385,30 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구 이동읍"
 
 # ==========================================
-# 로그인 화면 (실시간 주소 검색 시스템 연동 신규 가입)
+# 실시간 주소 검색 API
+# ==========================================
+def search_address(keyword):
+    if not keyword or len(keyword.strip()) < 2:
+        return []
+    try:
+        url = f"https://nominatim.openstreetmap.org/search?format=json&q={urllib.parse.quote(keyword + ' 대한민국')}&countrycodes=kr&limit=5"
+        headers = {"User-Agent": "StoreMate-AddressSearch/2.0"}
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            results = res.json()
+            addresses = []
+            for item in results:
+                display_name = item.get("display_name", "")
+                parts = [p.strip() for p in display_name.split(",") if "대한민국" not in p and "South Korea" not in p]
+                clean_addr = " ".join(reversed(parts)) if parts else display_name
+                addresses.append(clean_addr)
+            return addresses
+    except Exception:
+        pass
+    return []
+
+# ==========================================
+# 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -449,57 +438,50 @@ if not st.session_state.logged_in_user:
                 else:
                     st.error("등록되지 않은 계정입니다.")
     with auth_tab2:
-        st.markdown("##### 🏢 신규 가입 및 매장 등록")
-        st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
-        
-        with st.form("signup_main_form"):
-            s_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
-            s_pw = st.text_input("비밀번호 설정", type="password")
-            s_pw_cf = st.text_input("비밀번호 확인", type="password")
-            s_store = st.text_input("매장 상호명", placeholder="예: 드림안경")
-            s_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
-            s_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
+        with st.form("signup_form"):
+            st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
+            new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
+            new_pw = st.text_input("비밀번호 설정", type="password")
+            new_pw_confirm = st.text_input("비밀번호 확인", type="password")
+            new_store = st.text_input("매장 상호명")
+            new_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
+            new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             
             st.markdown("**📍 매장 주소 실시간 검색**")
             s_query = st.text_input("도로명 또는 지역명 입력", placeholder="예: 경기동로 또는 이동읍 송전리", key="signup_addr_query")
-            
-            searched_addrs = []
-            if s_query:
-                searched_addrs = search_address(s_query)
-            
-            s_loc = st.selectbox("검색된 주소 선택", ["직접 입력 또는 아래에서 선택하세요"] + searched_addrs if searched_addrs else ["검색 결과가 없습니다 (키워드를 입력해 주세요)"], key="signup_addr_select")
-            
-            s_loc_direct = st.text_input("상세 주소 (층/호수 등)", placeholder="예: 1층 101호")
+            searched_addrs = search_address(s_query) if s_query else []
+            new_loc = st.selectbox("검색된 주소 선택", ["주소를 선택해 주세요"] + searched_addrs if searched_addrs else ["검색 결과가 없습니다"], key="signup_addr_select")
+            new_loc_direct = st.text_input("상세 주소 (층/호수 등)", placeholder="예: 1층 101호")
 
             if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
-                if not s_id or not s_pw or not s_store:
+                if not new_id or not new_pw or not new_store:
                     st.error("필수 정보를 모두 입력해 주세요.")
-                elif s_pw != s_pw_cf:
+                elif new_pw != new_pw_confirm:
                     st.error("비밀번호가 서로 일치하지 않습니다.")
-                elif s_id in users_db:
+                elif new_id in users_db:
                     st.error("이미 등록된 아이디(연락처)입니다.")
                 else:
-                    final_address = f"{s_loc if s_loc != '직접 입력 또는 아래에서 선택하세요' and '검색 결과가 없습니다' not in s_loc else s_query} {s_loc_direct}".strip()
+                    final_address = f"{new_loc if new_loc != '주소를 선택해 주세요' and '검색 결과가 없습니다' not in new_loc else s_query} {new_loc_direct}".strip()
                     now = datetime.now()
                     trial_end_date = (now + timedelta(days=7)).strftime("%Y-%m-%d")
-                    users_db[s_id] = {
-                        "store_name": s_store,
-                        "industry": s_ind,
+                    users_db[new_id] = {
+                        "store_name": new_store,
+                        "industry": new_ind,
                         "location": final_address if final_address else "용인시 처인구",
-                        "phone": s_phone if s_phone else "010-0000-0000",
+                        "phone": new_phone if new_phone else "010-0000-0000",
                         "feature": "전문 고객 맞춤 케어",
                         "map_address": final_address if final_address else "용인시 처인구",
                         "map_perk": "용친 회원 방문 시 특별 혜택 제공",
                         "today_deal": "",
                         "today_updated": now.strftime("%Y-%m-%d"),
-                        "pw": s_pw,
+                        "pw": new_pw,
                         "is_pro": True,
                         "pro_status": "무료체험",
                         "created_at": now.strftime("%Y-%m-%d"),
                         "trial_end": trial_end_date
                     }
                     save_users(users_db)
-                    st.session_state.saved_login_id = s_id
+                    st.session_state.saved_login_id = new_id
                     st.success("등록 완료! 7일 무료 PRO 체험이 시작되었습니다. 로그인해 주세요.")
     st.stop()
 
@@ -581,7 +563,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 메인 7대 독립 탭
+# 독립된 7대 메인 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
 tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
@@ -760,7 +742,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (실시간 주소 검색 시스템 통합)
+# TAB 2. ⚙️ 내 특가 관리 (실시간 주소 검색 적용)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -780,10 +762,7 @@ with tab_my_deal:
         st.markdown("**2. 매장 위치 주소 실시간 검색**")
         inp_addr_q = st.text_input("도로명 또는 지역명 입력", value="", placeholder="예: 경기동로 또는 이동읍 송전리", key="edit_addr_query")
         
-        edit_searched = []
-        if inp_addr_q:
-            edit_searched = search_address(inp_addr_q)
-            
+        edit_searched = search_address(inp_addr_q) if inp_addr_q else []
         inp_addr_sel = st.selectbox("검색된 주소 선택", [current_addr_val] + edit_searched if edit_searched else [current_addr_val], key="edit_addr_select")
         
         st.markdown("**3. 오늘의 번개 특가 품목**")
@@ -808,14 +787,21 @@ with tab_my_deal:
 # TAB 3. 📢 마케팅 스튜디오
 # ------------------------------------------
 with tab_mkt:
+    # 💡 [PRO 유료 기능 명시 명확화]
     if not is_pro_user:
         st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
-<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">PRO 전용 유료 마케팅 기능입니다</div>
-<div style="font-size: 0.86rem; color: #7F1D1D; line-height: 1.5;">
-무료 체험 기간이 만료되었습니다. 홈 대시보드 하단에서 <b>[유료버전 승인 신청]</b>을 눌러주세요.
+<div style="font-weight: 800; font-size: 1.05rem; color: #991B1B; margin-bottom: 6px;">🔒 [PRO 유료 전용 기능] 마케팅 스튜디오</div>
+<div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
+현재 7일 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>으로 전환되었습니다.<br>
+네이버 블로그 SEO 원고 생성, 당근마켓 바이럴, 인스타그램 피드, 단골 CRM 문자 및 AI 리뷰 답글 기능은 <b>PRO 유료 파트너 전용 기능</b>입니다.<br><br>
+계속 이용하시려면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요!
 </div>
 </div>""", unsafe_allow_html=True)
     else:
+        st.markdown(f"""<div class="simple-card" style="background: #EFF6FF; border-left: 4px solid #2563EB;">
+<div style="font-weight: 800; font-size: 0.95rem; color: #1E40AF;">✨ {pro_label} 이용 중인 전문 마케팅 공간입니다.</div>
+</div>""", unsafe_allow_html=True)
+
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
         mkt_sub1, mkt_sub2, mkt_sub3, mkt_sub4, mkt_sub5 = st.tabs([
@@ -1061,7 +1047,7 @@ with tab_music:
             "세련된 Lo-Fi 칠(Chill) 비트",
             "90-2000 국민 애창 댄스 (식당/펍)",
             "최신 트로트 명곡 메들리"
-        ], key="tab_m_style_cust")
+        ], key="tab_m_style_custom")
         
         yt_custom_q = f"{m_style_custom.split('/')[0].strip()} {m_time_custom.split('(')[0].strip()} 플레이리스트 연속재생"
         custom_music_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(yt_custom_q)}"

@@ -40,7 +40,17 @@ def load_users():
     if os.path.exists(USER_DB_FILE):
         try:
             with open(USER_DB_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                updated = False
+                for uid, uinfo in data.items():
+                    if uinfo.get("today_updated") != today_str and uinfo.get("today_deal"):
+                        uinfo["today_deal"] = ""
+                        uinfo["today_updated"] = today_str
+                        updated = True
+                if updated:
+                    save_users(data)
+                return data
         except Exception:
             return {}
     return {
@@ -234,7 +244,6 @@ st.markdown("""
         text-overflow: ellipsis;
     }
 
-    /* 메인 탭바 간결화 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -365,8 +374,8 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
-if "active_join_deal_id" not in st.session_state:
-    st.session_state.active_join_deal_id = None
+if "saved_login_id" not in st.session_state:
+    st.session_state.saved_login_id = ""
 
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
@@ -376,7 +385,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구 이동읍"
 
 # ==========================================
-# 로그인 화면
+# 로그인 화면 (아이디 기억하기 & 비밀번호 2중 확인 가입)
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 30px 0 16px 0;">
@@ -384,16 +393,22 @@ if not st.session_state.logged_in_user:
 <p style="font-size: 0.88rem; color: #64748B;">소상공인 올인원 모바일 비서</p>
 </div>""", unsafe_allow_html=True)
     
-    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입 (7일 무료)"])
+    auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입"])
     with auth_tab1:
         with st.form("login_form"):
-            login_id = st.text_input("아이디 또는 연락처", placeholder="휴대폰 번호 권장")
+            login_id = st.text_input("아이디 또는 연락처", value=st.session_state.saved_login_id, placeholder="휴대폰 번호 권장")
             login_pw = st.text_input("비밀번호", type="password")
+            remember_id = st.checkbox("아이디 기억하기", value=True if st.session_state.saved_login_id else False)
+            
             if st.form_submit_button("로그인", use_container_width=True):
                 if login_id in users_db:
                     stored_pw = users_db[login_id].get("pw", "1234")
                     if login_pw == stored_pw or login_pw == "1234":
                         st.session_state.logged_in_user = login_id
+                        if remember_id:
+                            st.session_state.saved_login_id = login_id
+                        else:
+                            st.session_state.saved_login_id = ""
                         st.rerun()
                     else:
                         st.error("비밀번호가 일치하지 않습니다.")
@@ -401,15 +416,23 @@ if not st.session_state.logged_in_user:
                     st.error("등록되지 않은 계정입니다.")
     with auth_tab2:
         with st.form("signup_form"):
-            st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
+            st.caption("✨ 신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
             new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
             new_pw = st.text_input("비밀번호 설정", type="password")
+            new_pw_confirm = st.text_input("비밀번호 확인", type="password")
             new_store = st.text_input("매장 상호명")
             new_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             new_loc = st.text_input("매장 주소", placeholder="예: 용인시 처인구 이동읍...")
+            
             if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
-                if new_id and new_pw and new_store:
+                if not new_id or not new_pw or not new_store:
+                    st.error("필수 정보를 모두 입력해 주세요.")
+                elif new_pw != new_pw_confirm:
+                    st.error("비밀번호가 서로 일치하지 않습니다. 다시 확인해 주세요.")
+                elif new_id in users_db:
+                    st.error("이미 등록된 아이디(연락처)입니다.")
+                else:
                     now = datetime.now()
                     trial_end_date = (now + timedelta(days=7)).strftime("%Y-%m-%d")
                     users_db[new_id] = {
@@ -429,11 +452,12 @@ if not st.session_state.logged_in_user:
                         "trial_end": trial_end_date
                     }
                     save_users(users_db)
+                    st.session_state.saved_login_id = new_id
                     st.success("등록 완료! 7일 무료 PRO 체험이 시작되었습니다. 로그인해 주세요.")
     st.stop()
 
 # ==========================================
-# 회원 권한 및 정확한 D-day 계산 (수정 완료)
+# 회원 권한 및 정확한 D-day 계산
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
@@ -502,15 +526,15 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
-<a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인친구들 페북</a>
-<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인친구들 인스타</a>
-<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인친구들 스레드</a>
+<a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 인스타</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 스레드</a>
 </div>
 <hr style="margin: 8px 0 14px 0; border: none; border-top: 1px solid #E2E8F0;">
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 이전 스타일로 완벽 복구된 메인 6대 독립 탭
+# 이전 스타일로 완벽 복구된 메인 7대 독립 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
 tab_home, tab_my_deal, tab_mkt, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)

@@ -238,10 +238,8 @@ st.markdown("""
     .store-meta-line {
         font-size: 0.8rem;
         color: #64748B;
-        margin-top: 2px;
-        white-space: nowrap !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin-top: 3px;
+        line-height: 1.4;
     }
 
     .stTabs [data-baseweb="tab-list"] {
@@ -374,7 +372,6 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
-# 💡 [아이디 기억하기 영구 지속 파일 DB 연동]
 REMEMBER_ID_FILE = "remember_id.json"
 
 def load_remembered_id():
@@ -570,13 +567,13 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
+# 모바일 상단 바 (전화번호 아랫줄 배치 적용)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
+<div class="store-meta-line">{sel_loc} · {sel_industry}<br>☎️ <b>{store_phone}</b></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">

@@ -197,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 퍼스트 최적화 CSS (사이드바 완전 강제 숨김)
+# 📱 모바일 퍼스트 최적화 CSS
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -212,8 +212,6 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
-    /* 사이드바 및 불필요한 기본 헤더/버튼 완전 삭제 */
-    section[data-testid="stSidebar"] { display: none !important; }
     header[data-testid="stHeader"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
     button[kind="header"] { display: none !important; }
@@ -236,7 +234,6 @@ st.markdown("""
         text-overflow: ellipsis;
     }
 
-    /* 상단 메인 탭바 가로 스크롤 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -367,9 +364,6 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
-if "active_join_deal_id" not in st.session_state:
-    st.session_state.active_join_deal_id = None
-
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -435,7 +429,7 @@ if not st.session_state.logged_in_user:
     st.stop()
 
 # ==========================================
-# 회원 권한 및 정확한 D-day 계산
+# 회원 권한 및 정확한 D-day 계산 (수정 완료)
 # ==========================================
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
@@ -471,30 +465,8 @@ else:
         users_db[user_key] = curr_user
         save_users(users_db)
 
-client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
-TARGET_MODEL = "gemini-3.6-flash"
-
-SYSTEM_DIRECTIVE = """
-너는 로컬 비즈니스 경영 및 마케팅 수석 디렉터다.
-이모티콘 남발은 철저히 배제하고, 전문 컨설턴트처럼 정갈하고 구조화된 데이터와 전략 중심의 실무 원고를 제공한다.
-"""
-
-def generate_safe_content(prompt):
-    max_retries = 3
-    full_prompt = f"{SYSTEM_DIRECTIVE}\n\n{prompt}"
-    for attempt in range(max_retries):
-        try:
-            res = client.models.generate_content(model=TARGET_MODEL, contents=full_prompt)
-            return res.text
-        except Exception:
-            if attempt < max_retries - 1:
-                time.sleep(2)
-                continue
-            st.error("데이터 생성 중 오류가 발생했습니다. 다시 시도해 주세요.")
-            return None
-
 # ==========================================
-# 모바일 상단 바 (매장 정보 & SNS 채널)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -628,12 +600,12 @@ with tab_home:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (연락처 수정 기능 추가 통합)
+# TAB 2. ⚙️ 내 특가 관리 (전화번호 수정 포함)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
-<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 연락처 관리</div>
-<div style="font-size:0.82rem; color:#64748B;">매장 전화번호, 오늘의 특가, 상시 혜택을 손쉽게 수정하세요.</div>
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 연락처 설정</div>
+<div style="font-size:0.82rem; color:#64748B;">매장 전화번호와 특가 내용을 입력하면 홈 화면 공유창에 즉시 반영됩니다.</div>
 </div>""", unsafe_allow_html=True)
 
     current_deal_val = curr_user.get("today_deal", "")
@@ -652,7 +624,7 @@ with tab_my_deal:
         inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC", label_visibility="collapsed")
         
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        if st.form_submit_button("정보 저장 및 즉시 반영", use_container_width=True):
+        if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
             users_db[user_key]["phone"] = inp_phone.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
@@ -662,7 +634,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 & 공구 (모바일 최적화 원페이지)
+# TAB 3. 📢 마케팅 & 공구 (프로페셔널 원페이지 통합)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -685,38 +657,50 @@ with tab_mkt:
     else:
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
-        st.markdown("##### ✍️ AI 블로그 SEO 원고 생성기")
+        # ✍️ 블로그 SEO
+        st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">✍️ AI 블로그 SEO 원고 생성기</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">네이버 스마트블록 상위노출 최적화 원고를 즉시 설계합니다.</div>""", unsafe_allow_html=True)
         b_kw = st.text_input("메인 키워드", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
         b_core = st.text_area("매장 핵심 강점", value=sel_feature, height=60, key="m_b_core")
         if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
             with st.spinner("원고 작성 중..."):
                 prompt = f"업종: {sel_industry}\n매장: {store_name}\n지역: {st.session_state.current_region_name}\n키워드: {b_kw}\n강점: {b_core}\n네이버 스마트블록용 제목 3종, 본문, 해시태그 작성."
                 out = generate_safe_content(prompt)
-                if out: st.text_area("작성된 블로그 원고", value=out, height=250)
+                if out: st.text_area("작성된 블로그 원고", value=out, height=220)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("##### 🥕 당근마켓 이웃 소식 작성기")
+        # 🥕 당근마켓 바이럴
+        st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">🥕 당근마켓 이웃 소식 작성기</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">이웃 사장님 톤으로 신뢰도 높은 당근 소식을 작성합니다.</div>""", unsafe_allow_html=True)
         d_prm = st.text_input("제공 혜택", value="무상 정밀 점검 및 세척 서비스", key="m_d_prm")
         if st.button("당근마켓 소식 생성하기", key="m_d_btn", use_container_width=True):
             with st.spinner("소식 작성 중..."):
                 prompt = f"매장: {store_name}\n지역: {st.session_state.current_region_name}\n혜택: {d_prm}\n이웃 사장님 친근한 톤으로 당근 소식 원고 작성."
                 out = generate_safe_content(prompt)
-                if out: st.text_area("당근 소식 원고", value=out, height=220)
+                if out: st.text_area("당근 소식 원고", value=out, height=200)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("##### 💬 AI 리뷰 전문 답글 생성기")
-        cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객 리뷰를 입력하세요.", key="m_rev_box")
+        # 💬 AI 리뷰 답글
+        st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">💬 AI 리뷰 전문 답글 생성기</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">고객 리뷰에 맞는 정중하고 센스 있는 답글을 만듭니다.</div>""", unsafe_allow_html=True)
+        cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객 리뷰 내용을 입력하세요.", key="m_rev_box")
         if st.button("전문 답글 3종 생성", key="m_r_btn", use_container_width=True):
             if cust_rev:
                 with st.spinner("답글 생성 중..."):
                     prompt = f"매장: {store_name}\n리뷰: '{cust_rev}'\n플레이스 신뢰를 높이는 정중한 답글 3종 작성."
                     out = generate_safe_content(prompt)
-                    if out: st.text_area("추천 답글 3종", value=out, height=220)
+                    if out: st.text_area("추천 답글 3종", value=out, height=200)
             else:
                 st.warning("리뷰 내용을 입력해 주세요.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("##### 🛒 로컬 공동구매 참여 센터")
+        # 🛒 로컬 공동구매 참여
+        st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">🛒 로컬 공동구매 참여 센터</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">소상공인 단골 공구 품목을 간편 신청합니다.</div>""", unsafe_allow_html=True)
         for d in deals_db["deals"][:2]:
             tot_qty = sum([p["qty"] for p in d["participants"]])
             st.markdown(f"**{d['title']}**<br><span style='color:#2563EB; font-weight:800;'>{d['price']}</span> · {len(d['participants'])}명 참여", unsafe_allow_html=True)
@@ -731,33 +715,43 @@ with tab_mkt:
                         save_deals(deals_db)
                         st.success("신청 완료되었습니다.")
                         st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 4. 💼 경영·행정비서 (음악 + 마감 + 계산기 + 서류 통합)
+# TAB 4. 💼 경영·행정비서 (음악 + 마감 + 계산기 + 서류 + 계정관리 원페이지 통합)
 # ------------------------------------------
 with tab_biz:
-    st.markdown("##### 🎧 매장 사운드 큐레이션")
+    # 🎧 음악 큐레이션
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">🎧 매장 사운드 큐레이션</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">시간대별 매장 분위기에 맞는 유튜브 플레이리스트를 엽니다.</div>""", unsafe_allow_html=True)
     music_query = st.selectbox("시간대별 매장 음악 선택", [
         "재즈 보사노바 오전 매장 음악 연속재생",
         "어쿠스틱 팝 피크타임 매장 음악 연속재생",
         "2000년대 감성 발라드 피아노 연주곡 연속재생",
         "세련된 카페 라운지 재즈 음악 연속재생"
-    ], key="biz_music_sel")
+    ], key="biz_music_sel", label_visibility="collapsed")
     st.link_button("유튜브 음악 스트리밍 열기", f"https://www.youtube.com/results?search_query={urllib.parse.quote(music_query)}", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("##### 🌙 일일 영업 마감 리포트")
+    # 🌙 영업 마감
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">🌙 일일 영업 마감 리포트</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">오늘 하루 매출과 유입 분위기를 정리하고 내일 과제를 받습니다.</div>""", unsafe_allow_html=True)
     c_sales = st.text_input("오늘 매출액 (선택)", placeholder="예: 850,000원", key="biz_sales")
     c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석 / 목표 초과"], key="biz_flow")
     if st.button("AI 일일 마감 리포트 생성", key="biz_close_btn", use_container_width=True):
         with st.spinner("리포트 분석 중..."):
             prompt = f"매장: {store_name}\n업종: {sel_industry}\n매출: {c_sales}\n유입: {c_flow}\n1) 오늘 총평 2) 내일 과제 3선 작성."
             out = generate_safe_content(prompt)
-            if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
+            if out: st.markdown(f"<div class='calc-result-box'>{out}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("##### 🧮 소상공인 실무 금융 계산기")
-    calc_choice = st.selectbox("계산기 종류 선택", ["파트타이머 알바 급여", "사업자 대출 이자", "제품 마진율 역산", "카드 수수료 정산"], key="biz_calc_sel")
+    # 🧮 금융 계산기
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:2px;">🧮 소상공인 실무 금융 계산기</div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:10px;">알바 급여, 대출 이자, 마진율, 카드 수수료를 즉시 계산합니다.</div>""", unsafe_allow_html=True)
+    calc_choice = st.selectbox("계산기 종류 선택", ["파트타이머 알바 급여", "사업자 대출 이자", "제품 마진율 역산", "카드 수수료 정산"], key="biz_calc_sel", label_visibility="collapsed")
     
     if calc_choice == "파트타이머 알바 급여":
         wage = st.number_input("시급 (원)", value=10030, step=100, key="bc_w")
@@ -796,20 +790,23 @@ with tab_biz:
         st.markdown(f"""<div class="calc-result-box">
 <div style="font-size:1.2rem; font-weight:900; color:#0F172A;">우대수수료 적용 실입금액: {int(settle_amt):,}원</div>
 </div>""", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("##### 📄 4대 필수 행정서류 및 정책자금 링크")
+    # 📄 필수 행정 서류
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:8px;">📄 4대 필수 행정서류 및 정책자금 링크</div>""", unsafe_allow_html=True)
     col_f1, col_f2 = st.columns(2)
     with col_f1:
-        st.link_button("소상공인확인서 (중기현황)", "https://sminfo.mss.go.kr", use_container_width=True)
-        st.link_button("국세 완납증명서 (홈택스)", "https://www.hometax.go.kr", use_container_width=True)
+        st.link_button("소상공인확인서", "https://sminfo.mss.go.kr", use_container_width=True)
+        st.link_button("국세 완납증명서", "https://www.hometax.go.kr", use_container_width=True)
     with col_f2:
-        st.link_button("부가세 과세표준증명", "https://www.hometax.go.kr", use_container_width=True)
-        st.link_button("지방세 납세증명서 (정부24)", "https://www.gov.kr", use_container_width=True)
+        st.link_button("부가세 과세표준", "https://www.hometax.go.kr", use_container_width=True)
+        st.link_button("지방세 납세증명", "https://www.gov.kr", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    # 🚪 [모바일 사용자 전용 로그아웃 및 계정 관리 센터 (하단 배치)]
-    st.markdown("---")
-    st.markdown("##### ⚙️ 계정 및 세션 관리")
+    # 🚪 [모바일 사용자 전용 계정 및 로그아웃 센터 (하단 통합)]
+    st.markdown("""<div class="simple-card" style="background:#F8FAFC;">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:8px;">⚙️ 계정 및 세션 관리</div>""", unsafe_allow_html=True)
     col_acc1, col_acc2 = st.columns(2)
     with col_acc1:
         if not is_approved_permanent and curr_user.get("pro_status") != "대기중":
@@ -823,11 +820,12 @@ with tab_biz:
         if st.button("로그아웃 하기", key="btn_mobile_logout", use_container_width=True):
             st.session_state.logged_in_user = None
             st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # 📊 관리자 전용 통계를 모바일 하단에 통합 노출
     if user_key == "admin":
-        st.markdown("---")
-        st.markdown("##### 📊 관리자 전용: 방문자 통계")
+        st.markdown("""<div class="simple-card" style="border:2px solid #2563EB;">
+<div style="font-weight:900; font-size:1.05rem; color:#2563EB; margin-bottom:8px;">📊 관리자 전용: 방문자 통계 & 승인 제어</div>""", unsafe_allow_html=True)
         analytics_data = load_analytics()
         today_key = today_now.strftime("%Y-%m-%d")
         today_stat = analytics_data.get(today_key, {"uv": 0, "pv": 0})
@@ -841,7 +839,7 @@ with tab_biz:
             st.metric("오늘 조회수 (PV)", f"{today_stat['pv']}회")
         st.caption(f"누적 순방문: {total_uv}명 | 누적 페이지뷰: {total_pv}회")
         
-        with st.expander("🔑 관리자: 회원 유료 승인 제어 센터"):
+        with st.expander("🔑 회원 유료 승인 관리"):
             for uid, udata in users_db.items():
                 if uid == "admin":
                     continue
@@ -862,3 +860,4 @@ with tab_biz:
                         users_db[uid]["pro_status"] = "승인취소"
                         save_users(users_db)
                         st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)

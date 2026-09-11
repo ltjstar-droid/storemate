@@ -197,7 +197,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 📱 모바일 퍼스트 원페이지 CSS
+# 📱 모바일 퍼스트 최적화 CSS (사이드바 완전 강제 숨김)
 # ==========================================
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -212,6 +212,8 @@ st.markdown("""
     
     .stApp, html, body { background-color: #FFFFFF !important; }
 
+    /* 사이드바 및 불필요한 기본 헤더/버튼 완전 삭제 */
+    section[data-testid="stSidebar"] { display: none !important; }
     header[data-testid="stHeader"] { display: none !important; }
     [data-testid="collapsedControl"] { display: none !important; }
     button[kind="header"] { display: none !important; }
@@ -234,7 +236,7 @@ st.markdown("""
         text-overflow: ellipsis;
     }
 
-    /* 메인 탭바 간결화 */
+    /* 상단 메인 탭바 가로 스크롤 */
     .stTabs [data-baseweb="tab-list"] {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -365,6 +367,9 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
+if "active_join_deal_id" not in st.session_state:
+    st.session_state.active_join_deal_id = None
+
 if "current_lat" not in st.session_state:
     st.session_state.current_lat = 37.16
 if "current_lon" not in st.session_state:
@@ -466,81 +471,6 @@ else:
         users_db[user_key] = curr_user
         save_users(users_db)
 
-with st.sidebar:
-    st.markdown(f"### {store_name}")
-    st.markdown(f"**연락처:** `{store_phone}`")
-    st.markdown(f"**상태:** `{pro_label}`")
-    
-    st.markdown("##### 매장 연락처 변경")
-    with st.form("sidebar_phone_form"):
-        new_p = st.text_input("새 전화번호", value=store_phone, label_visibility="collapsed")
-        if st.form_submit_button("전화번호 즉시 변경", use_container_width=True):
-            users_db[user_key]["phone"] = new_p.strip()
-            save_users(users_db)
-            st.success("변경 완료되었습니다.")
-            st.rerun()
-
-    if not is_approved_permanent:
-        if is_in_trial:
-            st.caption(f"무료 체험 종료일: {trial_end_str}")
-        else:
-            st.warning("7일 무료 체험이 종료되었습니다. 관리자 승인 후 유료 버전을 이용하실 수 있습니다.")
-            
-        if curr_user.get("pro_status") != "대기중":
-            if st.button("유료버전 사용 승인 신청", use_container_width=True):
-                curr_user["pro_status"] = "대기중"
-                users_db[user_key] = curr_user
-                save_users(users_db)
-                st.success("승인 신청이 접수되었습니다.")
-                st.rerun()
-        else:
-            st.info("관리자 유료 승인 대기 중입니다.")
-    else:
-        st.success("정식 유료 파트너 계정입니다.")
-
-    if user_key == "admin":
-        st.markdown("---")
-        st.markdown("##### 📊 관리자: 방문 통계")
-        analytics_data = load_analytics()
-        today_key = today_now.strftime("%Y-%m-%d")
-        today_stat = analytics_data.get(today_key, {"uv": 0, "pv": 0})
-        total_uv = sum([v.get("uv", 0) for v in analytics_data.values()])
-        total_pv = sum([v.get("pv", 0) for v in analytics_data.values()])
-        
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
-            st.metric("오늘 방문자", f"{today_stat['uv']}명")
-        with col_m2:
-            st.metric("오늘 조회수", f"{today_stat['pv']}회")
-        st.caption(f"누적 순방문: {total_uv}명 | 누적 페이지뷰: {total_pv}회")
-
-        st.markdown("---")
-        st.markdown("##### 🔑 회원 유료 승인 제어")
-        for uid, udata in users_db.items():
-            if uid == "admin":
-                continue
-            ustore = udata.get("store_name", uid)
-            u_status = udata.get("pro_status", "미신청")
-            st.write(f"**{ustore}** (`{uid}`) | 상태: `{u_status}`")
-            col_a, col_b = st.columns(2)
-            with col_a:
-                if u_status != "승인완료" and st.button("유료 승인", key=f"app_{uid}", use_container_width=True):
-                    users_db[uid]["is_pro"] = True
-                    users_db[uid]["pro_status"] = "승인완료"
-                    save_users(users_db)
-                    st.success(f"{ustore} 승인 완료")
-                    st.rerun()
-            with col_b:
-                if u_status == "승인완료" and st.button("승인 취소", key=f"rev_{uid}", use_container_width=True):
-                    users_db[uid]["is_pro"] = False
-                    users_db[uid]["pro_status"] = "승인취소"
-                    save_users(users_db)
-                    st.rerun()
-
-    if st.button("로그아웃", use_container_width=True):
-        st.session_state.logged_in_user = None
-        st.rerun()
-
 client = genai.Client(api_key=BACKEND_GEMINI_API_KEY)
 TARGET_MODEL = "gemini-3.6-flash"
 
@@ -564,7 +494,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (매장 정보 & SNS 채널)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -688,13 +618,22 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
+    st.markdown("""<div class="simple-card" style="margin-top:16px;">
+<div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
+    for d in deals_db["deals"][:2]:
+        tot_qty = sum([p["qty"] for p in d["participants"]])
+        st.markdown(f"**{d['title']}**<br><span style='color:#2563EB; font-weight:800;'>{d['price']}</span> · {len(d['participants'])}명 참여 ({tot_qty}개)", unsafe_allow_html=True)
+        st.progress(min(tot_qty / d["target"], 1.0))
+        st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리
+# TAB 2. ⚙️ 내 특가 관리 (연락처 수정 기능 추가 통합)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
-<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 제휴 혜택 설정</div>
-<div style="font-size:0.82rem; color:#64748B;">입력한 특가는 홈 대시보드 실시간 공유창에 노출됩니다.</div>
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">내 매장 특가 & 연락처 관리</div>
+<div style="font-size:0.82rem; color:#64748B;">매장 전화번호, 오늘의 특가, 상시 혜택을 손쉽게 수정하세요.</div>
 </div>""", unsafe_allow_html=True)
 
     current_deal_val = curr_user.get("today_deal", "")
@@ -713,7 +652,7 @@ with tab_my_deal:
         inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC", label_visibility="collapsed")
         
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
+        if st.form_submit_button("정보 저장 및 즉시 반영", use_container_width=True):
             users_db[user_key]["phone"] = inp_phone.strip()
             users_db[user_key]["today_deal"] = inp_deal.strip()
             users_db[user_key]["map_perk"] = inp_perk.strip()
@@ -723,16 +662,26 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 & 공구 (원페이지 통합)
+# TAB 3. 📢 마케팅 & 공구 (모바일 최적화 원페이지)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
-        st.markdown("""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
-<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">PRO 전용 유료 마케팅 기능입니다</div>
+        st.markdown(f"""<div class="simple-card" style="border-left: 4px solid #EF4444; background: #FEF2F2;">
+<div style="font-weight: 800; font-size: 1rem; color: #991B1B; margin-bottom: 4px;">PRO 전용 유료 기능입니다</div>
 <div style="font-size: 0.86rem; color: #7F1D1D; line-height: 1.5;">
-무료 체험 기간이 만료되었습니다. 사이드바에서 <b>[유료버전 사용 승인 신청]</b>을 눌러주세요.
+무료 체험 기간이 만료되었습니다. 아래 버튼을 눌러 유료 승인을 신청해 주세요.
 </div>
 </div>""", unsafe_allow_html=True)
+        
+        if curr_user.get("pro_status") != "대기중":
+            if st.button("유료버전 사용 승인 신청", key="btn_req_pro_main", use_container_width=True):
+                curr_user["pro_status"] = "대기중"
+                users_db[user_key] = curr_user
+                save_users(users_db)
+                st.success("승인 신청이 접수되었습니다.")
+                st.rerun()
+        else:
+            st.info("관리자 유료 승인 대기 중입니다.")
     else:
         current_area_tag = st.session_state.current_region_name.split()[0] if st.session_state.current_region_name else "용인"
 
@@ -843,7 +792,7 @@ with tab_biz:
 
     else:
         card_sales = st.number_input("카드 결제액 (원)", value=1000000, step=100000, key="bc_cs")
-        settle_amt = card_sales * 0.995 # 영세 0.5% 가정
+        settle_amt = card_sales * 0.995
         st.markdown(f"""<div class="calc-result-box">
 <div style="font-size:1.2rem; font-weight:900; color:#0F172A;">우대수수료 적용 실입금액: {int(settle_amt):,}원</div>
 </div>""", unsafe_allow_html=True)
@@ -857,3 +806,59 @@ with tab_biz:
     with col_f2:
         st.link_button("부가세 과세표준증명", "https://www.hometax.go.kr", use_container_width=True)
         st.link_button("지방세 납세증명서 (정부24)", "https://www.gov.kr", use_container_width=True)
+
+    # 🚪 [모바일 사용자 전용 로그아웃 및 계정 관리 센터 (하단 배치)]
+    st.markdown("---")
+    st.markdown("##### ⚙️ 계정 및 세션 관리")
+    col_acc1, col_acc2 = st.columns(2)
+    with col_acc1:
+        if not is_approved_permanent and curr_user.get("pro_status") != "대기중":
+            if st.button("유료버전 승인 신청", key="btn_mobile_req_pro", use_container_width=True):
+                curr_user["pro_status"] = "대기중"
+                users_db[user_key] = curr_user
+                save_users(users_db)
+                st.success("승인 신청 완료!")
+                st.rerun()
+    with col_acc2:
+        if st.button("로그아웃 하기", key="btn_mobile_logout", use_container_width=True):
+            st.session_state.logged_in_user = None
+            st.rerun()
+
+    # 📊 관리자 전용 통계를 모바일 하단에 통합 노출
+    if user_key == "admin":
+        st.markdown("---")
+        st.markdown("##### 📊 관리자 전용: 방문자 통계")
+        analytics_data = load_analytics()
+        today_key = today_now.strftime("%Y-%m-%d")
+        today_stat = analytics_data.get(today_key, {"uv": 0, "pv": 0})
+        total_uv = sum([v.get("uv", 0) for v in analytics_data.values()])
+        total_pv = sum([v.get("pv", 0) for v in analytics_data.values()])
+        
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            st.metric("오늘 방문자 (UV)", f"{today_stat['uv']}명")
+        with col_m2:
+            st.metric("오늘 조회수 (PV)", f"{today_stat['pv']}회")
+        st.caption(f"누적 순방문: {total_uv}명 | 누적 페이지뷰: {total_pv}회")
+        
+        with st.expander("🔑 관리자: 회원 유료 승인 제어 센터"):
+            for uid, udata in users_db.items():
+                if uid == "admin":
+                    continue
+                ustore = udata.get("store_name", uid)
+                u_status = udata.get("pro_status", "미신청")
+                st.write(f"**{ustore}** (`{uid}`) | 상태: `{u_status}`")
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    if u_status != "승인완료" and st.button("유료 승인", key=f"mob_app_{uid}", use_container_width=True):
+                        users_db[uid]["is_pro"] = True
+                        users_db[uid]["pro_status"] = "승인완료"
+                        save_users(users_db)
+                        st.success(f"{ustore} 승인 완료")
+                        st.rerun()
+                with col_b:
+                    if u_status == "승인완료" and st.button("승인 취소", key=f"mob_rev_{uid}", use_container_width=True):
+                        users_db[uid]["is_pro"] = False
+                        users_db[uid]["pro_status"] = "승인취소"
+                        save_users(users_db)
+                        st.rerun()

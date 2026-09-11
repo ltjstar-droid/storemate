@@ -374,8 +374,27 @@ deals_db = load_deals()
 if "logged_in_user" not in st.session_state:
     st.session_state.logged_in_user = None
 
+# 💡 [아이디 기억하기 영구 지속 파일 DB 연동]
+REMEMBER_ID_FILE = "remember_id.json"
+
+def load_remembered_id():
+    if os.path.exists(REMEMBER_ID_FILE):
+        try:
+            with open(REMEMBER_ID_FILE, "r", encoding="utf-8") as f:
+                return json.load(f).get("saved_id", "")
+        except Exception:
+            return ""
+    return ""
+
+def save_remembered_id(uid):
+    try:
+        with open(REMEMBER_ID_FILE, "w", encoding="utf-8") as f:
+            json.dump({"saved_id": uid}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
 if "saved_login_id" not in st.session_state:
-    st.session_state.saved_login_id = ""
+    st.session_state.saved_login_id = load_remembered_id()
 
 if "active_join_deal_id" not in st.session_state:
     st.session_state.active_join_deal_id = None
@@ -433,8 +452,10 @@ if not st.session_state.logged_in_user:
                         st.session_state.logged_in_user = login_id
                         if remember_id:
                             st.session_state.saved_login_id = login_id
+                            save_remembered_id(login_id)
                         else:
                             st.session_state.saved_login_id = ""
+                            save_remembered_id("")
                         st.rerun()
                     else:
                         st.error("비밀번호가 일치하지 않습니다.")
@@ -485,6 +506,7 @@ if not st.session_state.logged_in_user:
                     }
                     save_users(users_db)
                     st.session_state.saved_login_id = new_id
+                    save_remembered_id(new_id)
                     st.success("등록 완료! 7일 무료 PRO 체험이 시작되었습니다. 로그인해 주세요.")
     st.stop()
 
@@ -566,7 +588,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭 ((무료) 문구 완벽 제거)
+# 독립된 10대 메인 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응", "💌 경조사·안부 문자", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
@@ -760,7 +782,7 @@ with tab_my_deal:
 
     with st.form("my_store_deal_form"):
         st.markdown("**1. 매장 대표 전화번호**")
-        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="031-000-0000", label_visibility="collapsed")
+        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="031-323-1215", label_visibility="collapsed")
         
         st.markdown("**2. 매장 위치 주소 실시간 검색**")
         inp_addr_q = st.text_input("도로명 또는 지역명 입력", value="", placeholder="예: 경기동로 또는 이동읍 송전리", key="edit_addr_query")
@@ -881,7 +903,7 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응 ((무료) 문구 제거)
+# TAB 4. 💬 AI 리뷰 대응
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -908,10 +930,10 @@ with tab_review:
                 out = generate_safe_content(prompt)
                 if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
         else:
-            st.warning("리뷰 내용을 입력해 주세요.")
+            st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 ((무료) 문구 제거)
+# TAB 5. 💌 경조사·안부 문자
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">

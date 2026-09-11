@@ -563,7 +563,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 메인 8대 독립 탭 (리뷰 대응 무료 탭 별도 분리!)
+# 독립된 8대 메인 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_deals, tab_music, tab_close, tab_biz = st.tabs(main_tabs)
@@ -784,7 +784,7 @@ with tab_my_deal:
             st.rerun()
 
 # ------------------------------------------
-# TAB 3. 📢 마케팅 스튜디오 (PRO 유료 전용 4대 기능)
+# TAB 3. 📢 마케팅 스튜디오 (PRO 전용 + 어르신 친화적 원클릭 추천 선택 기능 탑재)
 # ------------------------------------------
 with tab_mkt:
     if not is_pro_user:
@@ -793,7 +793,7 @@ with tab_mkt:
 <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.6;">
 현재 무료 체험 기간이 만료되어 <b>스탠다드 등급</b>입니다.<br>
 네이버 블로그 SEO, 당근마켓 바이럴, 인스타그램, 단골 CRM 문자 기능은 <b>PRO 유료 파트너 전용</b>입니다.<br>
-이용을 원하시면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요! (※ 리뷰 대응은 무료 제공됩니다.)
+이용을 원하시면 <b>[홈 대시보드] 하단</b>에서 <b>[유료버전 승인 신청]</b>을 눌러주세요! (※ 리뷰 대응은 별도 무료 탭에서 이용 가능합니다.)
 </div>
 </div>""", unsafe_allow_html=True)
     else:
@@ -804,11 +804,31 @@ with tab_mkt:
         ])
 
         with mkt_sub1:
-            b_kw = st.text_input("메인 키워드", value=f"{current_area_tag} {sel_industry.split('/')[0].strip()}", key="m_b_kw")
-            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 추천", key="m_b_sub")
+            st.markdown("##### ✍️ AI 블로그 SEO 원고 생성기")
+            st.caption("어르신들도 편하게 버튼과 선택지만 눌러 완성하세요.")
+            
+            # 💡 [업종별 추천 키워드 및 주제 프리셋 제공]
+            preset_blog_topics = [
+                "직접 입력하기 (아래 칸에 직접 적기)",
+                "🌟 [추천1] 우리 동네 신규 방문 고객 환영 및 할인 이벤트",
+                "💡 [추천2] 전문가가 알려주는 맞춤 관리 노하우 및 제품 소개",
+                "🏆 [추천3] 단골 고객들이 극찬하는 우리 매장만의 특별한 차별점",
+                "🌿 [추천4] 봄/여름/가을/겨울 계절 맞춤형 단골 케어 후기"
+            ]
+            sel_b_topic = st.selectbox("홍보 주제 선택 (터치해서 고르세요)", preset_blog_topics, key="sel_b_top")
+            
+            if "직접 입력하기" not in sel_b_topic:
+                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천"
+                b_core_default = f"{sel_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
+            else:
+                b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
+                b_core_default = sel_feature
+
+            b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
+            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
             b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
-            b_core = st.text_area("매장 핵심 강점", value=sel_feature, height=70, key="m_b_core")
+            b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
@@ -817,9 +837,17 @@ with tab_mkt:
                     if out: st.text_area("작성된 원고 (복사용)", value=out, height=300)
 
         with mkt_sub2:
+            st.markdown("##### 🥕 당근마켓 이웃 소식 작성기")
+            preset_carrot = [
+                "당근 이웃 전용 무료 체험 및 점검 이벤트 안내",
+                "이웃 주민 한정 게릴라 추가 할인 혜택",
+                "단골 이웃분들께 드리는 감사의 특별 사은품 증정"
+            ]
+            sel_c_topic = st.selectbox("당근 소식 주제 선택", preset_carrot, key="sel_car_top")
+            
             d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
-            d_prm = st.selectbox("제공 혜택", ["무상 체험 및 정밀 점검", "단독 추가 할인 쿠폰", "선착순 사은품 증정"], key="m_d_prm")
-            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
+            d_prm = st.text_input("제공 혜택", value=f"{sel_c_topic} 및 친절한 맞춤 상담", key="m_d_prm")
+            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 동네 이웃분들을 위한 특별 케어", key="m_d_ctx")
             d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
 
             if st.button("당근 소식 생성하기", key="m_d_btn", use_container_width=True):
@@ -829,9 +857,10 @@ with tab_mkt:
                     if out: st.text_area("당근 소식 (복사용)", value=out, height=280)
 
         with mkt_sub3:
+            st.markdown("##### 📸 인스타그램 피드 생성기")
             i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
             i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
-            i_subj = st.text_input("주제", value="나에게 딱 맞는 인생 스타일링 가이드", key="m_i_subj")
+            i_subj = st.text_input("주제", value="오늘 방문 고객님 맞춤 스타일링 및 케어 완성 컷", key="m_i_subj")
             i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk")
 
             if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
@@ -841,6 +870,7 @@ with tab_mkt:
                     if out: st.text_area("인스타그램 피드 (복사용)", value=out, height=280)
 
         with mkt_sub4:
+            st.markdown("##### ✉️ 단골 CRM 문자 작성기")
             c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 고객"], key="m_c_seg")
             c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off")
             c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
@@ -857,9 +887,9 @@ with tab_mkt:
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
-<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 [무료 체험 오픈] AI 리뷰 전문 답글 생성기</div>
+<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 [무료 오픈] AI 리뷰 전문 답글 생성기</div>
 <div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
-스탠다드 및 무료 회원분들께도 플레이스 리뷰 답글 작성 기능을 무료로 제공합니다. 고객 리뷰를 넣고 센스 있는 답글을 생성해 보세요!
+모든 회원분들께 플레이스 리뷰 답글 작성 기능을 무료로 제공합니다. 고객 리뷰를 복사해 넣고 스타일을 터치하여 답글을 만드세요!
 </div>
 </div>""", unsafe_allow_html=True)
 

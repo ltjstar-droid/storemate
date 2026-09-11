@@ -545,7 +545,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (용친 인스타, 용친 스레드 반영)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -563,7 +563,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭 (경조사·안부 문자 탭 분리 완료)
+# 독립된 10대 메인 탭
 # ==========================================
 main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부 문자 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
@@ -908,7 +908,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (무료 제공 탭 독립 분리)
+# TAB 5. 💌 경조사·안부 문자 (모든 회원 무료 개방!)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -1120,7 +1120,7 @@ with tab_close:
     c_memo = st.text_input("특이사항/재고 이슈", placeholder="예: 단골 예약 방문, 특정 제품 소진", key="b_memo")
     c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="b_sat")
 
-    if st.button("일일 영업 결산 리포트 생성", key="b_close_btn", use_container_width=True):
+    if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):
         with st.spinner("마감 리포트 분석 중..."):
             prompt = f"매장: {store_name}\n업종: {sel_industry}\n매출: {c_sales}\n유입: {c_flow}\n특이사항: {c_memo}\n만족도: {c_sat}\n1) 오늘 총평 2) 내일 과제 3선 3) 퇴근길 응원 작성."
             out = generate_safe_content(prompt)

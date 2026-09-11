@@ -548,7 +548,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -559,16 +559,16 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
-<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 인스타</a>
-<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 스레드</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 인스타</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 스레드</a>
 </div>
 <hr style="margin: 8px 0 14px 0; border: none; border-top: 1px solid #E2E8F0;">
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭
+# 독립된 10대 메인 탭 ((무료) 문구 완벽 제거)
 # ==========================================
-main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응 (무료)", "💌 경조사·안부 문자 (무료)", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
+main_tabs = ["홈 대시보드", "내 특가 관리", "마케팅 스튜디오 (PRO)", "💬 AI 리뷰 대응", "💌 경조사·안부 문자", "로컬 공동구매", "음악 스튜디오", "영업 마감", "경영·행정지원", "🎁 정부 지원금 비서"]
 tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
 
 # ------------------------------------------
@@ -881,13 +881,13 @@ with tab_mkt:
                     if out: st.text_area("CRM 메시지 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 4. 💬 AI 리뷰 대응 (모든 회원 무료 개방!)
+# TAB 4. 💬 AI 리뷰 대응 ((무료) 문구 제거)
 # ------------------------------------------
 with tab_review:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
-<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 [무료 오픈] AI 리뷰 전문 답글 생성기</div>
+<div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">🎁 AI 리뷰 전문 답글 생성기</div>
 <div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
-모든 회원분들께 플레이스 리뷰 답글 작성 기능을 무료로 제공합니다. 고객 리뷰를 복사해 넣고 스타일을 터치하여 답글을 만드세요!
+모든 회원분들께 플레이스 리뷰 답글 작성 기능을 제공합니다. 고객 리뷰를 복사해 넣고 스타일을 터치하여 답글을 만드세요!
 </div>
 </div>""", unsafe_allow_html=True)
 
@@ -901,23 +901,23 @@ with tab_review:
         "6. 불만/아쉬움 리뷰 케어 및 사과형"
     ], key="free_r_stl")
     
-    if st.button("무료 AI 답글 3종 생성", key="free_r_btn", use_container_width=True):
+    if st.button("AI 답글 3종 생성", key="free_r_btn", use_container_width=True):
         if cust_rev:
             with st.spinner("답글 생성 중..."):
                 prompt = f"매장명: {store_name}\n업종: {sel_industry}\n소재지: {st.session_state.current_region_name}\n고객 리뷰: '{cust_rev}'\n스타일: {rev_stl}\n플레이스용 완성도 높은 답글 3종 작성."
                 out = generate_safe_content(prompt)
                 if out: st.text_area("추천 답글 3종 세트 (복사용)", value=out, height=280)
         else:
-            st.warning("리뷰를 입력해 주세요.")
+            st.warning("리뷰 내용을 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (모든 회원 무료 개방!)
+# TAB 5. 💌 경조사·안부 문자 ((무료) 문구 제거)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
 <div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">💌 센스 있는 경조사 & 명절 안부 문자 3초 생성기</div>
 <div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
-거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다. (모든 회원 무료 이용)
+거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다.
 </div>
 </div>""", unsafe_allow_html=True)
 

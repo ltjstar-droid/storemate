@@ -497,7 +497,7 @@ if not st.session_state.logged_in_user:
 user_key = st.session_state.logged_in_user
 curr_user = users_db.get(user_key, {})
 store_name = curr_user.get("store_name", "라브리지헤어살롱")
-store_phone = curr_user.get("phone", "031-000-0000")
+store_phone = curr_user.get("phone", "031-323-1215")
 sel_industry = curr_user.get("industry", INDUSTRY_LIST[0])
 sel_loc = curr_user.get("location", "용인시 처인구")
 sel_feature = curr_user.get("feature", "맞춤형 전문 서비스")
@@ -551,19 +551,20 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (☎️ 전화번호 터치 시 통화 연결 연동)
 # ==========================================
+phone_tel_link = f"tel:{store_phone.replace('-', '')}"
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
+<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <a href="{phone_tel_link}" style="color:#2563EB; text-decoration:none; font-weight:800;"><b>{store_phone} (통화하기)</b></a></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
-<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 인스타</a>
-<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 스레드</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 인스타</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 스레드</a>
 </div>
 <hr style="margin: 8px 0 14px 0; border: none; border-top: 1px solid #E2E8F0;">
 """, unsafe_allow_html=True)
@@ -614,13 +615,13 @@ with tab_home:
 </div>
 </div>
 <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%; border-top:1px solid #E2E8F0; padding-top:8px; margin-top:4px;">
-<span style="font-size:0.75rem; color:#64748B;">기상청 스마트폰 실시간 연동</span>
+<span style="font-size:0.75rem; color:#64748B;">기상청 스마트폰 GPS 실시간 연동</span>
 <span style="font-size:1.6rem; font-weight:900; color:#0F172A; line-height:1;">{weather_info['temp']}°C</span>
 </div>
 </div>"""
     st.markdown(weather_html, unsafe_allow_html=True)
 
-    if st.button("📍 내 스마트폰 위치로 날씨·지역 실시간 새로고침", key="btn_detect_gps", use_container_width=True):
+    if st.button("📍 내 스마트폰 위치로 날씨·지역 실시간 새로고침 (위치 권한 허용)", key="btn_detect_gps", use_container_width=True):
         try:
             ip_res = requests.get("https://ipapi.co/json/", timeout=2).json()
             lat = ip_res.get("latitude", 37.16)
@@ -642,7 +643,7 @@ with tab_home:
 <span style="font-size:0.75rem; color:#64748B;">{my_deal_updated}</span>
 </div>
 <div style="font-size:1.1rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
-<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
+<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk} &nbsp;|&nbsp; ☎️ <a href="{phone_tel_link}" style="color:#2563EB; text-decoration:none;"><b>{store_phone}</b></a></div>
 </div>"""
         st.markdown(my_deal_html, unsafe_allow_html=True)
     else:
@@ -672,13 +673,14 @@ with tab_home:
         o_perk = u_info.get("map_perk", "용친 회원 방문 시 특별 혜택")
         o_upd = u_info.get("today_updated", "")
         o_nav_url = f"https://map.naver.com/v5/search/{urllib.parse.quote(o_addr)}"
+        o_tel_link = f"tel:{o_phone.replace('-', '')}"
         
         feed_card_html = f"""<div class="simple-card">
 <div style="display:flex; justify-content:space-between; align-items:center;">
 <span style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</span>
 <span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
 </div>
-<div style="font-size:0.8rem; color:#64748B; margin-bottom:6px;">{o_addr} &nbsp;|&nbsp; ☎️ <b>{o_phone}</b></div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:6px;">{o_addr} &nbsp;|&nbsp; ☎️ <a href="{o_tel_link}" style="color:#2563EB; text-decoration:none;"><b>{o_phone}</b></a></div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:10px 14px; margin-bottom:8px;">
 <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
@@ -719,7 +721,7 @@ with tab_home:
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status") == "대기중":
+        elif curr_user.get("pro_status"] == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -933,24 +935,31 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자
+# TAB 5. 💌 경조사·안부 문자 (💬 문자 앱 즉시 전송 연동 `sms:` 프로토콜 추가)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
 <div style="font-weight: 800; font-size: 1.05rem; color: #065F46; margin-bottom: 4px;">💌 센스 있는 경조사 & 명절 안부 문자 3초 생성기</div>
 <div style="font-size: 0.85rem; color: #047857; line-height: 1.5;">
-거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성합니다.
+거래처 사장님, 지인, 직원들에게 보낼 품격 있는 문자를 즉시 작성하고 스마트폰 문자 앱으로 바로 보냅니다.
 </div>
 </div>""", unsafe_allow_html=True)
 
     event_type = st.selectbox("상황 선택", ["설날 / 추석 명절 인사", "거래처 사장님 개업/축하", "결혼식 / 부고 등 경조사", "지인 센스 있는 안부 인사"], key="m_ev_type")
     event_tone = st.selectbox("문자 어조", ["정중하고 품격 있게", "위트 있고 친근하게", "따뜻하고 다정하게"], key="m_ev_tone")
     
+    recipient_phone = st.text_input("받는 분 휴대폰 번호 (선택)", placeholder="010-0000-0000", key="ev_phone_input")
+
     if st.button("안부 문자 문안 생성하기", key="m_ev_btn", use_container_width=True):
         with st.spinner("문자 작성 중..."):
             prompt = f"보내는 이 매장: {store_name}\n상황: {event_type}\n어조: {event_tone}\n카카오톡이나 문자로 바로 복사해서 보낼 수 있는 센스 있는 안부 문자 3가지 버전 작성."
             out = generate_safe_content(prompt)
-            if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
+            if out: 
+                st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280, key="ev_out_area")
+                # 💡 [모바일 권한 연동] 스마트폰 기본 문자(SMS) 앱 다이렉트 호출
+                clean_phone = recipient_phone.replace("-", "").strip()
+                sms_link = f"sms:{clean_phone}?body={urllib.parse.quote('안녕하세요, ' + store_name + '입니다.')}" if clean_phone else "sms:?body=안녕하세요"
+                st.link_button("📱 스마트폰 문자 앱으로 이 문구 바로 전송하기", sms_link, use_container_width=True)
 
 # ------------------------------------------
 # TAB 6. 🛒 로컬 공동구매
@@ -1331,7 +1340,7 @@ with tab_subsidy:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 11. 🤝 동네 품앗이 마켓 (6번 신박한 기능)
+# TAB 11. 🤝 동네 품앗이 마켓
 # ------------------------------------------
 with tab_market:
     st.markdown("""<div class="simple-card">

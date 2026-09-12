@@ -413,7 +413,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구"
 
 # ==========================================
-# 로그인 화면 (예시어 문구 완전 삭제 반영)
+# 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -569,7 +569,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 15대 메인 탭 (3, 5, 7, 9번 신박한 기능 추가 완료)
+# 독립된 15대 메인 탭
 # ==========================================
 main_tabs = [
     "홈 대시보드", 
@@ -695,7 +695,6 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
-    # 💡 [요청 반영] 대시보드 공동구매 요약 아래에 로컬 공동구매 탭으로 가는 안내 문구 및 버튼 추가
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -720,7 +719,7 @@ with tab_home:
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status"] == "대기중":
+        elif curr_user.get("pro_status") == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -771,7 +770,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (예시어 완전 삭제)
+# TAB 2. ⚙️ 내 특가 관리
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -954,7 +953,7 @@ with tab_event:
             if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 6. 🛒 로컬 공동구매 (픽업 장소 추가)
+# TAB 6. 🛒 로컬 공동구매
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["공구 목록", "소모품 발주", "공구 제안"])
@@ -1148,7 +1147,7 @@ with tab_close:
     c_sales = st.text_input("오늘 매출액 (선택)", placeholder="", key="b_sales")
     c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석 / 목표 초과"], key="b_flow")
     c_memo = st.text_input("특이사항/재고 이슈", placeholder="", key="b_memo")
-    c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", " 매우 만족"], key="b_sat")
+    c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="b_sat")
 
     if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):
         with st.spinner("마감 리포트 분석 중..."):
@@ -1332,7 +1331,7 @@ with tab_subsidy:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 11. 🤝 동네 품앗이 마켓 (6번 기능)
+# TAB 11. 🤝 동네 품앗이 마켓 (6번 신박한 기능)
 # ------------------------------------------
 with tab_market:
     st.markdown("""<div class="simple-card">
@@ -1386,7 +1385,7 @@ with tab_f5:
 
     if st.button("안전 및 위생 자가 진단 가이드 받기", key="btn_f5", use_container_width=True):
         with st.spinner("점검 항목 생성 중..."):
-            prompt = f"업종: {sel_industry}\n현재 시기(환절기/식중독/동파 등)에 맞추어 사장님이 반드시 점검해야 할 위생, 방역, 소방, 시설 안전 체크리스트 및 과태료 예방 가이드 작성."
+            prompt = f"업종: {sel_industry}\n현재 시기에 맞추어 사장님이 반드시 점검해야 할 위생, 방역, 소방, 시설 안전 체크리스트 및 과태료 예방 가이드 작성."
             out = generate_safe_content(prompt)
             if out: st.markdown(f"<div class='simple-card'>{out}</div>", unsafe_allow_html=True)
 
@@ -1396,10 +1395,10 @@ with tab_f5:
 with tab_f7:
     st.markdown("""<div class="simple-card" style="border-left:4px solid #2563EB;">
 <div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">🧾 영수증 & 지출 장부 자동 분류 비서</div>
-<div style="font-size:0.82rem; color:#64748B;">오늘 지출 내역이나 영수증 항목을 입력하면 품목별(식자재, 소모품, 공과금)로 분류해 줍니다.</div>
+<div style="font-size:0.82rem; color:#64748B;">오늘 지출 내역이나 영수증 항목을 입력하면 품목별로 분류해 줍니다.</div>
 </div>""", unsafe_allow_html=True)
 
-    r_input = st.text_area("오늘 지출 내역 입력 (예: 마트 식재료 3만 원, 전기세 15만 원, 소모품 5천 원)", placeholder="", key="f7_input")
+    r_input = st.text_area("오늘 지출 내역 입력", placeholder="", key="f7_input")
     if st.button("지출 장부 자동 분류 및 요약", key="btn_f7", use_container_width=True):
         if r_input:
             with st.spinner("장부 정리 중..."):

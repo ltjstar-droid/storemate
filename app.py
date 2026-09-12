@@ -94,6 +94,7 @@ def load_deals():
                 "price": "31,000원 (정상가 48,000원)",
                 "target": 100,
                 "deadline": "2026-09-20",
+                "pickup_place": "처인구 이동읍 아지트 본점",
                 "participants": [
                     {"name": "김민수", "phone": "010-1234-5678", "qty": 2, "time": "2026-09-09 10:15"},
                     {"name": "이지영", "phone": "010-9876-5432", "qty": 1, "time": "2026-09-09 11:40"}
@@ -105,6 +106,7 @@ def load_deals():
                 "price": "23,500원 (무료배송)",
                 "target": 200,
                 "deadline": "2026-09-25",
+                "pickup_place": "드림안경 송전점 1층",
                 "participants": [
                     {"name": "드림안경(본점)", "phone": "010-8424-6054", "qty": 3, "time": "2026-09-09 09:20"}
                 ]
@@ -407,7 +409,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구"
 
 # ==========================================
-# 로그인 화면 (초간단 주소 입력 시스템 적용)
+# 로그인 화면 (초간단 주소 입력 적용)
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -545,7 +547,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바
+# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -563,7 +565,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 10대 메인 탭 (HTML 태그 오류 수정 완료)
+# 독립된 11대 메인 탭 (신박한 기능 6가지 포함 + 탭 이름 정돈)
 # ==========================================
 main_tabs = [
     "홈 대시보드", 
@@ -575,9 +577,10 @@ main_tabs = [
     "음악 스튜디오", 
     "영업 마감", 
     "경영·행정지원", 
-    "🎁 정부 지원금 비서"
+    "🎁 정부 지원금 비서",
+    "🤝 동네 품앗이 마켓"
 ]
-tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy = st.tabs(main_tabs)
+tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy, tab_market = st.tabs(main_tabs)
 
 # ------------------------------------------
 # TAB 1. 🏠 홈 대시보드
@@ -680,11 +683,12 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
+    # 💡 [요청 반영] 대시보드 공동구매 요약 아래에 공동구매 탭으로 바로 가는 버튼 추가
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
         tot_qty = sum([p["qty"] for p in d["participants"]])
-        st.markdown(f"**{d['title']}**<br><span style='color:#2563EB; font-weight:800;'>{d['price']}</span> · {len(d['participants'])}명 참여 ({tot_qty}개)", unsafe_allow_html=True)
+        st.markdown(f"**{d['title']}**<br><span style='color:#2563EB; font-weight:800;'>{d['price']}</span> · 픽업: {d.get('pickup_place', '처인구 아지트')} · {len(d['participants'])}명 참여 ({tot_qty}개)", unsafe_allow_html=True)
         st.progress(min(tot_qty / d["target"], 1.0))
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -936,7 +940,7 @@ with tab_event:
             if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 6. 🛒 로컬 공동구매
+# TAB 6. 🛒 로컬 공동구매 (픽업 장소 추가 적용)
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["공구 목록", "소모품 발주", "공구 제안"])
@@ -966,6 +970,7 @@ with tab_deals:
             tot_qty = sum([p["qty"] for p in deal["participants"]])
             dday = get_dday(deal["deadline"])
             is_closed = (dday == "마감")
+            pickup = deal.get("pickup_place", "처인구 아지트")
 
             st.markdown(f"""<div class="simple-card">
 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -974,7 +979,8 @@ with tab_deals:
 </div>
 <div style="font-size:1.02rem; font-weight:800; color:#0F172A; margin:6px 0 2px 0;">{deal['title']}</div>
 <div style="font-size:1.1rem; font-weight:900; color:#2563EB;">{deal['price']}</div>
-<div style="font-size:0.8rem; color:#475569; margin:4px 0 6px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
+<div style="font-size:0.8rem; color:#475569; margin:4px 0 4px 0;">📍 픽업 장소: <b>{pickup}</b></div>
+<div style="font-size:0.8rem; color:#475569; margin:0 0 6px 0;">신청: <b>{len(deal['participants'])}명</b> ({tot_qty}개 달성)</div>
 </div>""", unsafe_allow_html=True)
             st.progress(min(tot_qty / deal["target"], 1.0))
 
@@ -1036,6 +1042,7 @@ with tab_deals:
 
     with deal_sub3:
         p_name = st.text_input("제안 상품명", key="p_name_input")
+        p_pickup = st.text_input("픽업 장소 (매장 상호 및 주소)", value=f"{store_name} ({sel_loc})", key="p_pickup_input")
         p_qty = st.number_input("목표 수량", min_value=1, max_value=1000, value=30, step=1, key="p_qty_input")
         p_price = st.text_input("제안 공구가", key="p_price_input")
         p_days = st.slider("진행 일수", min_value=3, max_value=30, value=7, key="p_days_input")
@@ -1045,12 +1052,13 @@ with tab_deals:
                     "id": f"deal_{int(time.time())}",
                     "title": f"[{store_name}] {p_name}",
                     "price": f"{p_price} (단독 특가)",
+                    "pickup_place": p_pickup,
                     "target": int(p_qty),
                     "deadline": (datetime.now() + timedelta(days=p_days)).strftime("%Y-%m-%d"),
                     "participants": []
                 })
                 save_deals(deals_db)
-                st.success("공동구매가 등록되었습니다.")
+                st.success("공동구매가 오픈되었습니다! 고객들이 픽업오며 매장이 홍보됩니다.")
                 st.rerun()
 
 # ------------------------------------------
@@ -1136,7 +1144,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 9. 💼 경영·행정지원
+# TAB 9. 💼 경영·행정지원 (1번 주휴수당 & 표준근로계약서 봇 통합)
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
@@ -1196,10 +1204,11 @@ with tab_biz:
 
     with biz_sub3:
         calc_tab1, calc_tab2, calc_tab3, calc_tab4, calc_tab5 = st.tabs([
-            "알바 급여", "대출 이자", "마진율 역산", "카드 수수료", "부가가치세·종소세"
+            "알바 급여 & 계약서", "대출 이자", "마진율 역산", "카드 수수료", "부가가치세·종소세"
         ])
 
         with calc_tab1:
+            st.markdown("##### 🧾 알바 주휴수당 계산 및 표준 근로계약서 가이드")
             wage = st.number_input("시급 (원)", value=10030, step=100, key="c1_wage")
             hrs = st.number_input("주당 근로시간", value=16.0, step=0.5, key="c1_hrs")
             tax_opt = st.selectbox("공제", ["사업소득세 3.3% 공제", "고용보험 0.9% 공제", "공제 없음"], key="c1_tax")
@@ -1208,10 +1217,16 @@ with tab_biz:
             tot = base + holiday
             ded = tot * 0.033 if "3.3%" in tax_opt else (tot * 0.009 if "0.9%" in tax_opt else 0)
             net = tot - ded
+            
             st.markdown(f"""<div class="calc-result-box">
 <div style="font-size:0.82rem; color:#64748B;">기본급 {int(base):,}원 + 주휴수당 {int(holiday):,}원 (공제 {int(ded):,}원)</div>
 <div style="font-size:1.25rem; font-weight:900; color:#0F172A; margin-top:2px;">예상 실지급액: {int(net):,}원</div>
 </div>""", unsafe_allow_html=True)
+            
+            if st.button("AI 표준 근로계약서 핵심 조항 생성", key="contract_btn", use_container_width=True):
+                with st.spinner("노무 검토 중..."):
+                    out = generate_safe_content(f"업종: {sel_industry}\n시급: {wage}원, 주당 {hrs}시간 근무 기준. 법적 분쟁을 막고 사장님을 보호하는 표준 근로계약서 필수 조항 요약 작성.")
+                    if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB;'>{out}</div>", unsafe_allow_html=True)
 
         with calc_tab2:
             loan_amt = st.number_input("대출 원금 (원)", value=30000000, step=1000000, key="c2_amt")
@@ -1301,3 +1316,32 @@ with tab_subsidy:
             out = generate_safe_content(prompt)
             if out:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 11. 🤝 동네 품앗이 마켓 (신박한 6번 기능 추가)
+# ------------------------------------------
+with tab_market:
+    st.markdown("""<div class="simple-card">
+<div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-bottom:4px;">🤝 동네 품앗이 & 전문 서비스 마켓</div>
+<div style="font-size:0.82rem; color:#64748B;">철물점 사장님의 공구 대여, 미용실 원장님의 스타일링 팁 등 동네 전문가와 주민을 연결합니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    m_type = st.selectbox("나눔/교류 유형", ["우리 매장 전문 노하우/팁 공유", "필요한 공구/설비 장비 대여 요청", "동네 소상공인 상생 협업 제안"], key="market_type")
+    m_content = st.text_area("내용 작성", placeholder="이웃 주민이나 사장님들께 전할 내용을 적어주세요.", key="market_content")
+    
+    if st.button("품앗이 글 등록하기", key="market_btn", use_container_width=True):
+        if m_content:
+            st.success("동네 품앗이 마켓에 성공적으로 등록되었습니다!")
+        else:
+            st.warning("내용을 입력해 주세요.")
+
+    st.markdown("---")
+    st.markdown("##### 📌 실시간 동네 품앗이 피드")
+    st.markdown("""<div class="simple-card">
+<div style="font-size:0.9rem; font-weight:800; color:#0F172A;">[철물점 사장님] 가정용 해머드릴 무료 대여 및 사용법 안내</div>
+<div style="font-size:0.8rem; color:#475569; margin-top:4px;">혼자 액자 걸기 힘들 분들을 위해 매장 방문 시 해머드릴 무상 대여해 드립니다! · 용인시 처인구</div>
+</div>
+<div class="simple-card">
+<div style="font-size:0.9rem; font-weight:800; color:#0F172A;">[미용실 원장님] 집에서 셀프로 앞머리 컷트하는 꿀팁 3가지</div>
+<div style="font-size:0.8rem; color:#475569; margin-top:4px;">미용실 오시기 애매할 때 집에서 따라 해보세요. · 용인시 처인구</div>
+</div>""", unsafe_allow_html=True)

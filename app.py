@@ -62,15 +62,6 @@ def load_users():
                 for k, v in default_users.items():
                     if k not in data:
                         data[k] = v
-                today_str = datetime.now().strftime("%Y-%m-%d")
-                updated = False
-                for uid, uinfo in data.items():
-                    if uinfo.get("today_updated") != today_str and uinfo.get("today_deal"):
-                        uinfo["today_deal"] = ""
-                        uinfo["today_updated"] = today_str
-                        updated = True
-                if updated:
-                    save_users(data)
                 return data
         except Exception:
             return default_users
@@ -551,20 +542,20 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (전화번호 통화 연결)
+# 모바일 상단 바 (내 번호는 깔끔하게 두고, 이웃 매장 전화번호 옆에 통화하기 배치)
 # ==========================================
-phone_tel_link = f"tel:{store_phone.replace('-', '')}"
+store_tel_link = f"tel:{store_phone.replace('-', '')}"
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
 <span style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">{store_name}</span>
 <span style="font-size: 0.72rem; font-weight: 700; background: #EFF6FF; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">{pro_label}</span>
-<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <a href="{phone_tel_link}" style="color:#2563EB; text-decoration:none; font-weight:800;"><b>{store_phone} (통화하기)</b></a></div>
+<div class="store-meta-line">{sel_loc} · {sel_industry} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
 <a href="https://www.facebook.com/groups/yonginfriends" target="_blank" style="background:#1877F2; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 페북</a>
-<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 인스타</a>
-<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용인 스레드</a>
+<a href="https://www.instagram.com/" target="_blank" style="background:#E1306C; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 인스타</a>
+<a href="https://www.threads.net/" target="_blank" style="background:#111827; color:#fff; padding:8px 0; border-radius:6px; font-size:0.75rem; font-weight:700; text-align:center; text-decoration:none;">용친 스레드</a>
 </div>
 <hr style="margin: 8px 0 14px 0; border: none; border-top: 1px solid #E2E8F0;">
 """, unsafe_allow_html=True)
@@ -596,7 +587,7 @@ main_tabs = [
 ) = st.tabs(main_tabs)
 
 # ------------------------------------------
-# TAB 1. 🏠 홈 대시보드
+# TAB 1. 🏠 홈 대시보드 (특가 피드 및 이웃 매장 전화번호 통화하기 연동)
 # ------------------------------------------
 with tab_home:
     my_saved_addr = curr_user.get("map_address", sel_loc)
@@ -632,7 +623,7 @@ with tab_home:
             st.toast(f"현재 위치 감지 완료: {st.session_state.current_region_name}")
             st.rerun()
         except Exception:
-            st.warning("위치 권한을 확인하지 못해 기본 주소를 유지합니다.")
+            st.warning("위치를 가져오지 못해 기본 주소를 유지합니다.")
 
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
@@ -643,7 +634,7 @@ with tab_home:
 <span style="font-size:0.75rem; color:#64748B;">{my_deal_updated}</span>
 </div>
 <div style="font-size:1.1rem; font-weight:900; color:#2563EB; margin:6px 0;">{my_today_deal}</div>
-<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk} &nbsp;|&nbsp; ☎️ <a href="{phone_tel_link}" style="color:#2563EB; text-decoration:none;"><b>{store_phone}</b></a></div>
+<div style="font-size:0.82rem; color:#475569;">혜택: {my_perk} &nbsp;|&nbsp; ☎️ <b>{store_phone}</b></div>
 </div>"""
         st.markdown(my_deal_html, unsafe_allow_html=True)
     else:
@@ -680,7 +671,7 @@ with tab_home:
 <span style="font-size:1.05rem; font-weight:800; color:#0F172A;">{o_name}</span>
 <span style="font-size:0.75rem; color:#64748B;">{o_upd}</span>
 </div>
-<div style="font-size:0.8rem; color:#64748B; margin-bottom:6px;">{o_addr} &nbsp;|&nbsp; ☎️ <a href="{o_tel_link}" style="color:#2563EB; text-decoration:none;"><b>{o_phone}</b></a></div>
+<div style="font-size:0.8rem; color:#64748B; margin-bottom:6px;">{o_addr} &nbsp;|&nbsp; ☎️ <b>{o_phone}</b> &nbsp;<a href="{o_tel_link}" style="background:#2563EB; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; text-decoration:none;">통화하기</a></div>
 <div style="background:#EFF6FF; border-left:4px solid #2563EB; border-radius:6px; padding:10px 14px; margin-bottom:8px;">
 <div style="font-size:0.72rem; font-weight:700; color:#2563EB;">오늘의 번개 특가</div>
 <div style="font-size:1.05rem; font-weight:900; color:#0F172A; margin-top:2px;">{o_deal}</div>
@@ -935,7 +926,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (sms 링크 연동 완료)
+# TAB 5. 💌 경조사·안부 문자
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">

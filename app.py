@@ -37,23 +37,7 @@ DEALS_DB_FILE = "deals_db.json"
 ANALYTICS_DB_FILE = "analytics_db.json"
 
 def load_users():
-    if os.path.exists(USER_DB_FILE):
-        try:
-            with open(USER_DB_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                today_str = datetime.now().strftime("%Y-%m-%d")
-                updated = False
-                for uid, uinfo in data.items():
-                    if uinfo.get("today_updated") != today_str and uinfo.get("today_deal"):
-                        uinfo["today_deal"] = ""
-                        uinfo["today_updated"] = today_str
-                        updated = True
-                if updated:
-                    save_users(data)
-                return data
-        except Exception:
-            return {}
-    return {
+    default_users = {
         "admin": {
             "store_name": "드림안경 송전점 (마스터)",
             "industry": "안경원 / 렌즈 / 광학",
@@ -71,6 +55,27 @@ def load_users():
             "trial_end": (datetime.now() + timedelta(days=3650)).strftime("%Y-%m-%d")
         }
     }
+    if os.path.exists(USER_DB_FILE):
+        try:
+            with open(USER_DB_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # 관리자 계정 누락 방지 및 병합
+                for k, v in default_users.items():
+                    if k not in data:
+                        data[k] = v
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                updated = False
+                for uid, uinfo in data.items():
+                    if uinfo.get("today_updated") != today_str and uinfo.get("today_deal"):
+                        uinfo["today_deal"] = ""
+                        uinfo["today_updated"] = today_str
+                        updated = True
+                if updated:
+                    save_users(data)
+                return data
+        except Exception:
+            return default_users
+    return default_users
 
 def save_users(data):
     try:
@@ -409,7 +414,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구"
 
 # ==========================================
-# 로그인 화면 (초간단 주소 입력 적용)
+# 로그인 화면
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -547,7 +552,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (용친 인스타, 용친 스레드로 고정)
+# 모바일 상단 바
 # ==========================================
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
 <div>
@@ -565,7 +570,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 11대 메인 탭 (신박한 기능 6가지 포함 + 탭 이름 정돈)
+# 독립된 11대 메인 탭
 # ==========================================
 main_tabs = [
     "홈 대시보드", 
@@ -683,7 +688,6 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
-    # 💡 [요청 반영] 대시보드 공동구매 요약 아래에 공동구매 탭으로 바로 가는 버튼 추가
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -757,7 +761,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리 (간편 주소 입력 적용)
+# TAB 2. ⚙️ 내 특가 관리
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -940,7 +944,7 @@ with tab_event:
             if out: st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280)
 
 # ------------------------------------------
-# TAB 6. 🛒 로컬 공동구매 (픽업 장소 추가 적용)
+# TAB 6. 🛒 로컬 공동구매 (픽업 장소 추가)
 # ------------------------------------------
 with tab_deals:
     deal_sub1, deal_sub2, deal_sub3 = st.tabs(["공구 목록", "소모품 발주", "공구 제안"])
@@ -1318,7 +1322,7 @@ with tab_subsidy:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 11. 🤝 동네 품앗이 마켓 (신박한 6번 기능 추가)
+# TAB 11. 🤝 동네 품앗이 마켓 (6번 신박한 기능)
 # ------------------------------------------
 with tab_market:
     st.markdown("""<div class="simple-card">

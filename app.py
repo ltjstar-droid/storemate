@@ -551,7 +551,7 @@ def generate_safe_content(prompt):
             return None
 
 # ==========================================
-# 모바일 상단 바 (☎️ 전화번호 터치 시 통화 연결 연동)
+# 모바일 상단 바 (전화번호 통화 연결)
 # ==========================================
 phone_tel_link = f"tel:{store_phone.replace('-', '')}"
 st.markdown(f"""<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
@@ -721,7 +721,7 @@ with tab_home:
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status"] == "대기중":
+        elif curr_user.get("pro_status") == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -935,7 +935,7 @@ with tab_review:
             st.warning("리뷰를 입력해 주세요.")
 
 # ------------------------------------------
-# TAB 5. 💌 경조사·안부 문자 (💬 문자 앱 즉시 전송 연동 `sms:` 프로토콜 추가)
+# TAB 5. 💌 경조사·안부 문자 (sms 링크 연동 완료)
 # ------------------------------------------
 with tab_event:
     st.markdown("""<div class="simple-card" style="border-left: 4px solid #10B981; background: #ECFDF5;">
@@ -956,7 +956,6 @@ with tab_event:
             out = generate_safe_content(prompt)
             if out: 
                 st.text_area("추천 안부 문자 3종 (복사용)", value=out, height=280, key="ev_out_area")
-                # 💡 [모바일 권한 연동] 스마트폰 기본 문자(SMS) 앱 다이렉트 호출
                 clean_phone = recipient_phone.replace("-", "").strip()
                 sms_link = f"sms:{clean_phone}?body={urllib.parse.quote('안녕하세요, ' + store_name + '입니다.')}" if clean_phone else "sms:?body=안녕하세요"
                 st.link_button("📱 스마트폰 문자 앱으로 이 문구 바로 전송하기", sms_link, use_container_width=True)

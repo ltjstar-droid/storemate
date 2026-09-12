@@ -59,7 +59,6 @@ def load_users():
         try:
             with open(USER_DB_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # 관리자 계정 누락 방지 및 병합
                 for k, v in default_users.items():
                     if k not in data:
                         data[k] = v
@@ -414,7 +413,7 @@ if "current_region_name" not in st.session_state:
     st.session_state.current_region_name = "용인시 처인구"
 
 # ==========================================
-# 로그인 화면
+# 로그인 화면 (예시어 문구 완전 삭제 반영)
 # ==========================================
 if not st.session_state.logged_in_user:
     st.markdown("""<div style="text-align: center; margin: 20px 0 12px 0;">
@@ -425,7 +424,7 @@ if not st.session_state.logged_in_user:
     auth_tab1, auth_tab2 = st.tabs(["로그인", "신규 가입"])
     with auth_tab1:
         with st.form("login_form"):
-            login_id = st.text_input("아이디 또는 연락처", value=st.session_state.saved_login_id, placeholder="휴대폰 번호 권장")
+            login_id = st.text_input("아이디 또는 연락처", value=st.session_state.saved_login_id, placeholder="")
             login_pw = st.text_input("비밀번호", type="password")
             remember_id = st.checkbox("아이디 기억하기", value=True if st.session_state.saved_login_id else False)
             
@@ -448,16 +447,16 @@ if not st.session_state.logged_in_user:
     with auth_tab2:
         with st.form("signup_form"):
             st.caption("신규 가입 시 7일간 모든 PRO 기능을 무료로 체험하실 수 있습니다.")
-            new_id = st.text_input("아이디 (연락처)", placeholder="01012345678")
+            new_id = st.text_input("아이디 (연락처)", placeholder="")
             new_pw = st.text_input("비밀번호 설정", type="password")
             new_pw_confirm = st.text_input("비밀번호 확인", type="password")
-            new_store = st.text_input("매장 상호명")
-            new_phone = st.text_input("매장 전화번호", placeholder="031-123-4567")
+            new_store = st.text_input("매장 상호명", placeholder="")
+            new_phone = st.text_input("매장 전화번호", placeholder="")
             new_ind = st.selectbox("업종 선택", INDUSTRY_LIST)
             
             st.markdown("**📍 매장 주소 간편 입력**")
-            s_region = st.text_input("시·군·구 (지역)", placeholder="예: 용인시 처인구 이동읍")
-            s_detail = st.text_input("상세 주소 (도로명/번지 및 호수)", placeholder="예: 경기동로 725, 1층")
+            s_region = st.text_input("시·군·구 (지역)", placeholder="")
+            s_detail = st.text_input("상세 주소 (도로명/번지 및 호수)", placeholder="")
 
             if st.form_submit_button("가입 완료 (7일 무료 시작)", use_container_width=True):
                 if not new_id or not new_pw or not new_store:
@@ -570,7 +569,7 @@ st.markdown(f"""<div style="display: flex; justify-content: space-between; align
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 독립된 11대 메인 탭
+# 독립된 15대 메인 탭 (3, 5, 7, 9번 신박한 기능 추가 완료)
 # ==========================================
 main_tabs = [
     "홈 대시보드", 
@@ -583,9 +582,17 @@ main_tabs = [
     "영업 마감", 
     "경영·행정지원", 
     "🎁 정부 지원금 비서",
-    "🤝 동네 품앗이 마켓"
+    "🤝 동네 품앗이 마켓",
+    "📊 주간 상권 분석",
+    "🛡️ 위생·안전 봇",
+    "🧾 영수증 장부 정리",
+    "🌿 사장님 힐링룸"
 ]
-tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, tab_deals, tab_music, tab_close, tab_biz, tab_subsidy, tab_market = st.tabs(main_tabs)
+(
+    tab_home, tab_my_deal, tab_mkt, tab_review, tab_event, 
+    tab_deals, tab_music, tab_close, tab_biz, tab_subsidy, 
+    tab_market, tab_f3, tab_f5, tab_f7, tab_f9
+) = st.tabs(main_tabs)
 
 # ------------------------------------------
 # TAB 1. 🏠 홈 대시보드
@@ -688,6 +695,7 @@ with tab_home:
     if active_deals_count == 0:
         st.info("현재 등록된 이웃 매장의 특가가 없습니다.")
 
+    # 💡 [요청 반영] 대시보드 공동구매 요약 아래에 로컬 공동구매 탭으로 가는 안내 문구 및 버튼 추가
     st.markdown("""<div class="simple-card" style="margin-top:16px;">
 <div style="font-weight:900; font-size:1.05rem; color:#0F172A; margin-bottom:10px;">진행 중인 공동구매 요약</div>""", unsafe_allow_html=True)
     for d in deals_db["deals"][:2]:
@@ -695,6 +703,8 @@ with tab_home:
         st.markdown(f"**{d['title']}**<br><span style='color:#2563EB; font-weight:800;'>{d['price']}</span> · 픽업: {d.get('pickup_place', '처인구 아지트')} · {len(d['participants'])}명 참여 ({tot_qty}개)", unsafe_allow_html=True)
         st.progress(min(tot_qty / d["target"], 1.0))
         st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+    
+    st.info("💡 더 많은 상품과 소모품 공동발주를 원하시면 상단 메뉴에서 **[로컬 공동구매]** 탭을 터치하세요!")
     st.markdown("</div>", unsafe_allow_html=True)
 
     # 홈 대시보드 하단 계정 관리 및 유료버전 가입
@@ -710,7 +720,7 @@ with tab_home:
                 save_users(users_db)
                 st.success("유료버전 가입 신청 완료!")
                 st.rerun()
-        elif curr_user.get("pro_status") == "대기중":
+        elif curr_user.get("pro_status"] == "대기중":
             st.info("관리자 승인 대기 중")
         else:
             st.success("PRO 정식 파트너")
@@ -761,7 +771,7 @@ with tab_home:
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 2. ⚙️ 내 특가 관리
+# TAB 2. ⚙️ 내 특가 관리 (예시어 완전 삭제)
 # ------------------------------------------
 with tab_my_deal:
     st.markdown("""<div class="simple-card">
@@ -776,17 +786,17 @@ with tab_my_deal:
 
     with st.form("my_store_deal_form"):
         st.markdown("**1. 매장 대표 전화번호**")
-        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="031-323-1215", label_visibility="collapsed")
+        inp_phone = st.text_input("전화번호", value=current_phone_val, placeholder="", label_visibility="collapsed")
         
         st.markdown("**2. 매장 위치 주소 간편 입력**")
-        inp_addr_region = st.text_input("시·군·구 (지역)", value=current_addr_val, placeholder="예: 용인시 처인구 이동읍")
+        inp_addr_region = st.text_input("시·군·구 (지역)", value=current_addr_val, placeholder="")
         
         st.markdown("**3. 오늘의 번개 특가 품목**")
-        inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="예: 첫 방문 펌 30% 게릴라 할인 (선착순 5명)", label_visibility="collapsed")
+        inp_deal = st.text_input("특가 내용", value=current_deal_val, placeholder="", label_visibility="collapsed")
         st.caption("비워두시면 공유창에서 자동으로 숨겨집니다.")
         
         st.markdown("**4. 상시 회원 제휴 혜택**")
-        inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="예: 용친 회원 10% DC", label_visibility="collapsed")
+        inp_perk = st.text_input("상시 혜택", value=current_perk_val, placeholder="", label_visibility="collapsed")
         
         st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
         if st.form_submit_button("저장하고 공유창에 즉시 반영", use_container_width=True):
@@ -835,11 +845,11 @@ with tab_mkt:
             b_kw_default = f"{current_area_tag} {sel_industry.split('/')[0].strip()} 추천" if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{current_area_tag} {sel_industry.split('/')[0].strip()}"
             b_core_default = sel_feature if "직접 입력하기" in sel_b_topic or "[" not in sel_b_topic else f"{sel_b_topic.split('] ')[1]} 전문적이고 친절한 맞춤 케어 서비스 제공"
 
-            b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw")
-            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub")
+            b_kw = st.text_input("메인 키워드", value=b_kw_default, key="m_b_kw", placeholder="")
+            b_sub = st.text_input("서브 키워드", value=f"{st.session_state.current_region_name} 방문 후기", key="m_b_sub", placeholder="")
             b_photos = st.slider("첨부 사진 장수", 5, 20, 8, key="m_b_photo")
             b_intent = st.selectbox("검색 의도", ["실제 단골 내돈내산 방문기", "전문 기술 및 정밀 설비 분석", "가성비 및 제휴 혜택 비교"], key="m_b_intent")
-            b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core")
+            b_core = st.text_area("매장 핵심 강점", value=b_core_default, height=70, key="m_b_core", placeholder="")
 
             if st.button("SEO 전문 원고 생성하기", key="m_b_btn", use_container_width=True):
                 with st.spinner("원고 작성 중..."):
@@ -857,9 +867,9 @@ with tab_mkt:
             sel_c_topic = st.selectbox("당근 소식 주제 선택", preset_carrot, key="sel_car_top")
             
             d_tgt = st.selectbox("타깃 고객층", ["3040 자녀 양육 학부모", "2030 직장인 및 1인가구", "동네 중장년층 전체"], key="m_d_tgt")
-            d_prm = st.text_input("제공 혜택", value=f"{sel_c_topic} 및 친절한 맞춤 상담", key="m_d_prm")
-            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx")
-            d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta")
+            d_prm = st.text_input("제공 혜택", value=f"{sel_c_topic} 및 친절한 맞춤 상담", key="m_d_prm", placeholder="")
+            d_ctx = st.text_input("상황적 훅", value=f"{current_area_tag} 날씨 맞춤 단골 케어", key="m_d_ctx", placeholder="")
+            d_cta = st.text_input("행동 유도", value="당근 단골 맺기 누르고 매장 방문 시 적용", key="m_d_cta", placeholder="")
 
             if st.button("당근 소식 생성하기", key="m_d_btn", use_container_width=True):
                 with st.spinner("소식 작성 중..."):
@@ -871,8 +881,8 @@ with tab_mkt:
             st.markdown("##### 📸 인스타그램 피드 생성기")
             i_type = st.selectbox("콘텐츠 형식", ["단일 피드 (1컷)", "카드뉴스형 (5컷)", "릴스 15초 스크립트"], key="m_i_type")
             i_mood = st.selectbox("비주얼 무드", ["미니멀 모던", "따뜻한 아날로그", "전문 클리닉/정밀 하이테크"], key="m_i_mood")
-            i_subj = st.text_input("주제", value="오늘 방문 고객님 맞춤 스타일링 및 케어 완성 컷", key="m_i_subj")
-            i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk")
+            i_subj = st.text_input("주제", value="오늘 방문 고객님 맞춤 스타일링 및 케어 완성 컷", key="m_i_subj", placeholder="")
+            i_perk = st.text_input("연계 프로모션", value=my_perk, key="m_i_perk", placeholder="")
 
             if st.button("인스타그램 피드 생성", key="m_i_btn", use_container_width=True):
                 with st.spinner("피드 생성 중..."):
@@ -883,9 +893,9 @@ with tab_mkt:
         with mkt_sub4:
             st.markdown("##### ✉️ 단골 CRM 문자 작성기")
             c_seg = st.selectbox("대상 세그먼트", ["첫 방문 후 재방문 유도 (1~2주 경과)", "이탈 위험 단골 고객 (60일 이상 미방문)", "정기 관리 주기 고객"], key="m_c_seg")
-            c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off")
+            c_off = st.text_input("제공 바우처", value="재방문 고객 전용 10% 추가 할인", key="m_c_off", placeholder="")
             c_lim = st.selectbox("기한 설정", ["이번 주 일요일까지", "수신 후 14일 이내", "선착순 30명 한정"], key="m_c_lim")
-            c_tel = st.text_input("문의처", value=f"{store_name} (문자 회신 가능)", key="m_c_tel")
+            c_tel = st.text_input("문의처", value=f"{store_name} (문자 회신 가능)", key="m_c_tel", placeholder="")
 
             if st.button("CRM 문자 3종 생성", key="m_c_btn", use_container_width=True):
                 with st.spinner("문안 작성 중..."):
@@ -904,7 +914,7 @@ with tab_review:
 </div>
 </div>""", unsafe_allow_html=True)
 
-    cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="고객이 남긴 별점 리뷰 내용을 입력하세요.", key="free_rev_box")
+    cust_rev = st.text_area("고객 리뷰 붙여넣기", placeholder="", key="free_rev_box")
     rev_stl = st.selectbox("답글 스타일", [
         "1. 정중하고 품격 있는 VIP 감사형",
         "2. 다정하고 센스 있는 동네 이웃형",
@@ -1015,8 +1025,8 @@ with tab_deals:
                 st.markdown("""<div class="simple-card" style="border-left:4px solid #2563EB;">
 <div style="font-weight:700; font-size:0.92rem; color:#0F172A; margin-bottom:8px;">참여 신청서 입력</div>""", unsafe_allow_html=True)
                 with st.form(key=f"join_form_{deal['id']}"):
-                    j_name = st.text_input("성함 또는 상호", key=f"j_n_{deal['id']}")
-                    j_phone = st.text_input("연락처", key=f"j_p_{deal['id']}")
+                    j_name = st.text_input("성함 또는 상호", key=f"j_n_{deal['id']}", placeholder="")
+                    j_phone = st.text_input("연락처", key=f"j_p_{deal['id']}", placeholder="")
                     j_qty = st.number_input("수량", min_value=1, max_value=100, value=1, step=1, key=f"j_q_{deal['id']}")
                     if st.form_submit_button("참여 확정하기", use_container_width=True):
                         if j_name and j_phone:
@@ -1045,10 +1055,10 @@ with tab_deals:
             st.success("발주 신청이 접수되었습니다.")
 
     with deal_sub3:
-        p_name = st.text_input("제안 상품명", key="p_name_input")
-        p_pickup = st.text_input("픽업 장소 (매장 상호 및 주소)", value=f"{store_name} ({sel_loc})", key="p_pickup_input")
+        p_name = st.text_input("제안 상품명", key="p_name_input", placeholder="")
+        p_pickup = st.text_input("픽업 장소 (매장 상호 및 주소)", value=f"{store_name} ({sel_loc})", key="p_pickup_input", placeholder="")
         p_qty = st.number_input("목표 수량", min_value=1, max_value=1000, value=30, step=1, key="p_qty_input")
-        p_price = st.text_input("제안 공구가", key="p_price_input")
+        p_price = st.text_input("제안 공구가", key="p_price_input", placeholder="")
         p_days = st.slider("진행 일수", min_value=3, max_value=30, value=7, key="p_days_input")
         if st.button("공동구매 프로젝트 오픈", key="btn_prop_submit", use_container_width=True):
             if p_name and p_price:
@@ -1135,10 +1145,10 @@ with tab_close:
 <div style="font-size:0.82rem; color:#64748B;">오늘 하루 매출과 분위기를 정리하고 내일 과제를 받습니다.</div>
 </div>""", unsafe_allow_html=True)
 
-    c_sales = st.text_input("오늘 매출액 (선택)", placeholder="예: 850,000원", key="b_sales")
+    c_sales = st.text_input("오늘 매출액 (선택)", placeholder="", key="b_sales")
     c_flow = st.selectbox("고객 유입 체감", ["평소 대비 한산함", "평균 수준", "피크타임 집중 방문", "종일 만석 / 목표 초과"], key="b_flow")
-    c_memo = st.text_input("특이사항/재고 이슈", placeholder="예: 단골 예약 방문, 특정 제품 소진", key="b_memo")
-    c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", "매우 만족"], key="b_sat")
+    c_memo = st.text_input("특이사항/재고 이슈", placeholder="", key="b_memo")
+    c_sat = st.selectbox("운영 만족도", ["다소 아쉬움", "무난하고 안정적", " 매우 만족"], key="b_sat")
 
     if st.button("일일 경영 결산 리포트 생성", key="b_close_btn", use_container_width=True):
         with st.spinner("마감 리포트 분석 중..."):
@@ -1148,7 +1158,7 @@ with tab_close:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #2563EB; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 9. 💼 경영·행정지원 (1번 주휴수당 & 표준근로계약서 봇 통합)
+# TAB 9. 💼 경영·행정지원
 # ------------------------------------------
 with tab_biz:
     biz_sub1, biz_sub2, biz_sub3 = st.tabs([
@@ -1312,7 +1322,7 @@ with tab_subsidy:
 </div>""", unsafe_allow_html=True)
 
     sub_target = st.selectbox("진단 대상 선택", ["소상공인 / 자영업자", "일반 국민 / 직장인", "청년 / 예비창업자"], key="sub_tgt")
-    sub_region = st.text_input("거주/사업장 지역", value=f"{st.session_state.current_region_name}", key="sub_reg")
+    sub_region = st.text_input("거주/사업장 지역", value=f"{st.session_state.current_region_name}", key="sub_reg", placeholder="")
     
     if st.button("내 조건 맞춤 숨은 지원금 AI 진단", key="sub_btn", use_container_width=True):
         with st.spinner("정부 지원금 데이터 분석 중..."):
@@ -1322,7 +1332,7 @@ with tab_subsidy:
                 st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5; margin-top:12px;'>{out}</div>", unsafe_allow_html=True)
 
 # ------------------------------------------
-# TAB 11. 🤝 동네 품앗이 마켓 (6번 신박한 기능)
+# TAB 11. 🤝 동네 품앗이 마켓 (6번 기능)
 # ------------------------------------------
 with tab_market:
     st.markdown("""<div class="simple-card">
@@ -1331,7 +1341,7 @@ with tab_market:
 </div>""", unsafe_allow_html=True)
 
     m_type = st.selectbox("나눔/교류 유형", ["우리 매장 전문 노하우/팁 공유", "필요한 공구/설비 장비 대여 요청", "동네 소상공인 상생 협업 제안"], key="market_type")
-    m_content = st.text_area("내용 작성", placeholder="이웃 주민이나 사장님들께 전할 내용을 적어주세요.", key="market_content")
+    m_content = st.text_area("내용 작성", placeholder="", key="market_content")
     
     if st.button("품앗이 글 등록하기", key="market_btn", use_container_width=True):
         if m_content:
@@ -1349,3 +1359,70 @@ with tab_market:
 <div style="font-size:0.9rem; font-weight:800; color:#0F172A;">[미용실 원장님] 집에서 셀프로 앞머리 컷트하는 꿀팁 3가지</div>
 <div style="font-size:0.8rem; color:#475569; margin-top:4px;">미용실 오시기 애매할 때 집에서 따라 해보세요. · 용인시 처인구</div>
 </div>""", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 12. 📊 주간 상권 분석 (3번 신박한 기능)
+# ------------------------------------------
+with tab_f3:
+    st.markdown("""<div class="simple-card" style="border-left:4px solid #2563EB;">
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">📊 AI 주간 상권 분석 & 경쟁사 타격 리포트</div>
+<div style="font-size:0.82rem; color:#64748B;">반경 내 동종 업계 리뷰 트렌드를 분석하고 이번 주 우리 매장 공략 포인트를 제시합니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    if st.button("이번 주 우리 동네 상권 분석 리포트 생성", key="btn_f3", use_container_width=True):
+        with st.spinner("상권 데이터 분석 중..."):
+            prompt = f"업종: {sel_industry}\n지역: {st.session_state.current_region_name}\n소상공인 관점에서 이번 주 반경 내 경쟁사 동향 분석, 고객 불만 트렌드, 우리 매장 차별화 마케팅 전략 리포트 작성."
+            out = generate_safe_content(prompt)
+            if out: st.markdown(f"<div class='simple-card'>{out}</div>", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 13. 🛡️ 위생·안전 봇 (5번 신박한 기능)
+# ------------------------------------------
+with tab_f5:
+    st.markdown("""<div class="simple-card" style="border-left:4px solid #2563EB;">
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">🛡️ 업종별 위생·방역 및 시설 안전 체크리스트</div>
+<div style="font-size:0.82rem; color:#64748B;">과태료를 사전에 방어하고 시기별 필수 점검 사항을 짚어줍니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    if st.button("안전 및 위생 자가 진단 가이드 받기", key="btn_f5", use_container_width=True):
+        with st.spinner("점검 항목 생성 중..."):
+            prompt = f"업종: {sel_industry}\n현재 시기(환절기/식중독/동파 등)에 맞추어 사장님이 반드시 점검해야 할 위생, 방역, 소방, 시설 안전 체크리스트 및 과태료 예방 가이드 작성."
+            out = generate_safe_content(prompt)
+            if out: st.markdown(f"<div class='simple-card'>{out}</div>", unsafe_allow_html=True)
+
+# ------------------------------------------
+# TAB 14. 🧾 영수증 장부 정리 (7번 신박한 기능)
+# ------------------------------------------
+with tab_f7:
+    st.markdown("""<div class="simple-card" style="border-left:4px solid #2563EB;">
+<div style="font-weight:900; font-size:1.1rem; color:#0F172A; margin-bottom:4px;">🧾 영수증 & 지출 장부 자동 분류 비서</div>
+<div style="font-size:0.82rem; color:#64748B;">오늘 지출 내역이나 영수증 항목을 입력하면 품목별(식자재, 소모품, 공과금)로 분류해 줍니다.</div>
+</div>""", unsafe_allow_html=True)
+
+    r_input = st.text_area("오늘 지출 내역 입력 (예: 마트 식재료 3만 원, 전기세 15만 원, 소모품 5천 원)", placeholder="", key="f7_input")
+    if st.button("지출 장부 자동 분류 및 요약", key="btn_f7", use_container_width=True):
+        if r_input:
+            with st.spinner("장부 정리 중..."):
+                prompt = f"다음 지출 내역을 품목별(식자재/원재료, 고정비/공과금, 소모품/비품, 기타)로 깔끔하게 분류하고 세무 증빙용 요약 리포트 작성:\n{r_input}"
+                out = generate_safe_content(prompt)
+                if out: st.markdown(f"<div class='simple-card'>{out}</div>", unsafe_allow_html=True)
+        else:
+            st.warning("지출 내역을 입력해 주세요.")
+
+# ------------------------------------------
+# TAB 15. 🌿 사장님 힐링룸 (9번 신박한 기능)
+# ------------------------------------------
+with tab_f9:
+    st.markdown("""<div class="simple-card" style="border-left:4px solid #10B981; background:#ECFDF5;">
+<div style="font-weight:900; font-size:1.1rem; color:#065F46; margin-bottom:4px;">🌿 사장님 멘탈 케어 & 일일 힐링 다이어리</div>
+<div style="font-size:0.85rem; color:#047857; line-height:1.5;">
+고된 장사를 마치고 지친 사장님들을 위한 따뜻한 위로 멘트와 긍정 에너지를 충전해 드립니다.
+</div>
+</div>""", unsafe_allow_html=True)
+
+    s_mood = st.selectbox("오늘 하루 내 장사 기분은?", ["손님이 많아 피곤하지만 뿌듯함", "평온하고 무난했던 하루", "손님이 적어 속상하고 지친 날", "진상 고객 때문에 멘탈이 흔들린 날"], key="f9_mood")
+    if st.button("따뜻한 위로 편지 & 오늘의 운세 받기", key="btn_f9", use_container_width=True):
+        with st.spinner("마음 치유 중..."):
+            prompt = f"업종: {sel_industry}\n사장님 기분 상태: {s_mood}\n고된 장사를 마친 사장님께 진심 어린 위로의 한 마디, 내일 장사 대박을 기원하는 따뜻한 응원 메시지 작성."
+            out = generate_safe_content(prompt)
+            if out: st.markdown(f"<div class='simple-card' style='border-left:4px solid #10B981; background:#ECFDF5;'>{out}</div>", unsafe_allow_html=True)
